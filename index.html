@@ -155,47 +155,8 @@
                         <h2 class="section__title">Browse by Category</h2>
                         <p class="section__subtitle">Find practitioners who specialize in the care you need.</p>
                     </div>
-                    <div class="categories">
-                        <div class="category-card" onclick="filterByCategory('Anxiety & Depression')">
-                            <div class="category-card__icon">😌</div>
-                            <h3>Anxiety & Depression</h3>
-                            <p>42 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('Trauma & PTSD')">
-                            <div class="category-card__icon">🌿</div>
-                            <h3>Trauma & PTSD</h3>
-                            <p>38 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('LGBTQ+ Affirming')">
-                            <div class="category-card__icon">🌈</div>
-                            <h3>LGBTQ+ Affirming</h3>
-                            <p>35 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('Couples Therapy')">
-                            <div class="category-card__icon">💑</div>
-                            <h3>Couples Therapy</h3>
-                            <p>28 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('Substance Abuse')">
-                            <div class="category-card__icon">🔄</div>
-                            <h3>Substance Abuse</h3>
-                            <p>22 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('Child & Adolescent')">
-                            <div class="category-card__icon">🧒</div>
-                            <h3>Child & Adolescent</h3>
-                            <p>31 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('Mindfulness & Meditation')">
-                            <div class="category-card__icon">🧘</div>
-                            <h3>Mindfulness & Meditation</h3>
-                            <p>26 practitioners</p>
-                        </div>
-                        <div class="category-card" onclick="filterByCategory('BIPOC-Centered Care')">
-                            <div class="category-card__icon">✊</div>
-                            <h3>BIPOC-Centered Care</h3>
-                            <p>33 practitioners</p>
-                        </div>
+                    <div class="categories" id="categoriesGrid">
+                        <!-- Dynamically rendered by renderHomepageCategories() -->
                     </div>
                 </div>
             </div>
@@ -297,16 +258,7 @@
                     <div class="filter-group">
                         <label class="filter-group__label">Specialty</label>
                         <div class="filter-checks" id="specialtyFilters">
-                            <label class="filter-check"><input type="checkbox" value="Anxiety & Depression" onchange="applyFilters()"><span>Anxiety & Depression</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Trauma & PTSD" onchange="applyFilters()"><span>Trauma & PTSD</span></label>
-                            <label class="filter-check"><input type="checkbox" value="LGBTQ+ Affirming" onchange="applyFilters()"><span>LGBTQ+ Affirming</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Couples Therapy" onchange="applyFilters()"><span>Couples Therapy</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Substance Abuse" onchange="applyFilters()"><span>Substance Abuse</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Child & Adolescent" onchange="applyFilters()"><span>Child & Adolescent</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Mindfulness & Meditation" onchange="applyFilters()"><span>Mindfulness & Meditation</span></label>
-                            <label class="filter-check"><input type="checkbox" value="BIPOC-Centered Care" onchange="applyFilters()"><span>BIPOC-Centered Care</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Grief & Loss" onchange="applyFilters()"><span>Grief & Loss</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Eating Disorders" onchange="applyFilters()"><span>Eating Disorders</span></label>
+                            <!-- Dynamically rendered by renderSpecialtyFilters() -->
                         </div>
                     </div>
 
@@ -568,7 +520,6 @@
                             </div>
                             <p class="admin-login-error" id="adminLoginError" style="display:none;"></p>
                             <button type="submit" class="btn btn--primary btn--full">Sign In</button>
-                            <p class="admin-login-hint">Local mode: any email + password <strong>hometeam2025</strong></p>
                         </form>
                     </div>
                 </div>
@@ -599,6 +550,32 @@
                     <!-- Stats Cards -->
                     <div class="admin-stats" id="adminStats"></div>
 
+                    <!-- Category Manager -->
+                    <div class="admin-category-manager">
+                        <div class="admin-category-manager__header">
+                            <div>
+                                <h2 class="admin-category-manager__title">Manage Categories</h2>
+                                <p class="admin-category-manager__subtitle">Add, edit, reorder, or remove specialty categories shown across the site.</p>
+                            </div>
+                            <button class="btn btn--primary btn--sm" onclick="openCategoryModal()">+ Add Category</button>
+                        </div>
+                        <div class="admin-table-wrapper">
+                            <table class="admin-table" id="categoryManagerTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width:60px;">Icon</th>
+                                        <th>Category Name</th>
+                                        <th style="width:120px;">Practitioners</th>
+                                        <th style="width:100px;">Order</th>
+                                        <th style="width:160px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryManagerBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- Table Controls -->
                     <div class="admin-table-controls">
                         <div class="search-input">
@@ -606,17 +583,7 @@
                             <input type="text" placeholder="Search practitioners..." id="adminSearchInput" oninput="renderAdminTable()">
                         </div>
                         <select class="sort-select" id="adminFilterSpecialty" onchange="renderAdminTable()">
-                            <option value="">All Specialties</option>
-                            <option value="Anxiety & Depression">Anxiety & Depression</option>
-                            <option value="Trauma & PTSD">Trauma & PTSD</option>
-                            <option value="LGBTQ+ Affirming">LGBTQ+ Affirming</option>
-                            <option value="Couples Therapy">Couples Therapy</option>
-                            <option value="Substance Abuse">Substance Abuse</option>
-                            <option value="Child & Adolescent">Child & Adolescent</option>
-                            <option value="Mindfulness & Meditation">Mindfulness & Meditation</option>
-                            <option value="BIPOC-Centered Care">BIPOC-Centered Care</option>
-                            <option value="Grief & Loss">Grief & Loss</option>
-                            <option value="Eating Disorders">Eating Disorders</option>
+                            <!-- Dynamically rendered by renderAdminSpecialtyFilter() -->
                         </select>
                     </div>
 
@@ -833,16 +800,7 @@
                     <div class="form-group">
                         <label>Specialties (check all that apply) *</label>
                         <div class="admin-checkbox-grid" id="adminFormSpecialties">
-                            <label class="filter-check"><input type="checkbox" value="Anxiety & Depression"><span>Anxiety & Depression</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Trauma & PTSD"><span>Trauma & PTSD</span></label>
-                            <label class="filter-check"><input type="checkbox" value="LGBTQ+ Affirming"><span>LGBTQ+ Affirming</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Couples Therapy"><span>Couples Therapy</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Substance Abuse"><span>Substance Abuse</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Child & Adolescent"><span>Child & Adolescent</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Mindfulness & Meditation"><span>Mindfulness & Meditation</span></label>
-                            <label class="filter-check"><input type="checkbox" value="BIPOC-Centered Care"><span>BIPOC-Centered Care</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Grief & Loss"><span>Grief & Loss</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Eating Disorders"><span>Eating Disorders</span></label>
+                            <!-- Dynamically rendered by renderAdminFormSpecialties() -->
                         </div>
                     </div>
 
@@ -906,6 +864,31 @@
         </div>
     </div>
 
+    <!-- ===== CATEGORY ADD/EDIT MODAL ===== -->
+    <div class="modal-overlay" id="categoryFormModal">
+        <div class="modal" style="max-width: 480px;">
+            <button class="modal__close" onclick="closeModal('categoryFormModal')">&times;</button>
+            <div class="modal__content">
+                <h2 id="categoryModalTitle">Add Category</h2>
+                <form onsubmit="saveCategoryForm(event)">
+                    <div class="form-group">
+                        <label>Category Name *</label>
+                        <input type="text" id="categoryNameInput" required placeholder="e.g. Family Therapy" maxlength="60">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon (emoji) *</label>
+                        <input type="text" id="categoryIconInput" required placeholder="e.g. 🏠" maxlength="4" style="font-size: 24px; text-align: center; width: 80px;">
+                        <small style="color: var(--text-muted);">Paste an emoji character. Tip: Press Win+. (Windows) or Ctrl+Cmd+Space (Mac) to open the emoji picker.</small>
+                    </div>
+                    <div style="display: flex; gap: var(--space-md); margin-top: var(--space-lg);">
+                        <button type="button" class="btn btn--outline btn--full" onclick="closeModal('categoryFormModal')">Cancel</button>
+                        <button type="submit" class="btn btn--primary btn--full">Save Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="container">
@@ -928,10 +911,9 @@
                 </div>
                 <div class="footer__links">
                     <h4>Categories</h4>
-                    <a href="#" onclick="filterByCategory('Anxiety & Depression')">Anxiety & Depression</a>
-                    <a href="#" onclick="filterByCategory('Trauma & PTSD')">Trauma & PTSD</a>
-                    <a href="#" onclick="filterByCategory('LGBTQ+ Affirming')">LGBTQ+ Affirming</a>
-                    <a href="#" onclick="filterByCategory('Couples Therapy')">Couples Therapy</a>
+                    <div id="footerCategories">
+                        <!-- Dynamically rendered by renderFooterCategories() -->
+                    </div>
                 </div>
                 <div class="footer__links">
                     <h4>Crisis Resources</h4>

@@ -2502,6 +2502,77 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-secondary);
 }
 
+/* ============================================
+   Category Manager (Admin)
+   ============================================ */
+.admin-category-manager {
+    margin-bottom: var(--space-xl);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-category-manager__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.admin-category-manager__title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.admin-category-manager__subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.admin-category-manager .admin-table-wrapper {
+    border: none;
+    border-radius: 0;
+}
+
+.admin-category-manager .admin-table {
+    font-size: 14px;
+}
+
+.category-order-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.btn--xs {
+    padding: 4px 8px;
+    font-size: 11px;
+    line-height: 1;
+    min-height: unset;
+    border-radius: var(--radius-sm);
+}
+
+.btn--xs:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .admin-category-manager__header {
+        padding: var(--space-md);
+    }
+
+    .admin-category-manager .admin-table th:nth-child(3),
+    .admin-category-manager .admin-table td:nth-child(3) {
+        display: none;
+    }
+}
+
 /* Toast responsive */
 @media (max-width: 480px) {
     .toast {

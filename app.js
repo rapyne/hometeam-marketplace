@@ -36,6 +36,265 @@ function initSupabase() {
 }
 
 // ============================================
+// Default Categories Data
+// ============================================
+const DEFAULT_CATEGORIES = [
+    { id: 1, name: "Anxiety & Depression", icon: "😌" },
+    { id: 2, name: "Trauma & PTSD", icon: "🌿" },
+    { id: 3, name: "LGBTQ+ Affirming", icon: "🌈" },
+    { id: 4, name: "Couples Therapy", icon: "💑" },
+    { id: 5, name: "Substance Abuse", icon: "🔄" },
+    { id: 6, name: "Child & Adolescent", icon: "🧒" },
+    { id: 7, name: "Mindfulness & Meditation", icon: "🧘" },
+    { id: 8, name: "BIPOC-Centered Care", icon: "✊" },
+    { id: 9, name: "Grief & Loss", icon: "🕊️" },
+    { id: 10, name: "Eating Disorders", icon: "🍃" }
+];
+
+let categories = [];
+const CATEGORIES_STORAGE_KEY = 'hometeamgo_categories';
+
+function loadCategories() {
+    try {
+        const stored = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+        if (stored) {
+            categories = JSON.parse(stored);
+            return;
+        }
+    } catch (e) {
+        console.warn('Failed to load categories from localStorage:', e);
+    }
+    categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+}
+
+function saveCategories() {
+    try {
+        localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+    } catch (e) {
+        console.warn('Failed to save categories to localStorage:', e);
+    }
+}
+
+function getNextCategoryId() {
+    if (categories.length === 0) return 1;
+    return Math.max(...categories.map(c => c.id)) + 1;
+}
+
+function getCategoryPractitionerCount(categoryName) {
+    return practitioners.filter(p => (p.specialties || []).includes(categoryName)).length;
+}
+
+function addNewCategory(name, icon) {
+    const newCat = { id: getNextCategoryId(), name: name.trim(), icon: icon || "📋" };
+    categories.push(newCat);
+    saveCategories();
+    renderAllCategories();
+    renderCategoryManager();
+    showToast(`Category "${newCat.name}" added!`, 'success');
+}
+
+function editExistingCategory(id, name, icon) {
+    const cat = categories.find(c => c.id === id);
+    if (!cat) return;
+    const oldName = cat.name;
+    cat.name = name.trim();
+    cat.icon = icon || cat.icon;
+    saveCategories();
+    // Update practitioners that use the old name
+    if (oldName !== cat.name) {
+        practitioners.forEach(p => {
+            const idx = (p.specialties || []).indexOf(oldName);
+            if (idx !== -1) {
+                p.specialties[idx] = cat.name;
+            }
+        });
+        saveToLocalStorage();
+    }
+    renderAllCategories();
+    renderCategoryManager();
+    showToast(`Category updated!`, 'success');
+}
+
+function deleteExistingCategory(id) {
+    const cat = categories.find(c => c.id === id);
+    if (!cat) return;
+    const count = getCategoryPractitionerCount(cat.name);
+    if (count > 0) {
+        showToast(`Cannot delete "${cat.name}" — ${count} practitioner(s) use this category. Remove it from all practitioners first.`, 'error');
+        return;
+    }
+    categories = categories.filter(c => c.id !== id);
+    saveCategories();
+    renderAllCategories();
+    renderCategoryManager();
+    showToast(`Category "${cat.name}" deleted.`, 'info');
+}
+
+function moveCategoryUp(id) {
+    const idx = categories.findIndex(c => c.id === id);
+    if (idx <= 0) return;
+    [categories[idx - 1], categories[idx]] = [categories[idx], categories[idx - 1]];
+    saveCategories();
+    renderAllCategories();
+    renderCategoryManager();
+}
+
+function moveCategoryDown(id) {
+    const idx = categories.findIndex(c => c.id === id);
+    if (idx < 0 || idx >= categories.length - 1) return;
+    [categories[idx], categories[idx + 1]] = [categories[idx + 1], categories[idx]];
+    saveCategories();
+    renderAllCategories();
+    renderCategoryManager();
+}
+
+let editingCategoryId = null;
+
+function openCategoryModal(id) {
+    editingCategoryId = id || null;
+    const titleEl = document.getElementById('categoryModalTitle');
+    const nameInput = document.getElementById('categoryNameInput');
+    const iconInput = document.getElementById('categoryIconInput');
+
+    if (editingCategoryId) {
+        const cat = categories.find(c => c.id === editingCategoryId);
+        if (!cat) return;
+        titleEl.textContent = 'Edit Category';
+        nameInput.value = cat.name;
+        iconInput.value = cat.icon;
+    } else {
+        titleEl.textContent = 'Add Category';
+        nameInput.value = '';
+        iconInput.value = '';
+    }
+    openModal('categoryFormModal');
+}
+
+function saveCategoryForm(e) {
+    e.preventDefault();
+    const name = document.getElementById('categoryNameInput').value.trim();
+    const icon = document.getElementById('categoryIconInput').value.trim();
+
+    if (!name) {
+        showToast('Please enter a category name.', 'error');
+        return;
+    }
+
+    // Check for duplicate name (excluding current if editing)
+    const duplicate = categories.find(c => c.name.toLowerCase() === name.toLowerCase() && c.id !== editingCategoryId);
+    if (duplicate) {
+        showToast(`A category named "${name}" already exists.`, 'error');
+        return;
+    }
+
+    if (editingCategoryId) {
+        editExistingCategory(editingCategoryId, name, icon);
+    } else {
+        addNewCategory(name, icon);
+    }
+
+    closeModal('categoryFormModal');
+}
+
+// ============================================
+// Dynamic Category Rendering (all locations)
+// ============================================
+function renderHomepageCategories() {
+    const grid = document.getElementById('categoriesGrid');
+    if (!grid) return;
+    grid.innerHTML = categories.map(cat => {
+        const count = getCategoryPractitionerCount(cat.name);
+        return `
+            <div class="category-card" onclick="filterByCategory('${cat.name.replace(/'/g, "\\'")}')">
+                <div class="category-card__icon">${cat.icon}</div>
+                <h3>${cat.name}</h3>
+                <p>${count} practitioner${count !== 1 ? 's' : ''}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderSpecialtyFilters() {
+    const container = document.getElementById('specialtyFilters');
+    if (!container) return;
+    container.innerHTML = categories.map(cat => `
+        <label class="filter-check"><input type="checkbox" value="${cat.name}" onchange="applyFilters()"><span>${cat.name}</span></label>
+    `).join('');
+}
+
+function renderAdminSpecialtyFilter() {
+    const select = document.getElementById('adminFilterSpecialty');
+    if (!select) return;
+    select.innerHTML = '<option value="">All Specialties</option>' +
+        categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
+}
+
+function renderAdminFormSpecialties() {
+    const container = document.getElementById('adminFormSpecialties');
+    if (!container) return;
+    container.innerHTML = categories.map(cat => `
+        <label class="filter-check"><input type="checkbox" value="${cat.name}"><span>${cat.name}</span></label>
+    `).join('');
+}
+
+function renderFooterCategories() {
+    const container = document.getElementById('footerCategories');
+    if (!container) return;
+    // Show first 4 categories in footer
+    container.innerHTML = categories.slice(0, 4).map(cat => `
+        <a href="#" onclick="filterByCategory('${cat.name.replace(/'/g, "\\'")}')">${cat.name}</a>
+    `).join('');
+}
+
+function renderAllCategories() {
+    renderHomepageCategories();
+    renderSpecialtyFilters();
+    renderAdminSpecialtyFilter();
+    renderAdminFormSpecialties();
+    renderFooterCategories();
+}
+
+// ============================================
+// Category Manager (Admin)
+// ============================================
+function renderCategoryManager() {
+    const tbody = document.getElementById('categoryManagerBody');
+    if (!tbody) return;
+
+    if (categories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 32px; color: var(--text-muted);">No categories yet. Add one to get started.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = categories.map((cat, idx) => {
+        const count = getCategoryPractitionerCount(cat.name);
+        return `
+            <tr>
+                <td>
+                    <span style="font-size: 24px;">${cat.icon}</span>
+                </td>
+                <td>
+                    <strong>${cat.name}</strong>
+                </td>
+                <td>${count}</td>
+                <td>
+                    <div class="category-order-btns">
+                        <button class="btn btn--outline btn--xs" onclick="moveCategoryUp(${cat.id})" ${idx === 0 ? 'disabled' : ''} title="Move up">&#9650;</button>
+                        <button class="btn btn--outline btn--xs" onclick="moveCategoryDown(${cat.id})" ${idx === categories.length - 1 ? 'disabled' : ''} title="Move down">&#9660;</button>
+                    </div>
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        <button class="btn btn--outline btn--sm" onclick="openCategoryModal(${cat.id})">Edit</button>
+                        <button class="btn btn--danger btn--sm" onclick="deleteExistingCategory(${cat.id})">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ============================================
 // Default Practitioner Data (fallback/seed)
 // ============================================
 const DEFAULT_PRACTITIONERS = [
@@ -743,6 +1002,7 @@ function showAdminDashboard() {
     if (dash) dash.style.display = 'block';
     updateConnectionBadge();
     renderAdminStats();
+    renderCategoryManager();
     renderAdminTable();
 }
 
@@ -1541,6 +1801,9 @@ function openAdminAddModal() {
     document.getElementById('adminFormRating').value = '5.0';
     document.getElementById('adminFormReviewCount').value = '0';
 
+    // Re-render dynamic specialty checkboxes in case categories changed
+    renderAdminFormSpecialties();
+
     document.querySelectorAll('#adminFormSpecialties input, #adminFormApproaches input, .admin-session-type').forEach(cb => {
         cb.checked = false;
     });
@@ -1567,6 +1830,9 @@ function openAdminEditModal(id) {
     document.getElementById('adminFormRating').value = p.rating;
     document.getElementById('adminFormReviewCount').value = p.reviewCount;
     document.getElementById('adminFormOfferings').value = JSON.stringify(p.offerings || [], null, 2);
+
+    // Re-render dynamic specialty checkboxes in case categories changed
+    renderAdminFormSpecialties();
 
     document.querySelectorAll('#adminFormSpecialties input').forEach(cb => {
         cb.checked = (p.specialties || []).includes(cb.value);
@@ -1751,10 +2017,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize Supabase
     initSupabase();
 
+    // Load categories
+    loadCategories();
+
     // Load practitioners (async — tries Supabase first)
     const loadedData = await loadPractitioners();
     practitioners = loadedData;
     filteredPractitioners = [...practitioners];
+
+    // Render all dynamic categories across the app
+    renderAllCategories();
 
     // Render home page
     renderFeaturedPractitioners();

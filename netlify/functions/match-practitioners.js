@@ -114,7 +114,14 @@ Return the top 5 matching practitioners as a JSON array. Remember: respond with 
 
         if (apiResponse.statusCode !== 200) {
             console.error('Claude API error:', apiResponse.statusCode, apiResponse.body);
-            return { statusCode: 502, headers, body: JSON.stringify({ error: 'Matching service error: ' + apiResponse.statusCode }) };
+            let apiError = 'Matching service error: ' + apiResponse.statusCode;
+            try {
+                const errObj = JSON.parse(apiResponse.body);
+                apiError += ' - ' + (errObj.error?.message || JSON.stringify(errObj));
+            } catch(e) {
+                apiError += ' - ' + apiResponse.body.substring(0, 200);
+            }
+            return { statusCode: 502, headers, body: JSON.stringify({ error: apiError }) };
         }
 
         const claudeResponse = JSON.parse(apiResponse.body);

@@ -1631,14 +1631,40 @@ function closeModal(id) {
             }
             document.getElementById('joinSuccess').style.display = 'none';
         }
+
+        // Reset onboarding wizard state when closing
+        if (id === 'onboardingModal') {
+            wizardState.currentStep = 1;
+            wizardState.data = {
+                name: '',
+                description: '',
+                selectedCategories: [],
+                sessionPreference: '',
+                budgetMax: 300,
+                selectedApproaches: []
+            };
+            wizardState.matchResults = null;
+            wizardState.isLoading = false;
+            wizardState.error = null;
+        }
     }
 }
 
 // Close modal on overlay click
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-overlay')) {
+        const modalId = e.target.id;
         e.target.classList.remove('active');
         document.body.style.overflow = '';
+
+        // Reset wizard if closed via overlay click
+        if (modalId === 'onboardingModal') {
+            wizardState.currentStep = 1;
+            wizardState.data = { name: '', description: '', selectedCategories: [], sessionPreference: '', budgetMax: 300, selectedApproaches: [] };
+            wizardState.matchResults = null;
+            wizardState.isLoading = false;
+            wizardState.error = null;
+        }
     }
 });
 
@@ -2008,6 +2034,441 @@ function importData(event) {
     };
     reader.readAsText(file);
     event.target.value = '';
+}
+
+// ============================================
+// Onboarding Wizard
+// ============================================
+const wizardState = {
+    currentStep: 1,
+    totalSteps: 6,
+    data: {
+        name: '',
+        description: '',
+        selectedCategories: [],
+        sessionPreference: '',
+        budgetMax: 300,
+        selectedApproaches: []
+    },
+    matchResults: null,
+    isLoading: false,
+    error: null
+};
+
+function openOnboardingWizard() {
+    wizardState.currentStep = 1;
+    wizardState.data = {
+        name: '',
+        description: '',
+        selectedCategories: [],
+        sessionPreference: '',
+        budgetMax: 300,
+        selectedApproaches: []
+    };
+    wizardState.matchResults = null;
+    wizardState.isLoading = false;
+    wizardState.error = null;
+
+    renderWizardStep();
+    openModal('onboardingModal');
+}
+
+function closeOnboardingWizard() {
+    closeModal('onboardingModal');
+}
+
+// --- Progress Bar ---
+function renderWizardProgress() {
+    const stepLabels = ['Welcome', 'Your Needs', 'Categories', 'Preferences', 'Matching', 'Results'];
+    const container = document.getElementById('wizardProgress');
+    if (!container) return;
+
+    container.innerHTML = stepLabels.map((label, i) => {
+        const stepNum = i + 1;
+        let stateClass = 'wizard-step-indicator--pending';
+        if (stepNum < wizardState.currentStep) stateClass = 'wizard-step-indicator--completed';
+        if (stepNum === wizardState.currentStep) stateClass = 'wizard-step-indicator--active';
+
+        return `
+            <div class="wizard-step-indicator ${stateClass}">
+                <div class="wizard-step-dot">
+                    ${stepNum < wizardState.currentStep ? '&#10003;' : stepNum}
+                </div>
+                <span class="wizard-step-label">${label}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// --- Step Router ---
+function renderWizardStep() {
+    renderWizardProgress();
+
+    switch (wizardState.currentStep) {
+        case 1: renderWizardStep1(); break;
+        case 2: renderWizardStep2(); break;
+        case 3: renderWizardStep3(); break;
+        case 4: renderWizardStep4(); break;
+        case 5: renderWizardStep5(); break;
+        case 6: renderWizardStep6(); break;
+    }
+
+    renderWizardNav();
+}
+
+// --- Step 1: Welcome ---
+function renderWizardStep1() {
+    const body = document.getElementById('wizardBody');
+    body.innerHTML = `
+        <div class="wizard-step-content">
+            <div class="wizard-welcome-icon">🏠</div>
+            <h2>Welcome to HomeTeam</h2>
+            <p class="wizard-step-desc">Let us help you find the right mental health practitioner. We'll ask a few questions to understand your needs and match you with the best fit.</p>
+            <div class="form-group">
+                <label>What's your name?</label>
+                <input type="text" id="wizardNameInput" value="${wizardState.data.name}" placeholder="Your first name" maxlength="50" oninput="wizardState.data.name = this.value; renderWizardNav();">
+            </div>
+        </div>
+    `;
+}
+
+// --- Step 2: What brings you here ---
+function renderWizardStep2() {
+    const body = document.getElementById('wizardBody');
+    body.innerHTML = `
+        <div class="wizard-step-content">
+            <h2>What brings you here, ${wizardState.data.name || 'friend'}?</h2>
+            <p class="wizard-step-desc">In your own words, tell us what you're going through and what kind of support you're looking for. The more detail you share, the better we can match you.</p>
+            <div class="form-group">
+                <textarea id="wizardDescInput" rows="6" placeholder="For example: I've been struggling with anxiety at work and it's affecting my sleep. I'd like to find someone who can help me develop coping strategies and maybe explore why I feel so overwhelmed..." maxlength="1000" oninput="wizardState.data.description = this.value; renderWizardNav();">${wizardState.data.description}</textarea>
+                <small style="color: var(--text-muted); float: right;">${wizardState.data.description.length}/1000</small>
+            </div>
+        </div>
+    `;
+}
+
+// --- Step 3: Categories ---
+function renderWizardStep3() {
+    const body = document.getElementById('wizardBody');
+    body.innerHTML = `
+        <div class="wizard-step-content">
+            <h2>What specialties are important to you?</h2>
+            <p class="wizard-step-desc">Select all that apply. These help us find practitioners with the right expertise.</p>
+            <div class="wizard-categories">
+                ${categories.map(cat => {
+                    const isSelected = wizardState.data.selectedCategories.includes(cat.name);
+                    return `
+                        <div class="wizard-category-card ${isSelected ? 'selected' : ''}"
+                             onclick="toggleWizardCategory('${cat.name.replace(/'/g, "\\'")}')">
+                            <div class="wizard-category-card__icon">${cat.icon}</div>
+                            <span>${cat.name}</span>
+                            <div class="wizard-category-card__check">${isSelected ? '&#10003;' : ''}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function toggleWizardCategory(name) {
+    const idx = wizardState.data.selectedCategories.indexOf(name);
+    if (idx === -1) {
+        wizardState.data.selectedCategories.push(name);
+    } else {
+        wizardState.data.selectedCategories.splice(idx, 1);
+    }
+    renderWizardStep3();
+    renderWizardNav();
+}
+
+// --- Step 4: Preferences ---
+function renderWizardStep4() {
+    const body = document.getElementById('wizardBody');
+    const approaches = ['CBT', 'DBT', 'EMDR', 'Psychodynamic', 'Somatic', 'Humanistic', 'Art Therapy', 'Holistic'];
+
+    body.innerHTML = `
+        <div class="wizard-step-content">
+            <h2>Your preferences</h2>
+            <p class="wizard-step-desc">These are optional but help us refine your matches.</p>
+
+            <div class="form-group">
+                <label>Session type preference</label>
+                <div class="wizard-session-options">
+                    <div class="wizard-session-option ${wizardState.data.sessionPreference === 'In-Person' ? 'selected' : ''}"
+                         onclick="selectSessionPref('In-Person')">
+                        <div style="font-size: 24px; margin-bottom: 4px;">🏢</div>
+                        In-Person
+                    </div>
+                    <div class="wizard-session-option ${wizardState.data.sessionPreference === 'Virtual' ? 'selected' : ''}"
+                         onclick="selectSessionPref('Virtual')">
+                        <div style="font-size: 24px; margin-bottom: 4px;">💻</div>
+                        Virtual
+                    </div>
+                    <div class="wizard-session-option ${wizardState.data.sessionPreference === '' ? 'selected' : ''}"
+                         onclick="selectSessionPref('')">
+                        <div style="font-size: 24px; margin-bottom: 4px;">🤷</div>
+                        No Preference
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Maximum budget per session: <strong>$${wizardState.data.budgetMax}</strong></label>
+                <div class="price-range">
+                    <input type="range" min="50" max="500" value="${wizardState.data.budgetMax}" id="wizardBudgetRange"
+                           oninput="wizardState.data.budgetMax = parseInt(this.value); this.previousElementSibling?.remove(); this.closest('.form-group').querySelector('strong').textContent = '$' + this.value;">
+                    <div class="price-range__labels">
+                        <span>$50</span>
+                        <span>$500</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Preferred therapeutic approaches (optional)</label>
+                <div class="wizard-approaches">
+                    ${approaches.map(a => {
+                        const isSelected = wizardState.data.selectedApproaches.includes(a);
+                        return `
+                            <label class="filter-check">
+                                <input type="checkbox" value="${a}" ${isSelected ? 'checked' : ''}
+                                       onchange="toggleWizardApproach('${a}')">
+                                <span>${a}</span>
+                            </label>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function selectSessionPref(pref) {
+    wizardState.data.sessionPreference = pref;
+    renderWizardStep4();
+}
+
+function toggleWizardApproach(approach) {
+    const idx = wizardState.data.selectedApproaches.indexOf(approach);
+    if (idx === -1) {
+        wizardState.data.selectedApproaches.push(approach);
+    } else {
+        wizardState.data.selectedApproaches.splice(idx, 1);
+    }
+}
+
+// --- Step 5: Loading / Matching ---
+function renderWizardStep5() {
+    const body = document.getElementById('wizardBody');
+
+    if (wizardState.error) {
+        body.innerHTML = `
+            <div class="wizard-loading">
+                <div class="booking-success__icon">⚠️</div>
+                <h3>Something went wrong</h3>
+                <p style="margin-bottom: var(--space-lg);">${wizardState.error}</p>
+                <button class="btn btn--primary" onclick="fetchMatches()">Try Again</button>
+            </div>
+        `;
+        return;
+    }
+
+    body.innerHTML = `
+        <div class="wizard-loading">
+            <div class="wizard-loading__spinner"></div>
+            <h3>Finding your perfect match...</h3>
+            <p>We're analyzing practitioner profiles to find the best fit for your needs.</p>
+        </div>
+    `;
+}
+
+// --- Step 6: Results ---
+function renderWizardStep6() {
+    const body = document.getElementById('wizardBody');
+
+    if (!wizardState.matchResults || wizardState.matchResults.length === 0) {
+        body.innerHTML = `
+            <div class="wizard-loading">
+                <div class="booking-success__icon">🔍</div>
+                <h3>No matches found</h3>
+                <p>We couldn't find matches based on your criteria. Try adjusting your preferences or browse all practitioners.</p>
+                <div style="display: flex; gap: var(--space-md); justify-content: center; margin-top: var(--space-lg);">
+                    <button class="btn btn--outline" onclick="openOnboardingWizard()">Start Over</button>
+                    <button class="btn btn--primary" onclick="closeOnboardingWizard(); navigateTo('practitioners');">Browse All</button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    body.innerHTML = `
+        <div class="wizard-step-content">
+            <h2>Your Top Matches${wizardState.data.name ? ', ' + wizardState.data.name.split(' ')[0] : ''}!</h2>
+            <p class="wizard-step-desc">Based on your needs, here are the practitioners we think would be the best fit for you.</p>
+            <div class="wizard-matches">
+                ${wizardState.matchResults.map(match => {
+                    const p = practitioners.find(pr => pr.id === match.id);
+                    if (!p) return '';
+                    return renderMatchCard(p, match);
+                }).join('')}
+            </div>
+            <div class="wizard-results-footer">
+                <button class="btn btn--ghost" onclick="openOnboardingWizard()">Start Over</button>
+                <button class="btn btn--outline" onclick="closeOnboardingWizard(); navigateTo('practitioners');">Browse All Practitioners</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderMatchCard(p, match) {
+    return `
+        <div class="wizard-match-card">
+            <div class="wizard-match-card__header">
+                <div class="wizard-match-card__avatar" style="background: ${p.color};">${p.avatar}</div>
+                <div class="wizard-match-card__info">
+                    <h3>${p.name}</h3>
+                    <p>${p.title} &middot; ${p.location}</p>
+                    <div class="wizard-match-card__rating">&#9733; ${p.rating} (${p.reviewCount}) &middot; From $${p.startingPrice}</div>
+                </div>
+                <div class="wizard-match-card__score">${match.score}%<br><small>match</small></div>
+            </div>
+            <div class="wizard-match-card__tags">
+                ${p.specialties.slice(0, 3).map(s => `<span class="tag tag--primary">${s}</span>`).join('')}
+            </div>
+            <p class="wizard-match-card__reason">${match.explanation}</p>
+            <div class="wizard-match-card__actions">
+                <button class="btn btn--outline btn--sm" onclick="closeOnboardingWizard(); openPractitionerDetail(${p.id});">View Profile</button>
+                <button class="btn btn--primary btn--sm" onclick="closeOnboardingWizard(); openBooking(${p.id});">Book Session</button>
+            </div>
+        </div>
+    `;
+}
+
+// --- Navigation ---
+function renderWizardNav() {
+    const nav = document.getElementById('wizardNav');
+    if (!nav) return;
+    const step = wizardState.currentStep;
+
+    // No nav on loading or results steps
+    if (step === 5 || step === 6) {
+        nav.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+    if (step > 1) {
+        html += `<button class="btn btn--outline" onclick="wizardPrevStep()">Back</button>`;
+    } else {
+        html += '<div></div>';
+    }
+
+    const nextLabel = step === 4 ? 'Find My Matches' : 'Next';
+    const disabled = !isWizardStepValid(step) ? 'disabled' : '';
+    html += `<button class="btn btn--primary" onclick="wizardNextStep()" ${disabled}>${nextLabel}</button>`;
+
+    nav.innerHTML = html;
+}
+
+function isWizardStepValid(step) {
+    switch (step) {
+        case 1: return wizardState.data.name.trim().length > 0;
+        case 2: return wizardState.data.description.trim().length >= 10;
+        case 3: return wizardState.data.selectedCategories.length > 0;
+        case 4: return true;
+        default: return true;
+    }
+}
+
+function saveCurrentStepData() {
+    switch (wizardState.currentStep) {
+        case 1:
+            const nameInput = document.getElementById('wizardNameInput');
+            if (nameInput) wizardState.data.name = nameInput.value;
+            break;
+        case 2:
+            const descInput = document.getElementById('wizardDescInput');
+            if (descInput) wizardState.data.description = descInput.value;
+            break;
+        case 4:
+            const budgetInput = document.getElementById('wizardBudgetRange');
+            if (budgetInput) wizardState.data.budgetMax = parseInt(budgetInput.value);
+            break;
+    }
+}
+
+function wizardNextStep() {
+    saveCurrentStepData();
+    if (!isWizardStepValid(wizardState.currentStep)) return;
+
+    wizardState.currentStep++;
+    renderWizardStep();
+
+    if (wizardState.currentStep === 5) {
+        fetchMatches();
+    }
+}
+
+function wizardPrevStep() {
+    saveCurrentStepData();
+    if (wizardState.currentStep > 1) {
+        wizardState.currentStep--;
+        renderWizardStep();
+    }
+}
+
+// --- API Call ---
+async function fetchMatches() {
+    wizardState.isLoading = true;
+    wizardState.error = null;
+    renderWizardStep();
+
+    try {
+        const response = await fetch('/.netlify/functions/match-practitioners', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                patient: {
+                    name: wizardState.data.name,
+                    description: wizardState.data.description,
+                    categories: wizardState.data.selectedCategories,
+                    sessionPreference: wizardState.data.sessionPreference,
+                    budgetMax: wizardState.data.budgetMax,
+                    approaches: wizardState.data.selectedApproaches
+                },
+                practitioners: practitioners.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    credentials: p.credentials,
+                    title: p.title,
+                    location: p.location,
+                    specialties: p.specialties,
+                    approaches: p.approaches,
+                    sessionTypes: p.sessionTypes,
+                    bio: p.bio,
+                    startingPrice: p.startingPrice,
+                    rating: p.rating,
+                    reviewCount: p.reviewCount,
+                    offerings: p.offerings
+                }))
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || 'Matching service unavailable. Please try again.');
+        }
+
+        const data = await response.json();
+        wizardState.matchResults = data.matches;
+        wizardState.currentStep = 6;
+    } catch (err) {
+        wizardState.error = err.message;
+    }
+
+    wizardState.isLoading = false;
+    renderWizardStep();
 }
 
 // ============================================

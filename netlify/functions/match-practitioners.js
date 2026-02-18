@@ -1,0 +1,120 @@
+// HomeTeam — Practitioner Matching via Claude API
+// Netlify Serverless Function
+
+exports.handler = async function(event, context) {
+    // CORS headers
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    };
+
+    // Handle preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 204, headers, body: '' };
+    }
+
+    // Only allow POST
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+    }
+
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'API key not configured. Set ANTHROPIC_API_KEY in Netlify environment variables.' }) };
+    }
+
+    try {
+        const { patient, practitioners } = JSON.parse(event.body);
+
+        // Validate input
+        if (!patient || !practitioners || !Array.isArray(practitioners)) {
+            return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid request body' }) };
+        }
+
+        const systemPrompt = `You are a mental health practitioner matching assistant for HomeTeam, a marketplace connecting individuals with mental health practitioners.
+
+Your task: Given a patient's self-described needs, selected specialty categories, session preferences, and budget constraints, rank the available practitioners from most to least suitable. Return the top 5 matches.
+
+You MUST respond with ONLY valid JSON — no explanation, no markdown, no commentary. The JSON must be an array of objects with exactly these fields:
+- "id": the practitioner's numeric ID
+- "score": a match percentage from 0 to 100
+- "explanation": a 2-3 sentence personalized explanation of why this practitioner is a good fit, written directly to the patient using "you" language
+
+Ranking criteria (in order of importance):
+1. Specialty alignment: How well the practitioner's specialties match the patient's selected categories
+2. Description match: How well the practitioner's bio, approaches, and expertise address what the patient described in their own words
+3. Approach compatibility: If the patient selected preferred therapeutic approaches, favor practitioners who use those approaches
+4. Session type: If the patient has a session type preference, prioritize practitioners who offer that type
+5. Budget: Practitioners whose starting price is within the patient's budget range should rank higher
+6. Rating and reviews: Higher-rated practitioners with more reviews should rank slightly higher among otherwise equal matches
+
+Important: Be warm, encouraging, and specific in explanations. Reference the patient's stated needs and connect them to specific practitioner strengths. Avoid generic language.`;
+
+        const userPrompt = `PATIENT PROFILE:
+- Name: ${patient.name}
+- What brings them here: "${patient.description}"
+- Specialty categories they're interested in: ${patient.categories && patient.categories.length > 0 ? patient.categories.join(', ') : 'None specified'}
+- Session type preference: ${patient.sessionPreference || 'No preference'}
+- Maximum budget: $${patient.budgetMax || 300} per session
+- Preferred therapeutic approaches: ${patient.approaches && patient.approaches.length > 0 ? patient.approaches.join(', ') : 'No preference'}
+
+AVAILABLE PRACTITIONERS:
+${JSON.stringify(practitioners, null, 2)}
+
+Return the top 5 matching practitioners as a JSON array. Remember: respond with ONLY the JSON array, nothing else.`;
+
+        // Call Claude API
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 2048,
+                system: systemPrompt,
+                messages: [
+                    { role: 'user', content: userPrompt }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error('Claude API error:', response.status, errText);
+            return { statusCode: 502, headers, body: JSON.stringify({ error: 'Matching service error' }) };
+        }
+
+        const claudeResponse = await response.json();
+        const content = claudeResponse.content[0].text;
+
+        // Parse JSON from Claude's response (with fallback extraction)
+        let matches;
+        try {
+            matches = JSON.parse(content);
+        } catch (e) {
+            // Try to extract JSON array from surrounding text
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                matches = JSON.parse(jsonMatch[0]);
+            } else {
+                console.error('Could not parse Claude response:', content);
+                return { statusCode: 502, headers, body: JSON.stringify({ error: 'Could not parse matching results' }) };
+            }
+        }
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({ matches })
+        };
+
+    } catch (err) {
+        console.error('Function error:', err);
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal error: ' + err.message }) };
+    }
+};

@@ -65,7 +65,11 @@
                     <h1 class="hero__title">Find Your Perfect <br><span class="text-gradient">Mental Health</span> Practitioner</h1>
                     <p class="hero__subtitle">Our verified practitioners are here to support your mental health journey. Search by specialty, approach, or identity to find the right fit for you.</p>
                     <div class="hero__actions">
-                        <a href="#" class="btn btn--primary btn--lg" onclick="navigateTo('practitioners')">
+                        <a href="#" class="btn btn--primary btn--lg wizard-cta-btn" onclick="openOnboardingWizard()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            Get Matched
+                        </a>
+                        <a href="#" class="btn btn--outline btn--lg" onclick="navigateTo('practitioners')">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             Browse Practitioners
                         </a>
@@ -885,6 +889,18 @@
                         <button type="submit" class="btn btn--primary btn--full">Save Category</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ONBOARDING WIZARD MODAL ===== -->
+    <div class="modal-overlay" id="onboardingModal">
+        <div class="modal modal--onboarding">
+            <button class="modal__close" onclick="closeOnboardingWizard()">&times;</button>
+            <div class="modal__content">
+                <div class="wizard-progress" id="wizardProgress"></div>
+                <div class="wizard-body" id="wizardBody"></div>
+                <div class="wizard-nav" id="wizardNav"></div>
             </div>
         </div>
     </div>

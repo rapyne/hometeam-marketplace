@@ -4,6 +4,19 @@
    ============================================ */
 
 // ============================================
+// Security: HTML Sanitization Utility
+// ============================================
+function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// ============================================
 // Supabase Configuration
 // ============================================
 // IMPORTANT: Replace these with your actual Supabase project credentials
@@ -205,9 +218,9 @@ function renderHomepageCategories() {
     grid.innerHTML = categories.map(cat => {
         const count = getCategoryPractitionerCount(cat.name);
         return `
-            <div class="category-card" onclick="filterByCategory('${cat.name.replace(/'/g, "\\'")}')">
-                <div class="category-card__icon">${cat.icon}</div>
-                <h3>${cat.name}</h3>
+            <div class="category-card" onclick="filterByCategory('${escapeHTML(cat.name).replace(/'/g, "\\'")}')">
+                <div class="category-card__icon">${escapeHTML(cat.icon)}</div>
+                <h3>${escapeHTML(cat.name)}</h3>
                 <p>${count} practitioner${count !== 1 ? 's' : ''}</p>
             </div>
         `;
@@ -218,7 +231,7 @@ function renderSpecialtyFilters() {
     const container = document.getElementById('specialtyFilters');
     if (!container) return;
     container.innerHTML = categories.map(cat => `
-        <label class="filter-check"><input type="checkbox" value="${cat.name}" onchange="applyFilters()"><span>${cat.name}</span></label>
+        <label class="filter-check"><input type="checkbox" value="${escapeHTML(cat.name)}" onchange="applyFilters()"><span>${escapeHTML(cat.name)}</span></label>
     `).join('');
 }
 
@@ -226,14 +239,14 @@ function renderAdminSpecialtyFilter() {
     const select = document.getElementById('adminFilterSpecialty');
     if (!select) return;
     select.innerHTML = '<option value="">All Specialties</option>' +
-        categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
+        categories.map(cat => `<option value="${escapeHTML(cat.name)}">${escapeHTML(cat.name)}</option>`).join('');
 }
 
 function renderAdminFormSpecialties() {
     const container = document.getElementById('adminFormSpecialties');
     if (!container) return;
     container.innerHTML = categories.map(cat => `
-        <label class="filter-check"><input type="checkbox" value="${cat.name}"><span>${cat.name}</span></label>
+        <label class="filter-check"><input type="checkbox" value="${escapeHTML(cat.name)}"><span>${escapeHTML(cat.name)}</span></label>
     `).join('');
 }
 
@@ -242,7 +255,7 @@ function renderFooterCategories() {
     if (!container) return;
     // Show first 4 categories in footer
     container.innerHTML = categories.slice(0, 4).map(cat => `
-        <a href="#" onclick="filterByCategory('${cat.name.replace(/'/g, "\\'")}')">${cat.name}</a>
+        <a href="#" onclick="filterByCategory('${escapeHTML(cat.name).replace(/'/g, "\\'")}')">${escapeHTML(cat.name)}</a>
     `).join('');
 }
 
@@ -271,10 +284,10 @@ function renderCategoryManager() {
         return `
             <tr>
                 <td>
-                    <span style="font-size: 24px;">${cat.icon}</span>
+                    <span style="font-size: 24px;">${escapeHTML(cat.icon)}</span>
                 </td>
                 <td>
-                    <strong>${cat.name}</strong>
+                    <strong>${escapeHTML(cat.name)}</strong>
                 </td>
                 <td>${count}</td>
                 <td>
@@ -971,7 +984,7 @@ function showToast(message, type = 'info') {
     toast.id = 'toast';
     toast.className = `toast toast--${type}`;
     toast.innerHTML = `
-        <span class="toast__message">${message}</span>
+        <span class="toast__message">${escapeHTML(message)}</span>
         <button class="toast__close" onclick="this.parentElement.remove()">&times;</button>
     `;
     document.body.appendChild(toast);
@@ -1058,20 +1071,10 @@ async function adminLogin(e) {
         }
     }
 
-    // Fallback: simple client-side password check for demo/local mode
-    if (password === 'hometeam2025') {
-        isAdminAuthenticated = true;
-        sessionStorage.setItem('hometeamgo_admin', 'true');
-        showAdminDashboard();
-        showToast('Signed in (local mode)', 'info');
-        emailInput.value = '';
-        passwordInput.value = '';
-        errorEl.style.display = 'none';
-    } else {
-        errorEl.textContent = 'Incorrect password. Use: hometeam2025 (local mode)';
-        errorEl.style.display = 'block';
-        passwordInput.value = '';
-    }
+    // Fallback: local mode requires Supabase to be connected for admin access
+    errorEl.textContent = 'Authentication failed. Please check your credentials.';
+    errorEl.style.display = 'block';
+    passwordInput.value = '';
 }
 
 async function adminLogout() {
@@ -1100,11 +1103,6 @@ async function checkAuth() {
         } catch (e) {
             console.error('Auth check error:', e);
         }
-    }
-    // Fallback: check sessionStorage
-    if (sessionStorage.getItem('hometeamgo_admin') === 'true') {
-        isAdminAuthenticated = true;
-        return true;
     }
     return false;
 }
@@ -1365,32 +1363,32 @@ function createPractitionerCard(p) {
     const topTags = p.specialties.slice(0, 3);
 
     return `
-        <div class="practitioner-card" onclick="openPractitionerDetail(${p.id})">
+        <div class="practitioner-card" onclick="openPractitionerDetail(${parseInt(p.id)})">
             <div class="practitioner-card__header">
-                <div class="practitioner-card__bg" style="background: linear-gradient(135deg, ${p.bgColor}, ${p.color}22);">
+                <div class="practitioner-card__bg" style="background: linear-gradient(135deg, ${escapeHTML(p.bgColor)}, ${escapeHTML(p.color)}22);">
                     <span style="opacity: 0.3; font-size: 80px;">🧠</span>
                 </div>
                 ${p.verified ? '<span class="practitioner-card__verified">✓ Verified</span>' : ''}
-                <div class="practitioner-card__avatar" style="background: ${p.color};">
-                    ${p.avatar}
+                <div class="practitioner-card__avatar" style="background: ${escapeHTML(p.color)};">
+                    ${escapeHTML(p.avatar)}
                 </div>
             </div>
             <div class="practitioner-card__body">
-                <h3 class="practitioner-card__name">${p.name}</h3>
-                <p class="practitioner-card__title">${p.title}</p>
+                <h3 class="practitioner-card__name">${escapeHTML(p.name)}</h3>
+                <p class="practitioner-card__title">${escapeHTML(p.title)}</p>
                 <p class="practitioner-card__location">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    ${p.location} · ${p.sessionTypes.join(' / ')}
+                    ${escapeHTML(p.location)} · ${p.sessionTypes.map(s => escapeHTML(s)).join(' / ')}
                 </p>
                 <div class="practitioner-card__tags">
-                    ${topTags.map((t, i) => `<span class="tag ${i === 0 ? 'tag--primary' : ''}">${t}</span>`).join('')}
+                    ${topTags.map((t, i) => `<span class="tag ${i === 0 ? 'tag--primary' : ''}">${escapeHTML(t)}</span>`).join('')}
                 </div>
                 <div class="practitioner-card__meta">
                     <div class="practitioner-card__rating">
-                        ★ <span>${p.rating}</span> (${p.reviewCount})
+                        ★ <span>${escapeHTML(String(p.rating))}</span> (${parseInt(p.reviewCount)})
                     </div>
                     <div class="practitioner-card__price">
-                        From <strong>$${p.startingPrice}</strong>
+                        From <strong>$${parseInt(p.startingPrice)}</strong>
                     </div>
                 </div>
             </div>
@@ -1478,28 +1476,28 @@ function openPractitionerDetail(id) {
 
     content.innerHTML = `
         <div class="detail-header">
-            <div class="detail-avatar" style="background: ${p.color};">${p.avatar}</div>
+            <div class="detail-avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
             <div class="detail-info">
-                <h2>${p.name}</h2>
-                <p class="detail-credentials">${p.credentials}</p>
+                <h2>${escapeHTML(p.name)}</h2>
+                <p class="detail-credentials">${escapeHTML(p.credentials)}</p>
                 <div class="detail-rating">
                     <span class="stars">${starsHtml}</span>
-                    <strong>${p.rating}</strong>
-                    <span style="color: var(--text-muted);">(${p.reviewCount} reviews)</span>
+                    <strong>${escapeHTML(String(p.rating))}</strong>
+                    <span style="color: var(--text-muted);">(${parseInt(p.reviewCount)} reviews)</span>
                 </div>
                 <p style="font-size:13px; color: var(--text-muted); margin-bottom: 8px;">
-                    📍 ${p.location} · ${p.sessionTypes.join(' / ')}
+                    📍 ${escapeHTML(p.location)} · ${p.sessionTypes.map(s => escapeHTML(s)).join(' / ')}
                 </p>
                 <div class="detail-tags">
-                    ${p.specialties.map(s => `<span class="tag tag--primary">${s}</span>`).join('')}
-                    ${p.approaches.map(a => `<span class="tag">${a}</span>`).join('')}
+                    ${p.specialties.map(s => `<span class="tag tag--primary">${escapeHTML(s)}</span>`).join('')}
+                    ${p.approaches.map(a => `<span class="tag">${escapeHTML(a)}</span>`).join('')}
                 </div>
             </div>
         </div>
 
         <div class="detail-section">
             <h3>About</h3>
-            <p>${p.bio}</p>
+            <p>${escapeHTML(p.bio)}</p>
         </div>
 
         <div class="detail-section">
@@ -1508,10 +1506,10 @@ function openPractitionerDetail(id) {
                 ${p.offerings.map(o => `
                     <div class="offering-item">
                         <div>
-                            <div class="offering-item__name">${o.name}</div>
-                            <div class="offering-item__details">${o.duration}</div>
+                            <div class="offering-item__name">${escapeHTML(o.name)}</div>
+                            <div class="offering-item__details">${escapeHTML(o.duration)}</div>
                         </div>
-                        <div class="offering-item__price">${o.price === 0 ? 'Free' : '$' + o.price}</div>
+                        <div class="offering-item__price">${o.price === 0 ? 'Free' : '$' + parseInt(o.price)}</div>
                     </div>
                 `).join('')}
             </div>
@@ -1523,17 +1521,17 @@ function openPractitionerDetail(id) {
                 ${p.reviews.map(r => `
                     <div class="review-item">
                         <div class="review-item__header">
-                            <span class="review-item__author">${r.author}</span>
-                            <span class="review-item__stars">${'★'.repeat(r.stars)}</span>
+                            <span class="review-item__author">${escapeHTML(r.author)}</span>
+                            <span class="review-item__stars">${'★'.repeat(Math.min(Math.max(parseInt(r.stars) || 0, 0), 5))}</span>
                         </div>
-                        <p class="review-item__text">${r.text}</p>
+                        <p class="review-item__text">${escapeHTML(r.text)}</p>
                     </div>
                 `).join('')}
             </div>
         </div>
 
-        <button class="btn btn--primary btn--full btn--lg" onclick="openBooking(${p.id})" style="margin-top: var(--space-lg);">
-            Book a Session with ${p.name.split(',')[0].split(' ').slice(0, 2).join(' ')}
+        <button class="btn btn--primary btn--full btn--lg" onclick="openBooking(${parseInt(p.id)})" style="margin-top: var(--space-lg);">
+            Book a Session with ${escapeHTML(p.name.split(',')[0].split(' ').slice(0, 2).join(' '))}
         </button>
     `;
 
@@ -1553,17 +1551,17 @@ function openBooking(id) {
     // Fill booking modal
     const practitionerInfo = document.getElementById('bookingPractitioner');
     practitionerInfo.innerHTML = `
-        <div class="booking-practitioner__avatar" style="background: ${p.color};">${p.avatar}</div>
+        <div class="booking-practitioner__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
         <div>
-            <div class="booking-practitioner__name">${p.name}</div>
-            <div class="booking-practitioner__title">${p.title} · ${p.location}</div>
+            <div class="booking-practitioner__name">${escapeHTML(p.name)}</div>
+            <div class="booking-practitioner__title">${escapeHTML(p.title)} · ${escapeHTML(p.location)}</div>
         </div>
     `;
 
     const sessionSelect = document.getElementById('bookingSessionType');
     sessionSelect.innerHTML = '<option value="">Choose a session type...</option>';
     p.offerings.forEach(o => {
-        sessionSelect.innerHTML += `<option value="${o.name}">${o.name} — ${o.price === 0 ? 'Free' : '$' + o.price}</option>`;
+        sessionSelect.innerHTML += `<option value="${escapeHTML(o.name)}">${escapeHTML(o.name)} — ${o.price === 0 ? 'Free' : '$' + parseInt(o.price)}</option>`;
     });
 
     // Set min date to today
@@ -1578,16 +1576,16 @@ function openBooking(id) {
 
     // Re-add practitioner info after reset
     practitionerInfo.innerHTML = `
-        <div class="booking-practitioner__avatar" style="background: ${p.color};">${p.avatar}</div>
+        <div class="booking-practitioner__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
         <div>
-            <div class="booking-practitioner__name">${p.name}</div>
-            <div class="booking-practitioner__title">${p.title} · ${p.location}</div>
+            <div class="booking-practitioner__name">${escapeHTML(p.name)}</div>
+            <div class="booking-practitioner__title">${escapeHTML(p.title)} · ${escapeHTML(p.location)}</div>
         </div>
     `;
 
     sessionSelect.innerHTML = '<option value="">Choose a session type...</option>';
     p.offerings.forEach(o => {
-        sessionSelect.innerHTML += `<option value="${o.name}">${o.name} — ${o.price === 0 ? 'Free' : '$' + o.price}</option>`;
+        sessionSelect.innerHTML += `<option value="${escapeHTML(o.name)}">${escapeHTML(o.name)} — ${o.price === 0 ? 'Free' : '$' + parseInt(o.price)}</option>`;
     });
 
     openModal('bookingModal');
@@ -1770,22 +1768,22 @@ function renderAdminTable() {
         <tr>
             <td>
                 <div class="admin-table__practitioner">
-                    <div class="admin-table__avatar" style="background: ${p.color};">${p.avatar}</div>
+                    <div class="admin-table__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
                     <div>
-                        <div class="admin-table__name">${p.name}</div>
-                        <div class="admin-table__title">${p.credentials}</div>
+                        <div class="admin-table__name">${escapeHTML(p.name)}</div>
+                        <div class="admin-table__title">${escapeHTML(p.credentials)}</div>
                     </div>
                 </div>
             </td>
-            <td>${p.location}</td>
+            <td>${escapeHTML(p.location)}</td>
             <td>
                 <div class="admin-table__specialties">
-                    ${(p.specialties || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')}
+                    ${(p.specialties || []).slice(0, 2).map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
                     ${(p.specialties || []).length > 2 ? `<span class="tag">+${p.specialties.length - 2}</span>` : ''}
                 </div>
             </td>
-            <td>&#9733; ${p.rating} (${p.reviewCount})</td>
-            <td>$${p.startingPrice}</td>
+            <td>&#9733; ${escapeHTML(String(p.rating))} (${parseInt(p.reviewCount)})</td>
+            <td>$${parseInt(p.startingPrice)}</td>
             <td>
                 <button class="admin-badge admin-badge--featured ${p.featured ? '' : 'inactive'}" onclick="handleToggleFeatured(${p.id})" title="Toggle Featured">
                     &#9733; ${p.featured ? 'Featured' : 'Not Featured'}
@@ -1983,17 +1981,50 @@ function importData(event) {
     const reader = new FileReader();
     reader.onload = async function(e) {
         try {
+            // Enforce file size limit (1MB)
+            if (e.target.result.length > 1000000) {
+                alert('File too large. Maximum 1MB allowed.');
+                return;
+            }
             const imported = JSON.parse(e.target.result);
             if (!Array.isArray(imported)) {
                 alert('Invalid format: Expected a JSON array of practitioners.');
                 return;
             }
-            const requiredFields = ['name', 'specialties', 'approaches'];
-            const valid = imported.every(p => requiredFields.every(f => p.hasOwnProperty(f)));
-            if (!valid) {
-                alert('Invalid data: Some practitioners are missing required fields (name, specialties, approaches).');
+            if (imported.length > 200) {
+                alert('Too many practitioners. Maximum 200 allowed.');
                 return;
             }
+            const requiredFields = ['name', 'specialties', 'approaches'];
+            const valid = imported.every(p =>
+                requiredFields.every(f => p.hasOwnProperty(f)) &&
+                typeof p.name === 'string' &&
+                Array.isArray(p.specialties) &&
+                Array.isArray(p.approaches)
+            );
+            if (!valid) {
+                alert('Invalid data: Some practitioners are missing required fields or have wrong types.');
+                return;
+            }
+            // Sanitize all string fields in imported data
+            imported.forEach(p => {
+                Object.keys(p).forEach(key => {
+                    if (typeof p[key] === 'string') {
+                        p[key] = p[key].replace(/<[^>]*>/g, '').slice(0, 2000);
+                    }
+                    if (Array.isArray(p[key])) {
+                        p[key] = p[key].map(item => {
+                            if (typeof item === 'string') return item.replace(/<[^>]*>/g, '').slice(0, 200);
+                            if (typeof item === 'object' && item !== null) {
+                                Object.keys(item).forEach(k => {
+                                    if (typeof item[k] === 'string') item[k] = item[k].replace(/<[^>]*>/g, '').slice(0, 500);
+                                });
+                            }
+                            return item;
+                        });
+                    }
+                });
+            });
             if (confirm(`Import ${imported.length} practitioners? This will replace all current data.`)) {
                 // If Supabase connected, clear and re-insert
                 if (isSupabaseConnected && isAdminAuthenticated) {
@@ -2137,7 +2168,7 @@ function renderWizardStep2() {
     const body = document.getElementById('wizardBody');
     body.innerHTML = `
         <div class="wizard-step-content">
-            <h2>What brings you here, ${wizardState.data.name || 'friend'}?</h2>
+            <h2>What brings you here, ${escapeHTML(wizardState.data.name) || 'friend'}?</h2>
             <p class="wizard-step-desc">In your own words, tell us what you're going through and what kind of support you're looking for. The more detail you share, the better we can match you.</p>
             <div class="form-group">
                 <textarea id="wizardDescInput" rows="6" placeholder="For example: I've been struggling with anxiety at work and it's affecting my sleep. I'd like to find someone who can help me develop coping strategies and maybe explore why I feel so overwhelmed..." maxlength="1000" oninput="wizardState.data.description = this.value; renderWizardNav();">${wizardState.data.description}</textarea>
@@ -2159,9 +2190,9 @@ function renderWizardStep3() {
                     const isSelected = wizardState.data.selectedCategories.includes(cat.name);
                     return `
                         <div class="wizard-category-card ${isSelected ? 'selected' : ''}"
-                             onclick="toggleWizardCategory('${cat.name.replace(/'/g, "\\'")}')">
-                            <div class="wizard-category-card__icon">${cat.icon}</div>
-                            <span>${cat.name}</span>
+                             onclick="toggleWizardCategory('${escapeHTML(cat.name).replace(/'/g, "\\'")}')">
+                            <div class="wizard-category-card__icon">${escapeHTML(cat.icon)}</div>
+                            <span>${escapeHTML(cat.name)}</span>
                             <div class="wizard-category-card__check">${isSelected ? '&#10003;' : ''}</div>
                         </div>
                     `;
@@ -2267,7 +2298,7 @@ function renderWizardStep5() {
             <div class="wizard-loading">
                 <div class="booking-success__icon">⚠️</div>
                 <h3>Something went wrong</h3>
-                <p style="margin-bottom: var(--space-lg);">${wizardState.error}</p>
+                <p style="margin-bottom: var(--space-lg);">${escapeHTML(wizardState.error)}</p>
                 <button class="btn btn--primary" onclick="fetchMatches()">Try Again</button>
             </div>
         `;
@@ -2304,7 +2335,7 @@ function renderWizardStep6() {
 
     body.innerHTML = `
         <div class="wizard-step-content">
-            <h2>Your Top Matches${wizardState.data.name ? ', ' + wizardState.data.name.split(' ')[0] : ''}!</h2>
+            <h2>Your Top Matches${wizardState.data.name ? ', ' + escapeHTML(wizardState.data.name.split(' ')[0]) : ''}!</h2>
             <p class="wizard-step-desc">Based on your needs, here are the practitioners we think would be the best fit for you.</p>
             <div class="wizard-matches">
                 ${wizardState.matchResults.map(match => {
@@ -2325,21 +2356,21 @@ function renderMatchCard(p, match) {
     return `
         <div class="wizard-match-card">
             <div class="wizard-match-card__header">
-                <div class="wizard-match-card__avatar" style="background: ${p.color};">${p.avatar}</div>
+                <div class="wizard-match-card__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
                 <div class="wizard-match-card__info">
-                    <h3>${p.name}</h3>
-                    <p>${p.title} &middot; ${p.location}</p>
-                    <div class="wizard-match-card__rating">&#9733; ${p.rating} (${p.reviewCount}) &middot; From $${p.startingPrice}</div>
+                    <h3>${escapeHTML(p.name)}</h3>
+                    <p>${escapeHTML(p.title)} &middot; ${escapeHTML(p.location)}</p>
+                    <div class="wizard-match-card__rating">&#9733; ${escapeHTML(String(p.rating))} (${parseInt(p.reviewCount)}) &middot; From $${parseInt(p.startingPrice)}</div>
                 </div>
-                <div class="wizard-match-card__score">${match.score}%<br><small>match</small></div>
+                <div class="wizard-match-card__score">${parseInt(match.score)}%<br><small>match</small></div>
             </div>
             <div class="wizard-match-card__tags">
-                ${p.specialties.slice(0, 3).map(s => `<span class="tag tag--primary">${s}</span>`).join('')}
+                ${p.specialties.slice(0, 3).map(s => `<span class="tag tag--primary">${escapeHTML(s)}</span>`).join('')}
             </div>
-            <p class="wizard-match-card__reason">${match.explanation}</p>
+            <p class="wizard-match-card__reason">${escapeHTML(match.explanation)}</p>
             <div class="wizard-match-card__actions">
-                <button class="btn btn--outline btn--sm" onclick="closeOnboardingWizard(); openPractitionerDetail(${p.id});">View Profile</button>
-                <button class="btn btn--primary btn--sm" onclick="closeOnboardingWizard(); openBooking(${p.id});">Book Session</button>
+                <button class="btn btn--outline btn--sm" onclick="closeOnboardingWizard(); openPractitionerDetail(${parseInt(p.id)});">View Profile</button>
+                <button class="btn btn--primary btn--sm" onclick="closeOnboardingWizard(); openBooking(${parseInt(p.id)});">Book Session</button>
             </div>
         </div>
     `;

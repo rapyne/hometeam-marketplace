@@ -1,6 +1,43 @@
 // HomeTeam — Practitioner Matching via Claude API
 // Netlify Serverless Function
 
+const https = require('https');
+
+function callClaudeAPI(apiKey, body) {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify(body);
+
+        const options = {
+            hostname: 'api.anthropic.com',
+            port: 443,
+            path: '/v1/messages',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let responseBody = '';
+            res.on('data', (chunk) => { responseBody += chunk; });
+            res.on('end', () => {
+                resolve({ statusCode: res.statusCode, body: responseBody });
+            });
+        });
+
+        req.on('error', (err) => reject(err));
+        req.setTimeout(30000, () => {
+            req.destroy();
+            reject(new Error('Request timed out'));
+        });
+        req.write(data);
+        req.end();
+    });
+}
+
 exports.handler = async function(event, context) {
     // CORS headers
     const headers = {
@@ -65,31 +102,22 @@ ${JSON.stringify(practitioners, null, 2)}
 
 Return the top 5 matching practitioners as a JSON array. Remember: respond with ONLY the JSON array, nothing else.`;
 
-        // Call Claude API
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 2048,
-                system: systemPrompt,
-                messages: [
-                    { role: 'user', content: userPrompt }
-                ]
-            })
+        // Call Claude API using Node.js https module
+        const apiResponse = await callClaudeAPI(apiKey, {
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2048,
+            system: systemPrompt,
+            messages: [
+                { role: 'user', content: userPrompt }
+            ]
         });
 
-        if (!response.ok) {
-            const errText = await response.text();
-            console.error('Claude API error:', response.status, errText);
-            return { statusCode: 502, headers, body: JSON.stringify({ error: 'Matching service error' }) };
+        if (apiResponse.statusCode !== 200) {
+            console.error('Claude API error:', apiResponse.statusCode, apiResponse.body);
+            return { statusCode: 502, headers, body: JSON.stringify({ error: 'Matching service error: ' + apiResponse.statusCode }) };
         }
 
-        const claudeResponse = await response.json();
+        const claudeResponse = JSON.parse(apiResponse.body);
         const content = claudeResponse.content[0].text;
 
         // Parse JSON from Claude's response (with fallback extraction)

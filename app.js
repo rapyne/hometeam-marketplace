@@ -10,13 +10,13 @@
 const SUPABASE_URL = 'https://qfxjnnpxldurjhkbqelc.supabase.co/';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmeGpubnB4bGR1cmpoa2JxZWxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTQxNTQsImV4cCI6MjA4NjkzMDE1NH0.xE2ZKPFmq6Ue9hMFqRJnRDXDvJ8dTlpBrXIUSlOSr2M';
 
-let supabase = null;
+let supabaseClient = null;
 let isSupabaseConnected = false;
 
 function initSupabase() {
     try {
         if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             // Test connection only if real credentials are provided
             if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
                 isSupabaseConnected = true;
@@ -568,7 +568,7 @@ function saveToLocalStorage() {
 // Load practitioners from Supabase
 async function loadFromSupabase() {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('practitioners')
             .select('*')
             .order('id', { ascending: true });
@@ -596,7 +596,7 @@ async function loadPractitioners() {
 async function createPractitioner(practitionerData) {
     if (isSupabaseConnected && isAdminAuthenticated) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('practitioners')
                 .insert([mapToSupabase(practitionerData)])
                 .select();
@@ -619,7 +619,7 @@ async function createPractitioner(practitionerData) {
 async function updatePractitioner(id, updates) {
     if (isSupabaseConnected && isAdminAuthenticated) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('practitioners')
                 .update(mapToSupabase(updates))
                 .eq('id', id)
@@ -651,7 +651,7 @@ async function updatePractitioner(id, updates) {
 async function deletePractitioner(id) {
     if (isSupabaseConnected && isAdminAuthenticated) {
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('practitioners')
                 .delete()
                 .eq('id', id);
@@ -681,7 +681,7 @@ async function toggleField(id, field) {
         try {
             const updateObj = {};
             updateObj[field] = newValue;
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('practitioners')
                 .update(updateObj)
                 .eq('id', id);
@@ -764,7 +764,7 @@ async function adminLogin(e) {
     // Try Supabase Auth first
     if (isSupabaseConnected) {
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password
             });
@@ -815,9 +815,9 @@ async function adminLogin(e) {
 }
 
 async function adminLogout() {
-    if (isSupabaseConnected && supabase) {
+    if (isSupabaseConnected && supabaseClient) {
         try {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
         } catch (e) {
             console.error('Supabase sign out error:', e);
         }
@@ -832,7 +832,7 @@ async function adminLogout() {
 async function checkAuth() {
     if (isSupabaseConnected) {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 isAdminAuthenticated = true;
                 return true;
@@ -1707,10 +1707,10 @@ function importData(event) {
                 if (isSupabaseConnected && isAdminAuthenticated) {
                     try {
                         // Delete all existing
-                        await supabase.from('practitioners').delete().neq('id', 0);
+                        await supabaseClient.from('practitioners').delete().neq('id', 0);
                         // Insert all imported (map to Supabase format)
                         const mapped = imported.map(p => mapToSupabase(p));
-                        const { error } = await supabase.from('practitioners').insert(mapped);
+                        const { error } = await supabaseClient.from('practitioners').insert(mapped);
                         if (error) throw error;
 
                         // Reload from Supabase to get new IDs
@@ -1770,8 +1770,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateConnectionBadge();
 
     // Listen for Supabase auth state changes
-    if (isSupabaseConnected && supabase) {
-        supabase.auth.onAuthStateChange((event, session) => {
+    if (isSupabaseConnected && supabaseClient) {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN') {
                 isAdminAuthenticated = true;
             } else if (event === 'SIGNED_OUT') {

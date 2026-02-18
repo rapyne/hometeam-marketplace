@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeTeam — Mental Health Practitioner Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🏠</text></svg>">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- ===== HEADER / NAV ===== -->
+    <header class="header" id="header">
+        <div class="header__inner">
+            <a href="#" class="logo" onclick="navigateTo('home')">
+                <div class="logo__icon">
+                    <img src="logo.svg" alt="HomeTeam">
+                </div>
+                <span class="logo__text">Home<span class="logo__accent">Team</span></span>
+            </a>
+            <nav class="nav" id="nav">
+                <a href="#" class="nav__link active" data-page="home" onclick="navigateTo('home')">Home</a>
+                <a href="#" class="nav__link" data-page="practitioners" onclick="navigateTo('practitioners')">Practitioners</a>
+                <a href="#" class="nav__link" data-page="about" onclick="navigateTo('about')">About</a>
+                <a href="#" class="nav__link" data-page="faq" onclick="navigateTo('faq')">FAQ</a>
+                <a href="#" class="nav__link nav__link--admin" data-page="admin" onclick="navigateTo('admin')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
+                    Admin
+                </a>
+            </nav>
+            <div class="header__actions">
+                <a href="#" class="btn btn--outline btn--sm" onclick="openModal('joinModal')">Join as Practitioner</a>
+                <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE NAV ===== -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#" class="mobile-nav__link" onclick="navigateTo('home')">Home</a>
+        <a href="#" class="mobile-nav__link" onclick="navigateTo('practitioners')">Practitioners</a>
+        <a href="#" class="mobile-nav__link" onclick="navigateTo('about')">About</a>
+        <a href="#" class="mobile-nav__link" onclick="navigateTo('faq')">FAQ</a>
+        <a href="#" class="mobile-nav__link" onclick="navigateTo('admin')">Admin</a>
+        <a href="#" class="btn btn--primary btn--full" onclick="openModal('joinModal')">Join as Practitioner</a>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+        <!-- ===== HOME PAGE ===== -->
+        <section class="page page--home active" id="page-home">
+            <!-- Hero -->
+            <div class="hero">
+                <div class="hero__bg">
+                    <div class="hero__gradient"></div>
+                </div>
+                <div class="hero__content">
+                    <span class="hero__badge">Trusted Mental Health Care</span>
+                    <h1 class="hero__title">Find Your Perfect <br><span class="text-gradient">Mental Health</span> Practitioner</h1>
+                    <p class="hero__subtitle">Our verified practitioners are here to support your mental health journey. Search by specialty, approach, or identity to find the right fit for you.</p>
+                    <div class="hero__actions">
+                        <a href="#" class="btn btn--primary btn--lg" onclick="navigateTo('practitioners')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            Browse Practitioners
+                        </a>
+                        <a href="#" class="btn btn--ghost btn--lg" onclick="navigateTo('about')">Learn More →</a>
+                    </div>
+                    <div class="hero__stats">
+                        <div class="stat">
+                            <span class="stat__number">200+</span>
+                            <span class="stat__label">Verified Practitioners</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat__number">50+</span>
+                            <span class="stat__label">Specialties</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat__number">4.9★</span>
+                            <span class="stat__label">Avg. Rating</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero__visual">
+                    <div class="hero__cards">
+                        <div class="floating-card floating-card--1">
+                            <div class="floating-card__avatar" style="background: #97c693;">🧠</div>
+                            <div><strong>Dr. Sarah Kim</strong><br><small>CBT Specialist</small></div>
+                        </div>
+                        <div class="floating-card floating-card--2">
+                            <div class="floating-card__avatar" style="background: #2f5dff;">💭</div>
+                            <div><strong>Marcus Johnson</strong><br><small>Trauma Therapy</small></div>
+                        </div>
+                        <div class="floating-card floating-card--3">
+                            <div class="floating-card__avatar" style="background: #f9ad4d;">🌱</div>
+                            <div><strong>Elena Rodriguez</strong><br><small>Mindfulness</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section" id="how-it-works">
+                <div class="container">
+                    <div class="section__header">
+                        <span class="section__badge">Simple Process</span>
+                        <h2 class="section__title">How It Works</h2>
+                        <p class="section__subtitle">Finding the right mental health support has never been easier.</p>
+                    </div>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step__icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            </div>
+                            <div class="step__number">01</div>
+                            <h3 class="step__title">Explore Practitioners</h3>
+                            <p class="step__desc">Search for practitioners by location, specialty, therapeutic approach, or identities that resonate with you.</p>
+                        </div>
+                        <div class="step__connector">
+                            <svg width="40" height="20" viewBox="0 0 40 20"><path d="M0 10h35m-5-5 5 5-5 5" stroke="#0d4f3d" stroke-width="2" fill="none"/></svg>
+                        </div>
+                        <div class="step">
+                            <div class="step__icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                            </div>
+                            <div class="step__number">02</div>
+                            <h3 class="step__title">Book a Session</h3>
+                            <p class="step__desc">Request a session with your chosen practitioner. Receive confirmation and process payment seamlessly.</p>
+                        </div>
+                        <div class="step__connector">
+                            <svg width="40" height="20" viewBox="0 0 40 20"><path d="M0 10h35m-5-5 5 5-5 5" stroke="#0d4f3d" stroke-width="2" fill="none"/></svg>
+                        </div>
+                        <div class="step">
+                            <div class="step__icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </div>
+                            <div class="step__number">03</div>
+                            <h3 class="step__title">Share the Love</h3>
+                            <p class="step__desc">Leave a review to help others in the community find the right practitioner for their healing journey.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="section section--alt">
+                <div class="container">
+                    <div class="section__header">
+                        <span class="section__badge">Specialties</span>
+                        <h2 class="section__title">Browse by Category</h2>
+                        <p class="section__subtitle">Find practitioners who specialize in the care you need.</p>
+                    </div>
+                    <div class="categories">
+                        <div class="category-card" onclick="filterByCategory('Anxiety & Depression')">
+                            <div class="category-card__icon">😌</div>
+                            <h3>Anxiety & Depression</h3>
+                            <p>42 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('Trauma & PTSD')">
+                            <div class="category-card__icon">🌿</div>
+                            <h3>Trauma & PTSD</h3>
+                            <p>38 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('LGBTQ+ Affirming')">
+                            <div class="category-card__icon">🌈</div>
+                            <h3>LGBTQ+ Affirming</h3>
+                            <p>35 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('Couples Therapy')">
+                            <div class="category-card__icon">💑</div>
+                            <h3>Couples Therapy</h3>
+                            <p>28 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('Substance Abuse')">
+                            <div class="category-card__icon">🔄</div>
+                            <h3>Substance Abuse</h3>
+                            <p>22 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('Child & Adolescent')">
+                            <div class="category-card__icon">🧒</div>
+                            <h3>Child & Adolescent</h3>
+                            <p>31 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('Mindfulness & Meditation')">
+                            <div class="category-card__icon">🧘</div>
+                            <h3>Mindfulness & Meditation</h3>
+                            <p>26 practitioners</p>
+                        </div>
+                        <div class="category-card" onclick="filterByCategory('BIPOC-Centered Care')">
+                            <div class="category-card__icon">✊</div>
+                            <h3>BIPOC-Centered Care</h3>
+                            <p>33 practitioners</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Practitioners -->
+            <div class="section">
+                <div class="container">
+                    <div class="section__header">
+                        <span class="section__badge">Featured</span>
+                        <h2 class="section__title">Top-Rated Practitioners</h2>
+                        <p class="section__subtitle">Highly recommended by our community members.</p>
+                    </div>
+                    <div class="practitioner-grid" id="featuredGrid">
+                        <!-- Filled by JS -->
+                    </div>
+                    <div class="section__cta">
+                        <a href="#" class="btn btn--primary btn--lg" onclick="navigateTo('practitioners')">View All Practitioners →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonials -->
+            <div class="section section--alt">
+                <div class="container">
+                    <div class="section__header">
+                        <span class="section__badge">Community Voices</span>
+                        <h2 class="section__title">What Our Community Says</h2>
+                    </div>
+                    <div class="testimonials">
+                        <div class="testimonial-card">
+                            <div class="testimonial-card__stars">★★★★★</div>
+                            <p class="testimonial-card__text">"Finding a therapist who understood my experience was life-changing. HomeTeam made the search so much easier."</p>
+                            <div class="testimonial-card__author">
+                                <div class="testimonial-card__avatar" style="background: #97c693;">A</div>
+                                <div>
+                                    <strong>Alex M.</strong>
+                                    <span>Client since 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="testimonial-card__stars">★★★★★</div>
+                            <p class="testimonial-card__text">"As a practitioner, this platform has connected me with clients who truly resonate with my approach. An incredible community."</p>
+                            <div class="testimonial-card__author">
+                                <div class="testimonial-card__avatar" style="background: #2f5dff;">D</div>
+                                <div>
+                                    <strong>Dr. Rivera</strong>
+                                    <span>Practitioner since 2023</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="testimonial-card__stars">★★★★★</div>
+                            <p class="testimonial-card__text">"The filtering by identity and specialty made it so easy to find someone I felt safe with from the very first session."</p>
+                            <div class="testimonial-card__author">
+                                <div class="testimonial-card__avatar" style="background: #f9ad4d;">J</div>
+                                <div>
+                                    <strong>Jordan K.</strong>
+                                    <span>Client since 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Banner -->
+            <div class="section section--cta">
+                <div class="container">
+                    <div class="cta-banner">
+                        <h2>Are You a Mental Health Practitioner?</h2>
+                        <p>Join our growing community of verified practitioners and connect with clients who are looking for your unique expertise.</p>
+                        <a href="#" class="btn btn--white btn--lg" onclick="openModal('joinModal')">Apply to Join →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PRACTITIONERS PAGE ===== -->
+        <section class="page page--practitioners" id="page-practitioners">
+            <div class="practitioners-layout">
+                <!-- Sidebar Filters -->
+                <aside class="filters" id="filterSidebar">
+                    <div class="filters__header">
+                        <h3>Filter Practitioners</h3>
+                        <button class="btn btn--text" onclick="resetFilters()">Reset All</button>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="filter-group">
+                        <label class="filter-group__label">Search</label>
+                        <div class="search-input">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input type="text" placeholder="Name, specialty, keyword..." id="searchInput" oninput="applyFilters()">
+                        </div>
+                    </div>
+
+                    <!-- Specialty Filter -->
+                    <div class="filter-group">
+                        <label class="filter-group__label">Specialty</label>
+                        <div class="filter-checks" id="specialtyFilters">
+                            <label class="filter-check"><input type="checkbox" value="Anxiety & Depression" onchange="applyFilters()"><span>Anxiety & Depression</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Trauma & PTSD" onchange="applyFilters()"><span>Trauma & PTSD</span></label>
+                            <label class="filter-check"><input type="checkbox" value="LGBTQ+ Affirming" onchange="applyFilters()"><span>LGBTQ+ Affirming</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Couples Therapy" onchange="applyFilters()"><span>Couples Therapy</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Substance Abuse" onchange="applyFilters()"><span>Substance Abuse</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Child & Adolescent" onchange="applyFilters()"><span>Child & Adolescent</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Mindfulness & Meditation" onchange="applyFilters()"><span>Mindfulness & Meditation</span></label>
+                            <label class="filter-check"><input type="checkbox" value="BIPOC-Centered Care" onchange="applyFilters()"><span>BIPOC-Centered Care</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Grief & Loss" onchange="applyFilters()"><span>Grief & Loss</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Eating Disorders" onchange="applyFilters()"><span>Eating Disorders</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Approach Filter -->
+                    <div class="filter-group">
+                        <label class="filter-group__label">Therapeutic Approach</label>
+                        <div class="filter-checks" id="approachFilters">
+                            <label class="filter-check"><input type="checkbox" value="CBT" onchange="applyFilters()"><span>Cognitive Behavioral (CBT)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="DBT" onchange="applyFilters()"><span>Dialectical Behavior (DBT)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="EMDR" onchange="applyFilters()"><span>EMDR</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Psychodynamic" onchange="applyFilters()"><span>Psychodynamic</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Somatic" onchange="applyFilters()"><span>Somatic Therapy</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Humanistic" onchange="applyFilters()"><span>Humanistic / Person-Centered</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Art Therapy" onchange="applyFilters()"><span>Art / Expressive Therapy</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Holistic" onchange="applyFilters()"><span>Holistic / Integrative</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Session Type -->
+                    <div class="filter-group">
+                        <label class="filter-group__label">Session Type</label>
+                        <div class="filter-checks">
+                            <label class="filter-check"><input type="checkbox" value="In-Person" onchange="applyFilters()" class="session-filter"><span>In-Person</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Virtual" onchange="applyFilters()" class="session-filter"><span>Virtual / Telehealth</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="filter-group">
+                        <label class="filter-group__label">Price Range</label>
+                        <div class="price-range">
+                            <input type="range" min="50" max="300" value="300" id="priceRange" oninput="updatePriceLabel(this.value); applyFilters()">
+                            <div class="price-range__labels">
+                                <span>$50</span>
+                                <span id="priceLabel">Up to $300</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn--primary btn--full filter-mobile-btn" onclick="toggleFilters()">Apply Filters</button>
+                </aside>
+
+                <!-- Results -->
+                <div class="results">
+                    <div class="results__header">
+                        <div class="results__count">
+                            <span id="resultCount">0</span> practitioners found
+                        </div>
+                        <div class="results__controls">
+                            <button class="btn btn--outline btn--sm filter-toggle" onclick="toggleFilters()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/></svg>
+                                Filters
+                            </button>
+                            <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+                                <option value="featured">Featured</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="name">Name: A-Z</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Active Filters Tags -->
+                    <div class="active-filters" id="activeFilters"></div>
+
+                    <!-- Practitioner Grid -->
+                    <div class="practitioner-grid" id="practitionerGrid">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" id="pagination">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ABOUT PAGE ===== -->
+        <section class="page page--about" id="page-about">
+            <div class="container">
+                <div class="about-hero">
+                    <span class="section__badge">Our Mission</span>
+                    <h1>Mental Health Care That Meets You Where You Are</h1>
+                    <p>HomeTeam is a community-driven marketplace connecting individuals with verified mental health practitioners who honor diverse experiences and identities.</p>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-card">
+                        <div class="about-card__icon">🛡️</div>
+                        <h3>Verified Practitioners</h3>
+                        <p>Every practitioner on our platform is vetted for credentials, experience, and commitment to inclusive, affirming care.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card__icon">🌍</div>
+                        <h3>Inclusive & Diverse</h3>
+                        <p>We celebrate diversity in all its forms. Find practitioners who understand your unique cultural background and identity.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card__icon">🤝</div>
+                        <h3>Community First</h3>
+                        <p>Built by and for the community. Our platform centers the voices and needs of those seeking mental health support.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card__icon">💻</div>
+                        <h3>Virtual & In-Person</h3>
+                        <p>Whether you prefer telehealth or face-to-face sessions, find practitioners who offer the format that works for you.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card__icon">💰</div>
+                        <h3>Transparent Pricing</h3>
+                        <p>No hidden fees. See session prices upfront and find practitioners who offer sliding scale options.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card__icon">⭐</div>
+                        <h3>Community Reviews</h3>
+                        <p>Read honest reviews from community members to help find the practitioner who's the best fit for your journey.</p>
+                    </div>
+                </div>
+
+                <div class="about-values">
+                    <h2>Our Values</h2>
+                    <div class="values-list">
+                        <div class="value-item">
+                            <div class="value-item__marker"></div>
+                            <div>
+                                <h4>Accessibility</h4>
+                                <p>Mental health care should be accessible to everyone, regardless of background or circumstance.</p>
+                            </div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-item__marker"></div>
+                            <div>
+                                <h4>Authenticity</h4>
+                                <p>We foster genuine connections between practitioners and clients built on trust and understanding.</p>
+                            </div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-item__marker"></div>
+                            <div>
+                                <h4>Empowerment</h4>
+                                <p>We empower individuals to take charge of their mental health journey with the right support.</p>
+                            </div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-item__marker"></div>
+                            <div>
+                                <h4>Safety</h4>
+                                <p>Creating safe spaces for healing is at the heart of everything we do.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FAQ PAGE ===== -->
+        <section class="page page--faq" id="page-faq">
+            <div class="container container--narrow">
+                <div class="section__header">
+                    <span class="section__badge">Support</span>
+                    <h1 class="section__title">Frequently Asked Questions</h1>
+                    <p class="section__subtitle">Everything you need to know about using HomeTeam.</p>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>How do I find the right practitioner?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>Use our search and filter tools to browse practitioners by specialty, therapeutic approach, session type, and identity. Read their profiles, check reviews from other community members, and book an initial consultation to see if it's a good fit.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>Are all practitioners verified?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>Yes! Every practitioner on HomeTeam undergoes a thorough verification process. We verify their professional credentials, licensure, and commitment to providing inclusive, affirming care.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>How much do sessions cost?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>Session prices vary by practitioner and are displayed transparently on each profile. Many practitioners offer sliding scale fees, and you can filter by price range to find options within your budget. Sessions typically range from $75 to $250.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>Do you accept insurance?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>Insurance acceptance varies by practitioner. Each practitioner's profile lists which insurance plans they accept. We also provide superbills that you can submit to your insurance for potential reimbursement.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>How do I become a practitioner on the platform?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>Click "Join as Practitioner" and complete our application. We'll review your credentials, verify your licensure, and set up your profile. The process typically takes 3-5 business days.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>Can I have virtual sessions?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>Absolutely! Many of our practitioners offer telehealth sessions. You can filter for virtual-only practitioners in the search. Our platform supports secure video sessions to ensure your privacy.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-item__question">
+                            <h3>What if I'm in crisis?</h3>
+                            <svg class="faq-item__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-item__answer">
+                            <p>If you're in immediate danger, please call 911. For mental health crises, contact the 988 Suicide and Crisis Lifeline by calling or texting 988. The Crisis Text Line is also available — text HOME to 741741. HomeTeam is not a crisis service.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ADMIN PAGE ===== -->
+        <section class="page page--admin" id="page-admin">
+            <div class="container">
+                <!-- Connection Badge -->
+                <div class="connection-badge connection-badge--local" id="connectionBadge">
+                    <span class="connection-badge__dot"></span> Local Mode
+                </div>
+
+                <!-- Login Gate -->
+                <div class="admin-login-gate" id="adminLoginGate">
+                    <div class="admin-login-card">
+                        <div class="admin-login-card__icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary)" stroke-width="1.5" class="admin-lock-icon"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
+                        </div>
+                        <h2>Admin Dashboard</h2>
+                        <p class="modal__subtitle">Sign in with your admin credentials to access the CMS.</p>
+                        <form onsubmit="adminLogin(event)">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="adminEmailInput" required placeholder="admin@hometeam.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="adminPasswordInput" required placeholder="Enter admin password">
+                            </div>
+                            <p class="admin-login-error" id="adminLoginError" style="display:none;"></p>
+                            <button type="submit" class="btn btn--primary btn--full">Sign In</button>
+                            <p class="admin-login-hint">Local mode: any email + password <strong>hometeam2025</strong></p>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Dashboard (shown after login) -->
+                <div class="admin-dashboard" id="adminDashboard" style="display:none;">
+                    <!-- Header -->
+                    <div class="admin-header">
+                        <div>
+                            <h1 class="admin-header__title">Admin Dashboard</h1>
+                            <p class="admin-header__subtitle">Manage practitioners, view stats, and export data.</p>
+                        </div>
+                        <div class="admin-header__actions">
+                            <button class="btn btn--outline btn--sm" onclick="exportData()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export JSON
+                            </button>
+                            <label class="btn btn--outline btn--sm" style="cursor:pointer;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Import JSON
+                                <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+                            </label>
+                            <button class="btn btn--primary btn--sm" onclick="openAdminAddModal()">+ Add Practitioner</button>
+                            <button class="btn btn--text btn--sm" onclick="adminLogout()">Log Out</button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="admin-stats" id="adminStats"></div>
+
+                    <!-- Table Controls -->
+                    <div class="admin-table-controls">
+                        <div class="search-input">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input type="text" placeholder="Search practitioners..." id="adminSearchInput" oninput="renderAdminTable()">
+                        </div>
+                        <select class="sort-select" id="adminFilterSpecialty" onchange="renderAdminTable()">
+                            <option value="">All Specialties</option>
+                            <option value="Anxiety & Depression">Anxiety & Depression</option>
+                            <option value="Trauma & PTSD">Trauma & PTSD</option>
+                            <option value="LGBTQ+ Affirming">LGBTQ+ Affirming</option>
+                            <option value="Couples Therapy">Couples Therapy</option>
+                            <option value="Substance Abuse">Substance Abuse</option>
+                            <option value="Child & Adolescent">Child & Adolescent</option>
+                            <option value="Mindfulness & Meditation">Mindfulness & Meditation</option>
+                            <option value="BIPOC-Centered Care">BIPOC-Centered Care</option>
+                            <option value="Grief & Loss">Grief & Loss</option>
+                            <option value="Eating Disorders">Eating Disorders</option>
+                        </select>
+                    </div>
+
+                    <!-- Practitioner Table -->
+                    <div class="admin-table-wrapper">
+                        <table class="admin-table" id="adminTable">
+                            <thead>
+                                <tr>
+                                    <th>Practitioner</th>
+                                    <th>Location</th>
+                                    <th>Specialties</th>
+                                    <th>Rating</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== PRACTITIONER DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="practitionerModal">
+        <div class="modal modal--practitioner">
+            <button class="modal__close" onclick="closeModal('practitionerModal')">&times;</button>
+            <div class="modal__content" id="practitionerModalContent">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BOOKING MODAL ===== -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal modal--booking">
+            <button class="modal__close" onclick="closeModal('bookingModal')">&times;</button>
+            <div class="modal__content">
+                <h2>Book a Session</h2>
+                <div id="bookingContent">
+                    <div class="booking-practitioner" id="bookingPractitioner"></div>
+                    <form class="booking-form" id="bookingForm" onsubmit="submitBooking(event)">
+                        <div class="form-group">
+                            <label>Select Session Type</label>
+                            <select id="bookingSessionType" required>
+                                <option value="">Choose a session type...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Date</label>
+                            <input type="date" id="bookingDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Time</label>
+                            <select id="bookingTime" required>
+                                <option value="">Select a time...</option>
+                                <option value="9:00 AM">9:00 AM</option>
+                                <option value="10:00 AM">10:00 AM</option>
+                                <option value="11:00 AM">11:00 AM</option>
+                                <option value="12:00 PM">12:00 PM</option>
+                                <option value="1:00 PM">1:00 PM</option>
+                                <option value="2:00 PM">2:00 PM</option>
+                                <option value="3:00 PM">3:00 PM</option>
+                                <option value="4:00 PM">4:00 PM</option>
+                                <option value="5:00 PM">5:00 PM</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Name</label>
+                            <input type="text" id="bookingName" required placeholder="Full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Your Email</label>
+                            <input type="email" id="bookingEmail" required placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Brief Message (Optional)</label>
+                            <textarea id="bookingMessage" rows="3" placeholder="Tell the practitioner a bit about what you're looking for..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--full btn--lg">Request Booking</button>
+                    </form>
+                </div>
+                <div class="booking-success" id="bookingSuccess" style="display:none;">
+                    <div class="booking-success__icon">✅</div>
+                    <h3>Booking Request Sent!</h3>
+                    <p>Your session request has been sent. The practitioner will confirm within 24 hours. Check your email for details.</p>
+                    <button class="btn btn--primary" onclick="closeModal('bookingModal')">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JOIN AS PRACTITIONER MODAL ===== -->
+    <div class="modal-overlay" id="joinModal">
+        <div class="modal modal--join">
+            <button class="modal__close" onclick="closeModal('joinModal')">&times;</button>
+            <div class="modal__content">
+                <h2>Join as a Practitioner</h2>
+                <p class="modal__subtitle">Apply to join our community of verified mental health professionals.</p>
+                <form class="join-form" onsubmit="submitJoin(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" required placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" required placeholder="Last name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" required placeholder="you@practice.com">
+                    </div>
+                    <div class="form-group">
+                        <label>License Type</label>
+                        <select required>
+                            <option value="">Select license type...</option>
+                            <option>LCSW — Licensed Clinical Social Worker</option>
+                            <option>LMFT — Licensed Marriage and Family Therapist</option>
+                            <option>LPC — Licensed Professional Counselor</option>
+                            <option>PsyD — Doctor of Psychology</option>
+                            <option>PhD — Doctorate in Psychology</option>
+                            <option>MD — Psychiatrist</option>
+                            <option>LMHC — Licensed Mental Health Counselor</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>License Number</label>
+                        <input type="text" required placeholder="Your license number">
+                    </div>
+                    <div class="form-group">
+                        <label>State(s) Licensed In</label>
+                        <input type="text" required placeholder="e.g. California, New York">
+                    </div>
+                    <div class="form-group">
+                        <label>Tell us about your practice</label>
+                        <textarea rows="4" placeholder="Describe your specialties, approach, and what makes your practice unique..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full btn--lg">Submit Application</button>
+                </form>
+                <div class="join-success" id="joinSuccess" style="display:none;">
+                    <div class="booking-success__icon">🎉</div>
+                    <h3>Application Submitted!</h3>
+                    <p>Thank you for your interest! We'll review your application and get back to you within 3-5 business days.</p>
+                    <button class="btn btn--primary" onclick="closeModal('joinModal')">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN PRACTITIONER FORM MODAL ===== -->
+    <div class="modal-overlay" id="adminFormModal">
+        <div class="modal modal--admin-form">
+            <button class="modal__close" onclick="closeModal('adminFormModal')">&times;</button>
+            <div class="modal__content">
+                <h2 id="adminFormTitle">Add Practitioner</h2>
+                <form id="adminPractitionerForm" onsubmit="saveAdminPractitioner(event)">
+                    <input type="hidden" id="adminFormId">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="adminFormName" required placeholder="e.g. Dr. Sarah Kim">
+                        </div>
+                        <div class="form-group">
+                            <label>Credentials *</label>
+                            <input type="text" id="adminFormCredentials" required placeholder="e.g. PsyD, Licensed Clinical Psychologist">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Title *</label>
+                            <input type="text" id="adminFormTitleField" required placeholder="e.g. Clinical Psychologist">
+                        </div>
+                        <div class="form-group">
+                            <label>Location *</label>
+                            <input type="text" id="adminFormLocation" required placeholder="e.g. San Francisco, CA">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Avatar Initials (2 letters) *</label>
+                            <input type="text" id="adminFormAvatar" required maxlength="2" placeholder="SK">
+                        </div>
+                        <div class="form-group">
+                            <label>Avatar Color *</label>
+                            <input type="color" id="adminFormColor" value="#4b916d">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Card Background Color</label>
+                            <input type="color" id="adminFormBgColor" value="#eef7f0">
+                        </div>
+                        <div class="form-group">
+                            <label>Starting Price ($) *</label>
+                            <input type="number" id="adminFormPrice" required min="0" placeholder="150">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bio *</label>
+                        <textarea id="adminFormBio" rows="3" required placeholder="A brief description of the practitioner's approach and background..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Specialties (check all that apply) *</label>
+                        <div class="admin-checkbox-grid" id="adminFormSpecialties">
+                            <label class="filter-check"><input type="checkbox" value="Anxiety & Depression"><span>Anxiety & Depression</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Trauma & PTSD"><span>Trauma & PTSD</span></label>
+                            <label class="filter-check"><input type="checkbox" value="LGBTQ+ Affirming"><span>LGBTQ+ Affirming</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Couples Therapy"><span>Couples Therapy</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Substance Abuse"><span>Substance Abuse</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Child & Adolescent"><span>Child & Adolescent</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Mindfulness & Meditation"><span>Mindfulness & Meditation</span></label>
+                            <label class="filter-check"><input type="checkbox" value="BIPOC-Centered Care"><span>BIPOC-Centered Care</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Grief & Loss"><span>Grief & Loss</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Eating Disorders"><span>Eating Disorders</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Therapeutic Approaches (check all that apply) *</label>
+                        <div class="admin-checkbox-grid" id="adminFormApproaches">
+                            <label class="filter-check"><input type="checkbox" value="CBT"><span>CBT</span></label>
+                            <label class="filter-check"><input type="checkbox" value="DBT"><span>DBT</span></label>
+                            <label class="filter-check"><input type="checkbox" value="EMDR"><span>EMDR</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Psychodynamic"><span>Psychodynamic</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Somatic"><span>Somatic</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Humanistic"><span>Humanistic</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Art Therapy"><span>Art Therapy</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Holistic"><span>Holistic</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Session Types *</label>
+                        <div class="admin-checkbox-grid">
+                            <label class="filter-check"><input type="checkbox" value="In-Person" class="admin-session-type"><span>In-Person</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Virtual" class="admin-session-type"><span>Virtual</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Offerings (JSON format)</label>
+                        <textarea id="adminFormOfferings" rows="4" placeholder='[{"name":"Individual Therapy (50 min)","price":175,"duration":"50 min"}]'></textarea>
+                        <small style="color: var(--text-muted);">Array of objects with name, price, and duration fields.</small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rating (0-5)</label>
+                            <input type="number" id="adminFormRating" min="0" max="5" step="0.1" value="5.0">
+                        </div>
+                        <div class="form-group">
+                            <label>Review Count</label>
+                            <input type="number" id="adminFormReviewCount" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--full btn--lg">Save Practitioner</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN DELETE CONFIRMATION MODAL ===== -->
+    <div class="modal-overlay" id="adminDeleteModal">
+        <div class="modal" style="max-width: 420px;">
+            <div class="modal__content" style="text-align: center;">
+                <div class="booking-success__icon">&#9888;&#65039;</div>
+                <h3>Delete Practitioner?</h3>
+                <p id="adminDeleteMessage" style="color: var(--text-secondary); margin-bottom: var(--space-xl);">Are you sure you want to delete this practitioner? This action cannot be undone.</p>
+                <div style="display: flex; gap: var(--space-md);">
+                    <button class="btn btn--outline btn--full" onclick="closeModal('adminDeleteModal')">Cancel</button>
+                    <button class="btn btn--full" id="adminDeleteConfirmBtn" style="background: var(--red); color: white;" onclick="confirmDeletePractitioner()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__brand">
+                    <a href="#" class="logo" onclick="navigateTo('home')">
+                        <div class="logo__icon">
+                            <img src="logo.svg" alt="HomeTeam">
+                        </div>
+                        <span class="logo__text">Home<span class="logo__accent">Team</span></span>
+                    </a>
+                    <p class="footer__tagline">Connecting you with mental health practitioners who understand your journey.</p>
+                </div>
+                <div class="footer__links">
+                    <h4>Platform</h4>
+                    <a href="#" onclick="navigateTo('practitioners')">Browse Practitioners</a>
+                    <a href="#" onclick="navigateTo('about')">About Us</a>
+                    <a href="#" onclick="navigateTo('faq')">FAQ</a>
+                    <a href="#" onclick="openModal('joinModal')">Join as Practitioner</a>
+                </div>
+                <div class="footer__links">
+                    <h4>Categories</h4>
+                    <a href="#" onclick="filterByCategory('Anxiety & Depression')">Anxiety & Depression</a>
+                    <a href="#" onclick="filterByCategory('Trauma & PTSD')">Trauma & PTSD</a>
+                    <a href="#" onclick="filterByCategory('LGBTQ+ Affirming')">LGBTQ+ Affirming</a>
+                    <a href="#" onclick="filterByCategory('Couples Therapy')">Couples Therapy</a>
+                </div>
+                <div class="footer__links">
+                    <h4>Crisis Resources</h4>
+                    <a href="tel:988">988 Suicide & Crisis Lifeline</a>
+                    <a href="sms:741741">Crisis Text Line: 741741</a>
+                    <a href="tel:911">Emergency: 911</a>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2025 HomeTeam. All rights reserved.</p>
+                <div class="footer__social">
+                    <a href="#" aria-label="Instagram">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg>
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+                    </a>
+                    <a href="#" aria-label="Facebook">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

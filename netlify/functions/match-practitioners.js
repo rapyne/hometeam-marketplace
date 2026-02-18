@@ -104,7 +104,7 @@ Return the top 5 matching practitioners as a JSON array. Remember: respond with 
 
         // Call Claude API using Node.js https module
         const apiResponse = await callClaudeAPI(apiKey, {
-            model: 'claude-sonnet-4-6-20250624',
+            model: 'claude-sonnet-4-5-20250929',
             max_tokens: 2048,
             system: systemPrompt,
             messages: [

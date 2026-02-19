@@ -855,19 +855,6 @@ h1, h2, h3, h4, h5, h6 {
     border-top: 1px solid var(--border-light);
 }
 
-.practitioner-card__rating {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--yellow);
-}
-
-.practitioner-card__rating span {
-    color: var(--text-primary);
-}
-
 .practitioner-card__price {
     font-size: 13px;
     color: var(--text-secondary);
@@ -1185,13 +1172,6 @@ h1, h2, h3, h4, h5, h6 {
 .testimonial-card:hover {
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
-}
-
-.testimonial-card__stars {
-    color: var(--yellow);
-    font-size: 18px;
-    margin-bottom: var(--space-md);
-    letter-spacing: 2px;
 }
 
 .testimonial-card__text {
@@ -1546,18 +1526,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: var(--space-sm);
 }
 
-.detail-rating {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    font-size: 14px;
-    margin-bottom: var(--space-md);
-}
-
-.detail-rating .stars {
-    color: var(--yellow);
-}
-
 .detail-tags {
     display: flex;
     flex-wrap: wrap;
@@ -1630,41 +1598,6 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     color: var(--blue-primary);
     font-size: 16px;
-}
-
-.detail-reviews {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-}
-
-.review-item {
-    padding: var(--space-md);
-    background: var(--gray-50);
-    border-radius: var(--radius-md);
-}
-
-.review-item__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-sm);
-}
-
-.review-item__author {
-    font-weight: 600;
-    font-size: 13px;
-}
-
-.review-item__stars {
-    color: var(--yellow);
-    font-size: 12px;
-}
-
-.review-item__text {
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.6;
 }
 
 /* ============================================
@@ -3780,9 +3713,9 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 2px;
 }
 
-.wizard-match-card__rating {
+.wizard-match-card__price {
     font-size: 12px;
-    color: var(--yellow);
+    color: var(--text-secondary);
     font-weight: 600;
 }
 

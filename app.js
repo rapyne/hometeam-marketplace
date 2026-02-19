@@ -348,9 +348,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "EMDR Session (80 min)", price: 225, duration: "80 min" }
         ],
         startingPrice: 175,
-        rating: 4.9,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -374,9 +371,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Free Consultation (20 min)", price: 0, duration: "20 min" }
         ],
         startingPrice: 150,
-        rating: 4.8,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -400,9 +394,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Intensive Couples Retreat (3 hr)", price: 500, duration: "3 hours" }
         ],
         startingPrice: 160,
-        rating: 4.9,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -426,9 +417,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Initial Assessment (60 min)", price: 200, duration: "60 min" }
         ],
         startingPrice: 185,
-        rating: 4.7,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -452,9 +440,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Nature-Based Therapy (90 min)", price: 175, duration: "90 min" }
         ],
         startingPrice: 130,
-        rating: 5.0,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -478,9 +463,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Therapy + Med Management (50 min)", price: 225, duration: "50 min" }
         ],
         startingPrice: 150,
-        rating: 4.8,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -504,9 +486,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Free Discovery Call (15 min)", price: 0, duration: "15 min" }
         ],
         startingPrice: 140,
-        rating: 4.9,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -530,9 +509,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Consultation (30 min)", price: 0, duration: "30 min" }
         ],
         startingPrice: 165,
-        rating: 4.9,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -556,9 +532,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Intensive Outpatient (3 hr)", price: 275, duration: "3 hours" }
         ],
         startingPrice: 135,
-        rating: 4.7,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -582,9 +555,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Parent Consultation (30 min)", price: 100, duration: "30 min" }
         ],
         startingPrice: 160,
-        rating: 4.8,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -608,9 +578,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Free Intro Call (15 min)", price: 0, duration: "15 min" }
         ],
         startingPrice: 125,
-        rating: 5.0,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -634,9 +601,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "DBT Skills Group (90 min)", price: 55, duration: "90 min" }
         ],
         startingPrice: 190,
-        rating: 4.6,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -660,9 +624,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Somatic Yoga Therapy (60 min)", price: 120, duration: "60 min" }
         ],
         startingPrice: 120,
-        rating: 4.9,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -686,9 +647,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Sliding Scale Session (50 min)", price: 75, duration: "50 min" }
         ],
         startingPrice: 75,
-        rating: 4.8,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -712,9 +670,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "EMDR Session (80 min)", price: 220, duration: "80 min" }
         ],
         startingPrice: 175,
-        rating: 5.0,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: true,
         verified: true
@@ -738,9 +693,6 @@ const DEFAULT_PRACTITIONERS = [
             { name: "Family Play Therapy (60 min)", price: 180, duration: "60 min" }
         ],
         startingPrice: 140,
-        rating: 4.9,
-        reviewCount: 0,
-        reviews: [],
         videoUrl: '',
         featured: false,
         verified: true
@@ -768,9 +720,6 @@ function mapFromSupabase(row) {
         bio: row.bio,
         offerings: row.offerings || [],
         startingPrice: parseFloat(row.starting_price),
-        rating: parseFloat(row.rating),
-        reviewCount: row.review_count,
-        reviews: row.reviews || [],
         videoUrl: row.video_url || '',
         featured: row.featured,
         verified: row.verified
@@ -792,9 +741,6 @@ function mapToSupabase(p) {
         bio: p.bio,
         offerings: p.offerings,
         starting_price: p.startingPrice,
-        rating: p.rating,
-        review_count: p.reviewCount,
-        reviews: p.reviews || [],
         video_url: p.videoUrl || null,
         featured: p.featured || false,
         verified: p.verified || false
@@ -1306,9 +1252,6 @@ function applyFilters() {
 
     // Sort
     switch (sortBy) {
-        case 'rating':
-            filteredPractitioners.sort((a, b) => b.rating - a.rating);
-            break;
         case 'price-low':
             filteredPractitioners.sort((a, b) => a.startingPrice - b.startingPrice);
             break;
@@ -1320,7 +1263,7 @@ function applyFilters() {
             break;
         case 'featured':
         default:
-            filteredPractitioners.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.rating - a.rating);
+            filteredPractitioners.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || a.name.localeCompare(b.name));
             break;
     }
 
@@ -1408,7 +1351,6 @@ function toggleFilters() {
 // Rendering
 // ============================================
 function createPractitionerCard(p) {
-    const starsHtml = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '½' : '');
     const topTags = p.specialties.slice(0, 3);
 
     return `
@@ -1433,9 +1375,6 @@ function createPractitionerCard(p) {
                     ${topTags.map((t, i) => `<span class="tag ${i === 0 ? 'tag--primary' : ''}">${escapeHTML(t)}</span>`).join('')}
                 </div>
                 <div class="practitioner-card__meta">
-                    <div class="practitioner-card__rating">
-                        ★ <span>${escapeHTML(String(p.rating))}</span> (${parseInt(p.reviewCount)})
-                    </div>
                     <div class="practitioner-card__price">
                         From <strong>$${parseInt(p.startingPrice)}</strong>
                     </div>
@@ -1521,19 +1460,12 @@ function openPractitionerDetail(id) {
     if (!p) return;
 
     const content = document.getElementById('practitionerModalContent');
-    const starsHtml = '★'.repeat(Math.floor(p.rating));
-
     content.innerHTML = `
         <div class="detail-header">
             <div class="detail-avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
             <div class="detail-info">
                 <h2>${escapeHTML(p.name)}</h2>
                 <p class="detail-credentials">${escapeHTML(p.credentials)}</p>
-                <div class="detail-rating">
-                    <span class="stars">${starsHtml}</span>
-                    <strong>${escapeHTML(String(p.rating))}</strong>
-                    <span style="color: var(--text-muted);">(${parseInt(p.reviewCount)} reviews)</span>
-                </div>
                 <p style="font-size:13px; color: var(--text-muted); margin-bottom: 8px;">
                     📍 ${escapeHTML(p.location)} · ${p.sessionTypes.map(s => escapeHTML(s)).join(' / ')}
                 </p>
@@ -1757,9 +1689,6 @@ function renderAdminStats() {
     if (!container) return;
 
     const total = practitioners.length;
-    const avgRating = total > 0
-        ? (practitioners.reduce((sum, p) => sum + p.rating, 0) / total).toFixed(1)
-        : '0.0';
     const featuredCount = practitioners.filter(p => p.featured).length;
     const verifiedCount = practitioners.filter(p => p.verified).length;
 
@@ -1775,10 +1704,6 @@ function renderAdminStats() {
         <div class="admin-stat-card">
             <div class="admin-stat-card__label">Total Practitioners</div>
             <div class="admin-stat-card__value">${total}</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-card__label">Average Rating</div>
-            <div class="admin-stat-card__value">${avgRating} &#9733;</div>
         </div>
         <div class="admin-stat-card">
             <div class="admin-stat-card__label">Featured</div>
@@ -1840,7 +1765,6 @@ function renderAdminTable() {
                     ${(p.specialties || []).length > 2 ? `<span class="tag">+${p.specialties.length - 2}</span>` : ''}
                 </div>
             </td>
-            <td>&#9733; ${escapeHTML(String(p.rating))} (${parseInt(p.reviewCount)})</td>
             <td>$${parseInt(p.startingPrice)}</td>
             <td>
                 <button class="admin-badge admin-badge--featured ${p.featured ? '' : 'inactive'}" onclick="handleToggleFeatured(${p.id})" title="Toggle Featured">
@@ -1880,8 +1804,6 @@ function openAdminAddModal() {
     document.getElementById('adminFormId').value = '';
     document.getElementById('adminFormColor').value = '#4b916d';
     document.getElementById('adminFormBgColor').value = '#eef7f0';
-    document.getElementById('adminFormRating').value = '5.0';
-    document.getElementById('adminFormReviewCount').value = '0';
     document.getElementById('adminFormVideoUrl').value = '';
 
     // Re-render dynamic specialty checkboxes in case categories changed
@@ -1910,8 +1832,6 @@ function openAdminEditModal(id) {
     document.getElementById('adminFormBgColor').value = p.bgColor;
     document.getElementById('adminFormPrice').value = p.startingPrice;
     document.getElementById('adminFormBio').value = p.bio;
-    document.getElementById('adminFormRating').value = p.rating;
-    document.getElementById('adminFormReviewCount').value = p.reviewCount;
     document.getElementById('adminFormVideoUrl').value = p.videoUrl || '';
     document.getElementById('adminFormOfferings').value = JSON.stringify(p.offerings || [], null, 2);
 
@@ -1965,8 +1885,6 @@ async function saveAdminPractitioner(e) {
         bgColor: document.getElementById('adminFormBgColor').value,
         startingPrice: parseFloat(document.getElementById('adminFormPrice').value),
         bio: document.getElementById('adminFormBio').value,
-        rating: parseFloat(document.getElementById('adminFormRating').value),
-        reviewCount: parseInt(document.getElementById('adminFormReviewCount').value) || 0,
         videoUrl: document.getElementById('adminFormVideoUrl').value.trim(),
         specialties,
         approaches,
@@ -1983,7 +1901,6 @@ async function saveAdminPractitioner(e) {
     } else {
         const newP = await createPractitioner({
             ...practitionerData,
-            reviews: [],
             featured: false,
             verified: false
         });
@@ -3391,7 +3308,7 @@ function renderMatchCard(p, match) {
                 <div class="wizard-match-card__info">
                     <h3>${escapeHTML(p.name)}</h3>
                     <p>${escapeHTML(p.title)} &middot; ${escapeHTML(p.location)}</p>
-                    <div class="wizard-match-card__rating">&#9733; ${escapeHTML(String(p.rating))} (${parseInt(p.reviewCount)}) &middot; From $${parseInt(p.startingPrice)}</div>
+                    <div class="wizard-match-card__price">From $${parseInt(p.startingPrice)}</div>
                 </div>
                 <div class="wizard-match-card__score">${parseInt(match.score)}%<br><small>match</small></div>
             </div>
@@ -3510,8 +3427,6 @@ async function fetchMatches() {
                     sessionTypes: p.sessionTypes,
                     bio: p.bio,
                     startingPrice: p.startingPrice,
-                    rating: p.rating,
-                    reviewCount: p.reviewCount,
                     offerings: p.offerings
                 }))
             })

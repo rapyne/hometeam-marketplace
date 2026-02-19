@@ -340,6 +340,11 @@ INSERT INTO practitioners (name, credentials, title, avatar, color, bg_color, lo
 ALTER TABLE practitioners ADD COLUMN IF NOT EXISTS video_url TEXT;
 
 -- ============================================
+-- Migration: Add sports column
+-- ============================================
+ALTER TABLE practitioners ADD COLUMN IF NOT EXISTS sports JSONB DEFAULT '[]';
+
+-- ============================================
 -- Clear existing reviews (Feature: Delete Reviews)
 -- ============================================
 UPDATE practitioners SET reviews = '[]'::jsonb, review_count = 0;

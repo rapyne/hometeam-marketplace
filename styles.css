@@ -847,6 +847,87 @@ h1, h2, h3, h4, h5, h6 {
     border-color: transparent;
 }
 
+.tag--sport {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #bbf7d0;
+    font-size: 10px;
+}
+
+.practitioner-card__sports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: var(--space-sm);
+}
+
+.detail-sports {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Tag Input (Free-form) */
+.tag-input-container {
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm);
+    background: white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    cursor: text;
+}
+
+.tag-input-container:focus-within {
+    border-color: var(--blue-primary);
+    box-shadow: 0 0 0 3px rgba(47, 93, 255, 0.1);
+}
+
+.tag-input__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tag-input__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.tag-input__tag-remove {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: #15803d;
+    opacity: 0.6;
+    line-height: 1;
+}
+
+.tag-input__tag-remove:hover {
+    opacity: 1;
+}
+
+.tag-input__field {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+    font-size: 14px;
+    padding: 4px 0;
+    background: transparent;
+}
+
 .practitioner-card__meta {
     display: flex;
     align-items: center;

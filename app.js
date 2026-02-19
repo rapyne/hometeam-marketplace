@@ -277,9 +277,24 @@ function renderFooterCategories() {
     `).join('');
 }
 
+function renderSportFilters() {
+    const container = document.getElementById('sportFilters');
+    if (!container) return;
+    // Collect all unique sports from practitioners
+    const allSports = new Set();
+    practitioners.forEach(p => {
+        (p.sports || []).forEach(s => allSports.add(s));
+    });
+    const sorted = Array.from(allSports).sort();
+    container.innerHTML = sorted.map(sport => `
+        <label class="filter-check"><input type="checkbox" value="${escapeHTML(sport)}" onchange="applyFilters()"><span>${escapeHTML(sport)}</span></label>
+    `).join('');
+}
+
 function renderAllCategories() {
     renderHomepageCategories();
     renderSpecialtyFilters();
+    renderSportFilters();
     renderAdminSpecialtyFilter();
     renderAdminFormSpecialties();
     renderFooterCategories();
@@ -340,6 +355,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "San Francisco, CA",
         specialties: ["Anxiety & Depression", "LGBTQ+ Affirming", "Trauma & PTSD"],
         approaches: ["CBT", "EMDR", "Humanistic"],
+        sports: ["Basketball", "Soccer", "Track & Field"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Kim specializes in helping individuals navigate anxiety, depression, and trauma with a warm, evidence-based approach. She is committed to creating a safe, affirming space for clients of all backgrounds and identities.",
         offerings: [
@@ -363,6 +379,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Brooklyn, NY",
         specialties: ["Trauma & PTSD", "BIPOC-Centered Care", "Substance Abuse"],
         approaches: ["Somatic", "Psychodynamic", "CBT"],
+        sports: ["Football", "Basketball", "Boxing"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Marcus brings over 12 years of experience working with individuals who have experienced trauma, systemic oppression, and substance use challenges. His approach centers cultural identity as a strength in the healing process.",
         offerings: [
@@ -386,6 +403,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Austin, TX",
         specialties: ["Couples Therapy", "LGBTQ+ Affirming", "Anxiety & Depression"],
         approaches: ["Humanistic", "CBT", "Art Therapy"],
+        sports: ["Tennis", "Golf", "Swimming"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Elena specializes in helping couples and individuals build stronger connections and navigate life transitions. Her approach integrates Gottman method with creative therapeutic techniques to foster growth and understanding.",
         offerings: [
@@ -409,6 +427,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Chicago, IL",
         specialties: ["BIPOC-Centered Care", "Anxiety & Depression", "Grief & Loss"],
         approaches: ["Psychodynamic", "CBT", "Humanistic"],
+        sports: ["Football", "Track & Field", "Baseball"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Okafor brings a culturally responsive lens to therapy, helping clients explore the intersection of identity, family dynamics, and mental health. He specializes in grief work and helping individuals navigate complex emotions.",
         offerings: [
@@ -432,6 +451,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Portland, OR",
         specialties: ["Mindfulness & Meditation", "Anxiety & Depression", "LGBTQ+ Affirming"],
         approaches: ["Holistic", "Somatic", "Humanistic"],
+        sports: ["Yoga", "Running", "Cycling"],
         sessionTypes: ["Virtual"],
         bio: "Sage integrates mindfulness, somatic awareness, and nature-based practices into their therapeutic work. They are passionate about helping clients develop a deeper relationship with themselves and find grounding in the present moment.",
         offerings: [
@@ -455,6 +475,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Seattle, WA",
         specialties: ["Anxiety & Depression", "Eating Disorders", "Child & Adolescent"],
         approaches: ["CBT", "DBT", "Psychodynamic"],
+        sports: ["Gymnastics", "Figure Skating", "Swimming"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Chen-Williams is a board-certified psychiatrist specializing in the treatment of anxiety disorders, eating disorders, and adolescent mental health. She takes an integrative approach combining medication management with therapeutic techniques.",
         offerings: [
@@ -478,6 +499,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Miami, FL",
         specialties: ["LGBTQ+ Affirming", "Couples Therapy", "Anxiety & Depression"],
         approaches: ["Humanistic", "Somatic", "CBT"],
+        sports: ["Soccer", "Volleyball", "Tennis"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Kai creates a warm, nonjudgmental space for exploring identity, relationships, and intimacy. Their work focuses on helping LGBTQ+ individuals and couples build authentic connections and embrace their full selves.",
         offerings: [
@@ -501,6 +523,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Dearborn, MI",
         specialties: ["Trauma & PTSD", "BIPOC-Centered Care", "Grief & Loss"],
         approaches: ["EMDR", "Somatic", "Psychodynamic"],
+        sports: ["Wrestling", "MMA", "Boxing"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Hassan specializes in trauma recovery with a culturally sensitive approach. She works with refugees, immigrants, and individuals from diverse backgrounds, understanding the unique challenges that come with navigating multiple cultural identities.",
         offerings: [
@@ -524,6 +547,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Denver, CO",
         specialties: ["Substance Abuse", "Trauma & PTSD", "Mindfulness & Meditation"],
         approaches: ["DBT", "Holistic", "CBT"],
+        sports: ["Skiing", "Snowboarding", "Rock Climbing"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Jordan combines evidence-based practices with holistic approaches to support individuals in addiction recovery and trauma healing. Their philosophy centers on meeting clients where they are and building resilience through compassion.",
         offerings: [
@@ -547,6 +571,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Los Angeles, CA",
         specialties: ["Child & Adolescent", "Anxiety & Depression", "LGBTQ+ Affirming"],
         approaches: ["CBT", "Art Therapy", "Humanistic"],
+        sports: ["Soccer", "Basketball", "Gymnastics"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Morales specializes in working with children, adolescents, and their families. She uses creative therapeutic approaches including play therapy and art therapy to help young people express themselves and develop healthy coping strategies.",
         offerings: [
@@ -570,6 +595,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Nashville, TN",
         specialties: ["Trauma & PTSD", "LGBTQ+ Affirming", "Anxiety & Depression"],
         approaches: ["EMDR", "Somatic", "Humanistic"],
+        sports: ["Running", "CrossFit", "Rowing"],
         sessionTypes: ["Virtual"],
         bio: "Rowan is a trauma-informed therapist who creates affirming spaces for LGBTQ+ individuals and anyone healing from trauma. They specialize in EMDR and somatic approaches, helping clients reconnect with their bodies and process difficult experiences.",
         offerings: [
@@ -593,6 +619,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Boston, MA",
         specialties: ["Anxiety & Depression", "Eating Disorders", "Mindfulness & Meditation"],
         approaches: ["CBT", "DBT", "Holistic"],
+        sports: ["Hockey", "Lacrosse", "Football"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Park combines neuroscience with compassionate therapy to help clients understand the brain-mind connection. He specializes in anxiety, eating disorders, and integrating mindfulness practices into evidence-based treatment.",
         offerings: [
@@ -616,6 +643,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Oakland, CA",
         specialties: ["Couples Therapy", "Mindfulness & Meditation", "BIPOC-Centered Care"],
         approaches: ["Somatic", "Holistic", "Humanistic"],
+        sports: ["Yoga", "Dance", "Martial Arts"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Maya weaves together somatic therapy, mindfulness, and culturally responsive practices to support individuals and couples. Her work honors the wisdom of the body and the importance of cultural identity in the healing journey.",
         offerings: [
@@ -639,6 +667,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Phoenix, AZ",
         specialties: ["Substance Abuse", "BIPOC-Centered Care", "Anxiety & Depression"],
         approaches: ["CBT", "DBT", "Holistic"],
+        sports: ["Soccer", "Baseball", "Boxing"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Alex provides bilingual therapy services (English & Spanish) with a focus on addiction recovery, anxiety, and culturally responsive care. They are passionate about breaking down barriers to mental health care in Latinx communities.",
         offerings: [
@@ -662,6 +691,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Atlanta, GA",
         specialties: ["BIPOC-Centered Care", "Trauma & PTSD", "Grief & Loss"],
         approaches: ["Psychodynamic", "EMDR", "Humanistic"],
+        sports: ["Track & Field", "Basketball", "Tennis"],
         sessionTypes: ["In-Person", "Virtual"],
         bio: "Dr. Okonkwo specializes in intergenerational trauma, racial stress, and grief within Black and African diaspora communities. Her work is grounded in culturally affirming practices that honor ancestral wisdom alongside evidence-based methods.",
         offerings: [
@@ -685,6 +715,7 @@ const DEFAULT_PRACTITIONERS = [
         location: "Minneapolis, MN",
         specialties: ["Child & Adolescent", "LGBTQ+ Affirming", "Anxiety & Depression"],
         approaches: ["Art Therapy", "CBT", "Humanistic"],
+        sports: ["Swimming", "Soccer", "Basketball"],
         sessionTypes: ["In-Person"],
         bio: "Sam specializes in working with children and teens using play therapy, art therapy, and creative expression. They create warm, playful environments where young people feel safe to explore their feelings and build resilience.",
         offerings: [
@@ -716,6 +747,7 @@ function mapFromSupabase(row) {
         location: row.location,
         specialties: row.specialties || [],
         approaches: row.approaches || [],
+        sports: row.sports || [],
         sessionTypes: row.session_types || [],
         bio: row.bio,
         offerings: row.offerings || [],
@@ -737,6 +769,7 @@ function mapToSupabase(p) {
         location: p.location,
         specialties: p.specialties,
         approaches: p.approaches,
+        sports: p.sports || [],
         session_types: p.sessionTypes,
         bio: p.bio,
         offerings: p.offerings,
@@ -1214,6 +1247,10 @@ function applyFilters() {
     const approachChecks = document.querySelectorAll('#approachFilters input:checked');
     const selectedApproaches = Array.from(approachChecks).map(cb => cb.value);
 
+    // Get checked sports
+    const sportChecks = document.querySelectorAll('#sportFilters input:checked');
+    const selectedSports = Array.from(sportChecks).map(cb => cb.value);
+
     // Get checked session types
     const sessionChecks = document.querySelectorAll('.session-filter:checked');
     const selectedSessions = Array.from(sessionChecks).map(cb => cb.value);
@@ -1224,7 +1261,7 @@ function applyFilters() {
         if (searchQuery) {
             const searchFields = [
                 p.name, p.title, p.location, p.bio,
-                ...p.specialties, ...p.approaches
+                ...p.specialties, ...p.approaches, ...(p.sports || [])
             ].join(' ').toLowerCase();
             if (!searchFields.includes(searchQuery)) return false;
         }
@@ -1240,6 +1277,11 @@ function applyFilters() {
         // Approaches
         if (selectedApproaches.length > 0) {
             if (!selectedApproaches.some(a => p.approaches.includes(a))) return false;
+        }
+
+        // Sports
+        if (selectedSports.length > 0) {
+            if (!selectedSports.some(s => (p.sports || []).includes(s))) return false;
         }
 
         // Session types
@@ -1272,7 +1314,7 @@ function applyFilters() {
 
     // Render
     renderPractitioners();
-    renderActiveFilters(selectedSpecialties, selectedApproaches, selectedSessions);
+    renderActiveFilters(selectedSpecialties, selectedApproaches, selectedSports, selectedSessions);
     renderPagination();
 }
 
@@ -1282,7 +1324,7 @@ function resetFilters() {
     document.getElementById('priceLabel').textContent = 'Up to $300';
     document.getElementById('sortSelect').value = 'featured';
 
-    document.querySelectorAll('#specialtyFilters input, #approachFilters input, .session-filter').forEach(cb => {
+    document.querySelectorAll('#specialtyFilters input, #approachFilters input, #sportFilters input, .session-filter').forEach(cb => {
         cb.checked = false;
     });
 
@@ -1309,6 +1351,9 @@ function removeFilter(type, value) {
     } else if (type === 'approach') {
         const cb = document.querySelector(`#approachFilters input[value="${value}"]`);
         if (cb) cb.checked = false;
+    } else if (type === 'sport') {
+        const cb = document.querySelector(`#sportFilters input[value="${value}"]`);
+        if (cb) cb.checked = false;
     } else if (type === 'session') {
         const cb = document.querySelector(`.session-filter[value="${value}"]`);
         if (cb) cb.checked = false;
@@ -1316,22 +1361,26 @@ function removeFilter(type, value) {
     applyFilters();
 }
 
-function renderActiveFilters(specialties, approaches, sessions) {
+function renderActiveFilters(specialties, approaches, sports, sessions) {
     const container = document.getElementById('activeFilters');
     if (!container) return;
 
     let html = '';
 
     specialties.forEach(s => {
-        html += `<span class="active-filter">${s} <span class="active-filter__remove" onclick="removeFilter('specialty', '${s}')">&times;</span></span>`;
+        html += `<span class="active-filter">${escapeHTML(s)} <span class="active-filter__remove" onclick="removeFilter('specialty', '${escapeHTML(s)}')">&times;</span></span>`;
     });
 
     approaches.forEach(a => {
-        html += `<span class="active-filter">${a} <span class="active-filter__remove" onclick="removeFilter('approach', '${a}')">&times;</span></span>`;
+        html += `<span class="active-filter">${escapeHTML(a)} <span class="active-filter__remove" onclick="removeFilter('approach', '${escapeHTML(a)}')">&times;</span></span>`;
+    });
+
+    sports.forEach(s => {
+        html += `<span class="active-filter">${escapeHTML(s)} <span class="active-filter__remove" onclick="removeFilter('sport', '${escapeHTML(s)}')">&times;</span></span>`;
     });
 
     sessions.forEach(s => {
-        html += `<span class="active-filter">${s} <span class="active-filter__remove" onclick="removeFilter('session', '${s}')">&times;</span></span>`;
+        html += `<span class="active-filter">${escapeHTML(s)} <span class="active-filter__remove" onclick="removeFilter('session', '${escapeHTML(s)}')">&times;</span></span>`;
     });
 
     container.innerHTML = html;
@@ -1374,6 +1423,10 @@ function createPractitionerCard(p) {
                 <div class="practitioner-card__tags">
                     ${topTags.map((t, i) => `<span class="tag ${i === 0 ? 'tag--primary' : ''}">${escapeHTML(t)}</span>`).join('')}
                 </div>
+                ${(p.sports && p.sports.length > 0) ? `
+                <div class="practitioner-card__sports">
+                    ${p.sports.slice(0, 3).map(s => `<span class="tag tag--sport">${escapeHTML(s)}</span>`).join('')}
+                </div>` : ''}
                 <div class="practitioner-card__meta">
                     <div class="practitioner-card__price">
                         From <strong>$${parseInt(p.startingPrice)}</strong>
@@ -1473,6 +1526,11 @@ function openPractitionerDetail(id) {
                     ${p.specialties.map(s => `<span class="tag tag--primary">${escapeHTML(s)}</span>`).join('')}
                     ${p.approaches.map(a => `<span class="tag">${escapeHTML(a)}</span>`).join('')}
                 </div>
+                ${(p.sports && p.sports.length > 0) ? `
+                <div class="detail-sports" style="margin-top: 8px;">
+                    <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px;">🏅 Sports:</span>
+                    ${p.sports.map(s => `<span class="tag tag--sport">${escapeHTML(s)}</span>`).join('')}
+                </div>` : ''}
             </div>
         </div>
 
@@ -1797,6 +1855,35 @@ async function handleToggleVerified(id) {
     renderAdminStats();
 }
 
+// --- Sports Tag Input ---
+let adminSportsTags = [];
+
+function handleSportTagKeydown(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        const input = document.getElementById('adminFormSportsInput');
+        const value = input.value.replace(/,/g, '').trim();
+        if (value && !adminSportsTags.includes(value)) {
+            adminSportsTags.push(value);
+            renderAdminSportsTags();
+        }
+        input.value = '';
+    }
+}
+
+function removeAdminSportTag(index) {
+    adminSportsTags.splice(index, 1);
+    renderAdminSportsTags();
+}
+
+function renderAdminSportsTags() {
+    const container = document.getElementById('adminFormSportsTags');
+    if (!container) return;
+    container.innerHTML = adminSportsTags.map((tag, i) => `
+        <span class="tag-input__tag">${escapeHTML(tag)} <span class="tag-input__tag-remove" onclick="removeAdminSportTag(${i})">&times;</span></span>
+    `).join('');
+}
+
 // --- Add Practitioner ---
 function openAdminAddModal() {
     document.getElementById('adminFormTitle').textContent = 'Add Practitioner';
@@ -1805,6 +1892,9 @@ function openAdminAddModal() {
     document.getElementById('adminFormColor').value = '#4b916d';
     document.getElementById('adminFormBgColor').value = '#eef7f0';
     document.getElementById('adminFormVideoUrl').value = '';
+    adminSportsTags = [];
+    renderAdminSportsTags();
+    document.getElementById('adminFormSportsInput').value = '';
 
     // Re-render dynamic specialty checkboxes in case categories changed
     renderAdminFormSpecialties();
@@ -1833,6 +1923,9 @@ function openAdminEditModal(id) {
     document.getElementById('adminFormPrice').value = p.startingPrice;
     document.getElementById('adminFormBio').value = p.bio;
     document.getElementById('adminFormVideoUrl').value = p.videoUrl || '';
+    adminSportsTags = [...(p.sports || [])];
+    renderAdminSportsTags();
+    document.getElementById('adminFormSportsInput').value = '';
     document.getElementById('adminFormOfferings').value = JSON.stringify(p.offerings || [], null, 2);
 
     // Re-render dynamic specialty checkboxes in case categories changed
@@ -1886,6 +1979,7 @@ async function saveAdminPractitioner(e) {
         startingPrice: parseFloat(document.getElementById('adminFormPrice').value),
         bio: document.getElementById('adminFormBio').value,
         videoUrl: document.getElementById('adminFormVideoUrl').value.trim(),
+        sports: [...adminSportsTags],
         specialties,
         approaches,
         sessionTypes,
@@ -3314,6 +3408,7 @@ function renderMatchCard(p, match) {
             </div>
             <div class="wizard-match-card__tags">
                 ${p.specialties.slice(0, 3).map(s => `<span class="tag tag--primary">${escapeHTML(s)}</span>`).join('')}
+                ${(p.sports || []).slice(0, 2).map(s => `<span class="tag tag--sport">${escapeHTML(s)}</span>`).join('')}
             </div>
             <p class="wizard-match-card__reason">${escapeHTML(match.explanation)}</p>
             <div class="wizard-match-card__actions">
@@ -3424,6 +3519,7 @@ async function fetchMatches() {
                     location: p.location,
                     specialties: p.specialties,
                     approaches: p.approaches,
+                    sports: p.sports || [],
                     sessionTypes: p.sessionTypes,
                     bio: p.bio,
                     startingPrice: p.startingPrice,

@@ -10,6 +10,11 @@
 ALTER TABLE practitioners ADD COLUMN IF NOT EXISTS video_url TEXT;
 
 -- ============================================
+-- 1b. Add sports column to practitioners
+-- ============================================
+ALTER TABLE practitioners ADD COLUMN IF NOT EXISTS sports JSONB DEFAULT '[]';
+
+-- ============================================
 -- 2. Clear existing reviews
 -- ============================================
 UPDATE practitioners SET reviews = '[]'::jsonb, review_count = 0;

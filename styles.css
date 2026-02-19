@@ -2565,7 +2565,8 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .admin-sidebar__footer {
-        display: none;
+        padding: var(--space-xs);
+        border-top: none;
     }
 
     .admin-sidebar-toggle {

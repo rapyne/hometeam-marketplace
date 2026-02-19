@@ -1098,8 +1098,12 @@ async function adminLogout() {
         }
     }
     isAdminAuthenticated = false;
+    currentUser = null;
+    currentUserRole = null;
     sessionStorage.removeItem('hometeamgo_admin');
+    updateHeaderForAuth();
     showAdminLogin();
+    navigateTo('home');
     showToast('Signed out successfully.', 'info');
 }
 

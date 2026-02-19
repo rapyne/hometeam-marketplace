@@ -17,6 +17,24 @@ function escapeHTML(str) {
 }
 
 // ============================================
+// YouTube Video Helper
+// ============================================
+function extractYouTubeId(url) {
+    if (!url || typeof url !== 'string') return null;
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+        /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+        /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /(?:youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/
+    ];
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    return null;
+}
+
+// ============================================
 // Supabase Configuration
 // ============================================
 // IMPORTANT: Replace these with your actual Supabase project credentials
@@ -331,11 +349,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 175,
         rating: 4.9,
-        reviewCount: 47,
-        reviews: [
-            { author: "Jamie L.", stars: 5, text: "Dr. Kim has been an incredible support. She creates such a comfortable environment and her EMDR work has been transformative." },
-            { author: "Chris R.", stars: 5, text: "Highly recommend! Dr. Kim helped me understand and manage my anxiety in ways I never thought possible." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -359,11 +375,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 150,
         rating: 4.8,
-        reviewCount: 62,
-        reviews: [
-            { author: "Darnell T.", stars: 5, text: "Marcus understands the intersection of identity and mental health in a way I've never experienced with other therapists." },
-            { author: "Keisha W.", stars: 5, text: "Life-changing work. Marcus helped me process trauma I'd been carrying for years." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -387,11 +401,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 160,
         rating: 4.9,
-        reviewCount: 38,
-        reviews: [
-            { author: "Taylor & Morgan", stars: 5, text: "Elena saved our relationship. Her couples sessions gave us tools to communicate and understand each other deeply." },
-            { author: "Priya S.", stars: 5, text: "Warm, insightful, and incredibly skilled. Elena helped me find my voice." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -415,11 +427,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 185,
         rating: 4.7,
-        reviewCount: 29,
-        reviews: [
-            { author: "Amara B.", stars: 5, text: "Dr. Okafor has a gift for making you feel seen and understood. His grief work is truly exceptional." },
-            { author: "Michael K.", stars: 4, text: "Thoughtful, patient, and deeply skilled. Highly recommended for anyone exploring identity and loss." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -443,11 +453,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 130,
         rating: 5.0,
-        reviewCount: 24,
-        reviews: [
-            { author: "River D.", stars: 5, text: "Sage has completely transformed my relationship with anxiety. Their mindfulness approach is gentle yet powerful." },
-            { author: "Ash P.", stars: 5, text: "I finally found a therapist who understands the whole picture. Sage is a true healer." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -471,11 +479,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 150,
         rating: 4.8,
-        reviewCount: 53,
-        reviews: [
-            { author: "Sarah T.", stars: 5, text: "Dr. Chen-Williams is incredibly thorough and caring. She took time to understand my full picture before recommending treatment." },
-            { author: "Parent of Client", stars: 5, text: "Our teenager has shown remarkable progress under Dr. Chen-Williams' care. So grateful we found her." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -499,11 +505,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 140,
         rating: 4.9,
-        reviewCount: 41,
-        reviews: [
-            { author: "Devon M.", stars: 5, text: "Kai helped me embrace parts of myself I had been suppressing for years. Truly transformative therapy." },
-            { author: "Sam & Alex", stars: 5, text: "Our couples sessions with Kai have strengthened our bond immensely. Can't recommend enough." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -527,11 +531,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 165,
         rating: 4.9,
-        reviewCount: 36,
-        reviews: [
-            { author: "Fatima R.", stars: 5, text: "Dr. Hassan understands cultural trauma in a way that few therapists do. She has been a lifeline for me." },
-            { author: "Yusuf K.", stars: 5, text: "Patient, compassionate, and incredibly effective. Dr. Hassan's EMDR work helped me process deep pain." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -555,11 +557,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 135,
         rating: 4.7,
-        reviewCount: 28,
-        reviews: [
-            { author: "Chris M.", stars: 5, text: "Jordan helped me find a path to recovery that felt authentic to me. Their holistic approach was exactly what I needed." },
-            { author: "Anonymous", stars: 4, text: "Supportive, understanding, and knowledgeable. I've made more progress in months than I did in years elsewhere." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -583,11 +583,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 160,
         rating: 4.8,
-        reviewCount: 45,
-        reviews: [
-            { author: "Parent", stars: 5, text: "My daughter actually looks forward to her sessions with Dr. Morales. She has a gift for connecting with young people." },
-            { author: "Parent", stars: 5, text: "Dr. Morales helped our family navigate a really difficult time. Her family sessions were incredible." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -611,11 +609,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 125,
         rating: 5.0,
-        reviewCount: 19,
-        reviews: [
-            { author: "Quinn J.", stars: 5, text: "Rowan is one of the most affirming and skilled therapists I've ever worked with. Highly recommend." },
-            { author: "Taylor S.", stars: 5, text: "Finally found a therapist who truly gets it. Rowan's virtual sessions feel just as connected as in-person." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -639,11 +635,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 190,
         rating: 4.6,
-        reviewCount: 33,
-        reviews: [
-            { author: "Michelle T.", stars: 5, text: "Dr. Park helped me understand my brain and gave me concrete tools to manage my eating disorder." },
-            { author: "Ryan H.", stars: 4, text: "Highly knowledgeable and compassionate. The neuropsych assessment was eye-opening." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -667,11 +661,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 120,
         rating: 4.9,
-        reviewCount: 31,
-        reviews: [
-            { author: "Anjali R.", stars: 5, text: "Maya's approach is unlike anything I've experienced. The combination of talk therapy and somatic work has been transformative." },
-            { author: "Couple Client", stars: 5, text: "Maya helped us reconnect on a deeper level. Her couples work is beautiful and effective." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -695,11 +687,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 75,
         rating: 4.8,
-        reviewCount: 44,
-        reviews: [
-            { author: "Carlos G.", stars: 5, text: "Having therapy in Spanish with someone who understands my culture has made all the difference." },
-            { author: "Maria L.", stars: 5, text: "Alex is compassionate and skilled. Their sliding scale made therapy accessible for my family." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     },
@@ -723,11 +713,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 175,
         rating: 5.0,
-        reviewCount: 27,
-        reviews: [
-            { author: "Blessing A.", stars: 5, text: "Dr. Okonkwo helped me understand generational patterns I'd been carrying. Her healing circles are powerful." },
-            { author: "Tunde O.", stars: 5, text: "Exceptional therapist. Her understanding of cultural trauma is unmatched." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: true,
         verified: true
     },
@@ -751,11 +739,9 @@ const DEFAULT_PRACTITIONERS = [
         ],
         startingPrice: 140,
         rating: 4.9,
-        reviewCount: 22,
-        reviews: [
-            { author: "Parent", stars: 5, text: "Sam has a magical way with kids. My son has blossomed since starting therapy." },
-            { author: "Parent", stars: 5, text: "Creative, patient, and deeply caring. Sam is a wonderful therapist for children." }
-        ],
+        reviewCount: 0,
+        reviews: [],
+        videoUrl: '',
         featured: false,
         verified: true
     }
@@ -785,6 +771,7 @@ function mapFromSupabase(row) {
         rating: parseFloat(row.rating),
         reviewCount: row.review_count,
         reviews: row.reviews || [],
+        videoUrl: row.video_url || '',
         featured: row.featured,
         verified: row.verified
     };
@@ -808,6 +795,7 @@ function mapToSupabase(p) {
         rating: p.rating,
         review_count: p.reviewCount,
         reviews: p.reviews || [],
+        video_url: p.videoUrl || null,
         featured: p.featured || false,
         verified: p.verified || false
     };
@@ -1012,11 +1000,35 @@ function showAdminDashboard() {
     const gate = document.getElementById('adminLoginGate');
     const dash = document.getElementById('adminDashboard');
     if (gate) gate.style.display = 'none';
-    if (dash) dash.style.display = 'block';
+    if (dash) dash.style.display = 'flex';
     updateConnectionBadge();
     renderAdminStats();
     renderCategoryManager();
     renderAdminTable();
+}
+
+// ============================================
+// Admin Sidebar Navigation
+// ============================================
+function switchAdminSection(section) {
+    // Toggle sections
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('adminSection-' + section);
+    if (target) target.classList.add('active');
+
+    // Toggle sidebar items
+    document.querySelectorAll('.admin-sidebar__item').forEach(item => item.classList.remove('active'));
+    const activeItem = document.querySelector(`.admin-sidebar__item[data-section="${section}"]`);
+    if (activeItem) activeItem.classList.add('active');
+
+    // Close mobile sidebar
+    const sidebar = document.getElementById('adminSidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+}
+
+function toggleAdminSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    if (sidebar) sidebar.classList.toggle('mobile-open');
 }
 
 async function adminLogin(e) {
@@ -1169,6 +1181,39 @@ function navigateTo(page) {
                 showAdminLogin();
             }
         });
+    }
+
+    // If going to athlete dashboard, load profile and data
+    if (page === 'athlete-dashboard') {
+        if (!currentUser || currentUserRole !== 'athlete') {
+            openAuthModal('signin');
+            navigateTo('home');
+            return false;
+        }
+        loadAthleteProfile();
+        loadFavorites().then(() => renderAthleteFavorites());
+        loadBookings().then(() => renderAthleteBookings());
+    }
+
+    // If going to practitioner dashboard, load data
+    if (page === 'practitioner-dashboard') {
+        if (!currentUser || currentUserRole !== 'practitioner') {
+            openAuthModal('signin');
+            navigateTo('home');
+            return false;
+        }
+        loadPractitionerDashboard();
+    }
+
+    // If going to messages, load conversations
+    if (page === 'messages') {
+        if (!currentUser) {
+            openAuthModal('signin');
+            navigateTo('home');
+            return false;
+        }
+        loadConversations().then(() => renderConversationList());
+        startMessagePolling();
     }
 
     return false;
@@ -1515,24 +1560,33 @@ function openPractitionerDetail(id) {
             </div>
         </div>
 
+        ${p.videoUrl && extractYouTubeId(p.videoUrl) ? `
         <div class="detail-section">
-            <h3>Reviews</h3>
-            <div class="detail-reviews">
-                ${p.reviews.map(r => `
-                    <div class="review-item">
-                        <div class="review-item__header">
-                            <span class="review-item__author">${escapeHTML(r.author)}</span>
-                            <span class="review-item__stars">${'★'.repeat(Math.min(Math.max(parseInt(r.stars) || 0, 0), 5))}</span>
-                        </div>
-                        <p class="review-item__text">${escapeHTML(r.text)}</p>
-                    </div>
-                `).join('')}
+            <h3>Introduction Video</h3>
+            <div class="detail-video">
+                <iframe src="https://www.youtube.com/embed/${extractYouTubeId(p.videoUrl)}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    title="Introduction video for ${escapeHTML(p.name)}">
+                </iframe>
             </div>
         </div>
+        ` : ''}
 
-        <button class="btn btn--primary btn--full btn--lg" onclick="openBooking(${parseInt(p.id)})" style="margin-top: var(--space-lg);">
-            Book a Session with ${escapeHTML(p.name.split(',')[0].split(' ').slice(0, 2).join(' '))}
-        </button>
+        <div style="display: flex; gap: var(--space-md); margin-top: var(--space-lg);">
+            <button class="btn btn--primary btn--full btn--lg" onclick="openBooking(${parseInt(p.id)})" style="flex: 2;">
+                Book a Session
+            </button>
+            ${currentUser && currentUserRole === 'athlete' ? `
+            <button class="btn btn--outline btn--lg" onclick="startConversation(${parseInt(p.id)})" title="Send Message">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button class="favorite-btn ${athleteFavorites.includes(p.id) ? 'favorite-btn--active' : ''}" onclick="toggleFavorite(${parseInt(p.id)})" title="${athleteFavorites.includes(p.id) ? 'Remove from favorites' : 'Add to favorites'}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="${athleteFavorites.includes(p.id) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            ` : ''}
+        </div>
     `;
 
     openModal('practitionerModal');
@@ -1824,6 +1878,7 @@ function openAdminAddModal() {
     document.getElementById('adminFormBgColor').value = '#eef7f0';
     document.getElementById('adminFormRating').value = '5.0';
     document.getElementById('adminFormReviewCount').value = '0';
+    document.getElementById('adminFormVideoUrl').value = '';
 
     // Re-render dynamic specialty checkboxes in case categories changed
     renderAdminFormSpecialties();
@@ -1853,6 +1908,7 @@ function openAdminEditModal(id) {
     document.getElementById('adminFormBio').value = p.bio;
     document.getElementById('adminFormRating').value = p.rating;
     document.getElementById('adminFormReviewCount').value = p.reviewCount;
+    document.getElementById('adminFormVideoUrl').value = p.videoUrl || '';
     document.getElementById('adminFormOfferings').value = JSON.stringify(p.offerings || [], null, 2);
 
     // Re-render dynamic specialty checkboxes in case categories changed
@@ -1907,6 +1963,7 @@ async function saveAdminPractitioner(e) {
         bio: document.getElementById('adminFormBio').value,
         rating: parseFloat(document.getElementById('adminFormRating').value),
         reviewCount: parseInt(document.getElementById('adminFormReviewCount').value) || 0,
+        videoUrl: document.getElementById('adminFormVideoUrl').value.trim(),
         specialties,
         approaches,
         sessionTypes,
@@ -2065,6 +2122,976 @@ function importData(event) {
     };
     reader.readAsText(file);
     event.target.value = '';
+}
+
+// ============================================
+// User Authentication & Roles
+// ============================================
+let currentUser = null;
+let currentUserRole = null; // 'athlete', 'practitioner', 'admin', or null
+let currentAthleteProfile = null;
+let currentPractitionerAccount = null;
+let athleteFavorites = [];
+let athleteBookings = [];
+let conversations = [];
+let currentConversation = null;
+let messagePollingInterval = null;
+
+// Initialize auth state on page load
+async function initAuth() {
+    if (!supabaseClient) return;
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+            currentUser = session.user;
+            await determineUserRole(session.user);
+            updateHeaderForAuth();
+        }
+
+        // Listen for auth state changes (including OAuth redirects)
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session && session.user) {
+                currentUser = session.user;
+                await determineUserRole(session.user);
+                updateHeaderForAuth();
+
+                // If this is an OAuth sign-in, ensure profile exists
+                if (session.user.app_metadata.provider === 'google') {
+                    await ensureProfileForOAuth(session.user);
+                }
+
+                closeModal('authModal');
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                currentUserRole = null;
+                currentAthleteProfile = null;
+                currentPractitionerAccount = null;
+                athleteFavorites = [];
+                athleteBookings = [];
+                updateHeaderForAuth();
+                if (currentPage === 'athlete-dashboard' || currentPage === 'practitioner-dashboard' || currentPage === 'messages') {
+                    navigateTo('home');
+                }
+            }
+        });
+    } catch (e) {
+        console.warn('Auth init error:', e);
+    }
+}
+
+async function determineUserRole(user) {
+    if (!supabaseClient || !user) return;
+
+    // Check if athlete
+    try {
+        const { data: athleteData } = await supabaseClient
+            .from('athlete_profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+        if (athleteData) {
+            currentUserRole = 'athlete';
+            currentAthleteProfile = athleteData;
+            return;
+        }
+    } catch (e) { /* not an athlete */ }
+
+    // Check if practitioner
+    try {
+        const { data: practData } = await supabaseClient
+            .from('practitioner_accounts')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+        if (practData) {
+            currentUserRole = 'practitioner';
+            currentPractitionerAccount = practData;
+            return;
+        }
+    } catch (e) { /* not a practitioner */ }
+
+    // Default: could be admin or unknown role
+    currentUserRole = null;
+}
+
+async function ensureProfileForOAuth(user) {
+    if (!supabaseClient) return;
+    const meta = user.user_metadata || {};
+
+    // Check if profile already exists
+    const { data: existing } = await supabaseClient
+        .from('athlete_profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+    if (!existing) {
+        // Check practitioner accounts too
+        const { data: practExisting } = await supabaseClient
+            .from('practitioner_accounts')
+            .select('id')
+            .eq('id', user.id)
+            .single();
+
+        if (!practExisting) {
+            // Create athlete profile by default for OAuth users
+            await supabaseClient.from('athlete_profiles').insert({
+                id: user.id,
+                email: user.email,
+                full_name: meta.full_name || meta.name || 'User',
+                avatar_url: meta.avatar_url || meta.picture || '',
+                preferences: {}
+            });
+            currentUserRole = 'athlete';
+            currentAthleteProfile = {
+                id: user.id,
+                email: user.email,
+                full_name: meta.full_name || meta.name || 'User',
+                avatar_url: meta.avatar_url || meta.picture || '',
+                preferences: {}
+            };
+        }
+    }
+}
+
+function updateHeaderForAuth() {
+    const signedOut = document.getElementById('headerSignedOut');
+    const signedIn = document.getElementById('headerSignedIn');
+    const avatarEl = document.getElementById('userMenuAvatar');
+    const nameEl = document.getElementById('userMenuName');
+
+    // Mobile nav
+    document.querySelectorAll('.mobile-nav__signedout').forEach(el => {
+        el.style.display = currentUser ? 'none' : 'block';
+    });
+    document.querySelectorAll('.mobile-nav__signedin').forEach(el => {
+        el.style.display = currentUser ? 'block' : 'none';
+    });
+
+    if (currentUser) {
+        if (signedOut) signedOut.style.display = 'none';
+        if (signedIn) signedIn.style.display = 'flex';
+
+        const name = currentAthleteProfile?.full_name || currentPractitionerAccount?.full_name || currentUser.email?.split('@')[0] || 'User';
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+        if (avatarEl) avatarEl.textContent = initials;
+        if (nameEl) nameEl.textContent = name;
+    } else {
+        if (signedOut) signedOut.style.display = 'flex';
+        if (signedIn) signedIn.style.display = 'none';
+    }
+}
+
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userMenuDropdown');
+    if (dropdown) dropdown.classList.toggle('active');
+}
+
+// Close user menu when clicking outside
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('userMenu');
+    const dropdown = document.getElementById('userMenuDropdown');
+    if (menu && dropdown && !menu.contains(e.target)) {
+        dropdown.classList.remove('active');
+    }
+});
+
+function navigateToUserDashboard() {
+    if (currentUserRole === 'athlete') {
+        navigateTo('athlete-dashboard');
+    } else if (currentUserRole === 'practitioner') {
+        navigateTo('practitioner-dashboard');
+    } else {
+        navigateTo('home');
+    }
+    // Close dropdown
+    const dropdown = document.getElementById('userMenuDropdown');
+    if (dropdown) dropdown.classList.remove('active');
+}
+
+// ============================================
+// Auth Modal
+// ============================================
+function openAuthModal(mode) {
+    openModal('authModal');
+    switchAuthTab(mode || 'signin');
+}
+
+function switchAuthTab(tab) {
+    const signInTab = document.getElementById('authTabSignIn');
+    const signUpTab = document.getElementById('authTabSignUp');
+    const signInForm = document.getElementById('authSignInForm');
+    const signUpForm = document.getElementById('authSignUpForm');
+    const title = document.getElementById('authModalTitle');
+    const subtitle = document.getElementById('authModalSubtitle');
+
+    if (tab === 'signin') {
+        signInTab.classList.add('active');
+        signUpTab.classList.remove('active');
+        signInForm.style.display = 'block';
+        signUpForm.style.display = 'none';
+        if (title) title.textContent = 'Sign In';
+        if (subtitle) subtitle.textContent = 'Welcome back! Sign in to your account.';
+    } else {
+        signInTab.classList.remove('active');
+        signUpTab.classList.add('active');
+        signInForm.style.display = 'none';
+        signUpForm.style.display = 'block';
+        if (title) title.textContent = 'Create Account';
+        if (subtitle) subtitle.textContent = 'Join HomeTeam to save favorites and book sessions.';
+    }
+    // Clear errors
+    document.querySelectorAll('.auth-error').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+}
+
+async function athleteSignIn(e) {
+    e.preventDefault();
+    const email = document.getElementById('authSignInEmail').value;
+    const password = document.getElementById('authSignInPassword').value;
+    const errorEl = document.getElementById('authSignInError');
+
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showToast('Welcome back!', 'success');
+        closeModal('authModal');
+    } catch (err) {
+        errorEl.textContent = err.message || 'Invalid email or password.';
+        errorEl.style.display = 'block';
+    }
+}
+
+async function athleteSignUp(e) {
+    e.preventDefault();
+    const name = document.getElementById('authSignUpName').value.trim();
+    const email = document.getElementById('authSignUpEmail').value;
+    const password = document.getElementById('authSignUpPassword').value;
+    const role = document.querySelector('input[name="authRole"]:checked')?.value || 'athlete';
+    const errorEl = document.getElementById('authSignUpError');
+
+    try {
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name, role: role } }
+        });
+        if (error) throw error;
+
+        if (data.user) {
+            if (role === 'athlete') {
+                await supabaseClient.from('athlete_profiles').insert({
+                    id: data.user.id,
+                    email: email,
+                    full_name: name,
+                    preferences: {}
+                });
+                currentUserRole = 'athlete';
+                currentAthleteProfile = { id: data.user.id, email, full_name: name, preferences: {} };
+            } else {
+                await supabaseClient.from('practitioner_accounts').insert({
+                    id: data.user.id,
+                    email: email,
+                    full_name: name,
+                    status: 'pending'
+                });
+                currentUserRole = 'practitioner';
+                currentPractitionerAccount = { id: data.user.id, email, full_name: name, status: 'pending' };
+            }
+        }
+
+        showToast('Account created! Welcome to HomeTeam.', 'success');
+        closeModal('authModal');
+        updateHeaderForAuth();
+    } catch (err) {
+        errorEl.textContent = err.message || 'Failed to create account.';
+        errorEl.style.display = 'block';
+    }
+}
+
+async function googleAuth() {
+    if (!supabaseClient) {
+        showToast('Authentication service not available.', 'error');
+        return;
+    }
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
+        if (error) throw error;
+    } catch (err) {
+        showToast('Google sign-in failed: ' + (err.message || 'Unknown error'), 'error');
+    }
+}
+
+async function userSignOut() {
+    if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+    }
+    currentUser = null;
+    currentUserRole = null;
+    currentAthleteProfile = null;
+    currentPractitionerAccount = null;
+    athleteFavorites = [];
+    athleteBookings = [];
+    if (messagePollingInterval) {
+        clearInterval(messagePollingInterval);
+        messagePollingInterval = null;
+    }
+    updateHeaderForAuth();
+    navigateTo('home');
+    showToast('Signed out successfully.', 'info');
+    // Close dropdown
+    const dropdown = document.getElementById('userMenuDropdown');
+    if (dropdown) dropdown.classList.remove('active');
+}
+
+// ============================================
+// Dashboard Section Switching
+// ============================================
+function switchDashboardSection(dashboardType, section) {
+    const prefix = dashboardType === 'athlete' ? 'athleteSection' : 'practitionerSection';
+    const page = dashboardType === 'athlete' ? 'page-athlete-dashboard' : 'page-practitioner-dashboard';
+
+    // Toggle sections
+    document.querySelectorAll(`#${page} .dashboard-section`).forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(prefix + '-' + section);
+    if (target) target.classList.add('active');
+
+    // Toggle sidebar items
+    document.querySelectorAll(`#${page} .dashboard-sidebar__item`).forEach(item => item.classList.remove('active'));
+    const activeItem = document.querySelector(`#${page} .dashboard-sidebar__item[data-section="${section}"]`);
+    if (activeItem) activeItem.classList.add('active');
+}
+
+// ============================================
+// Athlete Dashboard
+// ============================================
+async function loadAthleteProfile() {
+    if (!supabaseClient || !currentUser) return;
+    try {
+        const { data } = await supabaseClient
+            .from('athlete_profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+        if (data) {
+            currentAthleteProfile = data;
+            renderAthleteProfileForm();
+        }
+    } catch (e) {
+        console.warn('Failed to load athlete profile:', e);
+    }
+}
+
+function renderAthleteProfileForm() {
+    if (!currentAthleteProfile) return;
+    document.getElementById('athleteFormName').value = currentAthleteProfile.full_name || '';
+    document.getElementById('athleteFormEmail').value = currentAthleteProfile.email || '';
+    document.getElementById('athleteFormPhone').value = currentAthleteProfile.phone || '';
+
+    // Profile summary in sidebar
+    const summary = document.getElementById('athleteProfileSummary');
+    if (summary) {
+        const initials = (currentAthleteProfile.full_name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        summary.innerHTML = `
+            <div class="dashboard-profile-avatar">${escapeHTML(initials)}</div>
+            <div class="dashboard-profile-name">${escapeHTML(currentAthleteProfile.full_name || 'User')}</div>
+            <div class="dashboard-profile-email">${escapeHTML(currentAthleteProfile.email || '')}</div>
+        `;
+    }
+}
+
+async function saveAthleteProfile(e) {
+    e.preventDefault();
+    if (!supabaseClient || !currentUser) return;
+
+    const updates = {
+        full_name: document.getElementById('athleteFormName').value.trim(),
+        phone: document.getElementById('athleteFormPhone').value.trim(),
+        updated_at: new Date().toISOString()
+    };
+
+    try {
+        const { error } = await supabaseClient
+            .from('athlete_profiles')
+            .update(updates)
+            .eq('id', currentUser.id);
+        if (error) throw error;
+
+        currentAthleteProfile = { ...currentAthleteProfile, ...updates };
+        updateHeaderForAuth();
+        renderAthleteProfileForm();
+        showToast('Profile updated!', 'success');
+    } catch (err) {
+        showToast('Failed to save profile.', 'error');
+    }
+}
+
+// ============================================
+// Favorites
+// ============================================
+async function loadFavorites() {
+    if (!supabaseClient || !currentUser || currentUserRole !== 'athlete') return;
+    try {
+        const { data } = await supabaseClient
+            .from('athlete_favorites')
+            .select('practitioner_id')
+            .eq('athlete_id', currentUser.id);
+        athleteFavorites = (data || []).map(f => f.practitioner_id);
+    } catch (e) {
+        console.warn('Failed to load favorites:', e);
+    }
+}
+
+async function toggleFavorite(practitionerId) {
+    if (!currentUser || currentUserRole !== 'athlete') {
+        openAuthModal('signin');
+        return;
+    }
+    if (!supabaseClient) return;
+
+    const isFav = athleteFavorites.includes(practitionerId);
+    try {
+        if (isFav) {
+            await supabaseClient
+                .from('athlete_favorites')
+                .delete()
+                .eq('athlete_id', currentUser.id)
+                .eq('practitioner_id', practitionerId);
+            athleteFavorites = athleteFavorites.filter(id => id !== practitionerId);
+            showToast('Removed from favorites.', 'info');
+        } else {
+            await supabaseClient
+                .from('athlete_favorites')
+                .insert({ athlete_id: currentUser.id, practitioner_id: practitionerId });
+            athleteFavorites.push(practitionerId);
+            showToast('Added to favorites!', 'success');
+        }
+        // Re-render if on practitioners page
+        if (currentPage === 'practitioners') applyFilters();
+        if (currentPage === 'athlete-dashboard') renderAthleteFavorites();
+    } catch (e) {
+        showToast('Failed to update favorites.', 'error');
+    }
+}
+
+function renderAthleteFavorites() {
+    const container = document.getElementById('athleteFavoritesList');
+    if (!container) return;
+
+    const favPractitioners = practitioners.filter(p => athleteFavorites.includes(p.id));
+    if (favPractitioners.length === 0) {
+        container.innerHTML = `
+            <div class="messages-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <p>No favorites yet</p>
+                <small>Heart a practitioner to save them here.</small>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = favPractitioners.map(p => `
+        <div class="dashboard-card" onclick="openPractitionerDetail(${parseInt(p.id)})">
+            <div class="dashboard-card__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
+            <div class="dashboard-card__info">
+                <div class="dashboard-card__name">${escapeHTML(p.name)}</div>
+                <div class="dashboard-card__subtitle">${escapeHTML(p.title)}</div>
+            </div>
+            <button class="favorite-btn favorite-btn--active" onclick="event.stopPropagation(); toggleFavorite(${parseInt(p.id)})">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+        </div>
+    `).join('');
+}
+
+// ============================================
+// Bookings
+// ============================================
+async function loadBookings() {
+    if (!supabaseClient || !currentUser) return;
+    try {
+        const { data } = await supabaseClient
+            .from('bookings')
+            .select('*')
+            .eq(currentUserRole === 'athlete' ? 'athlete_id' : 'practitioner_id',
+                currentUserRole === 'athlete' ? currentUser.id : currentPractitionerAccount?.practitioner_id)
+            .order('created_at', { ascending: false });
+        athleteBookings = data || [];
+    } catch (e) {
+        console.warn('Failed to load bookings:', e);
+    }
+}
+
+function renderAthleteBookings() {
+    const container = document.getElementById('athleteBookingsList');
+    if (!container) return;
+
+    if (athleteBookings.length === 0) {
+        container.innerHTML = `
+            <div class="messages-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <p>No bookings yet</p>
+                <small>Book a session with a practitioner to see it here.</small>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = athleteBookings.map(b => {
+        const p = practitioners.find(pr => pr.id === b.practitioner_id);
+        const statusClass = b.status === 'confirmed' ? 'status--confirmed' : b.status === 'completed' ? 'status--completed' : b.status === 'cancelled' ? 'status--cancelled' : 'status--pending';
+        return `
+            <div class="booking-item">
+                <div class="booking-item__info">
+                    <div class="booking-item__practitioner">${escapeHTML(p ? p.name : 'Unknown Practitioner')}</div>
+                    <div class="booking-item__details">${escapeHTML(b.offering_name || 'Session')} · ${b.session_date ? escapeHTML(b.session_date) : 'TBD'}</div>
+                </div>
+                <span class="booking-item__status ${statusClass}">${escapeHTML(b.status || 'pending')}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// Practitioner Dashboard
+// ============================================
+async function loadPractitionerDashboard() {
+    if (!supabaseClient || !currentUser || !currentPractitionerAccount) return;
+
+    const summary = document.getElementById('practitionerProfileSummary');
+    if (summary) {
+        const name = currentPractitionerAccount.full_name || 'Practitioner';
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        summary.innerHTML = `
+            <div class="dashboard-profile-avatar">${escapeHTML(initials)}</div>
+            <div class="dashboard-profile-name">${escapeHTML(name)}</div>
+            <div class="dashboard-profile-email">${escapeHTML(currentPractitionerAccount.email || '')}</div>
+            <span class="booking-item__status status--${currentPractitionerAccount.status === 'active' ? 'confirmed' : 'pending'}">${escapeHTML(currentPractitionerAccount.status || 'pending')}</span>
+        `;
+    }
+
+    const profileForm = document.getElementById('practitionerProfileForm');
+    if (profileForm) {
+        if (currentPractitionerAccount.status !== 'active') {
+            profileForm.innerHTML = `
+                <div class="messages-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <p>Account Pending Approval</p>
+                    <small>An admin will review and approve your account. You'll be able to edit your profile once approved.</small>
+                </div>
+            `;
+        } else if (currentPractitionerAccount.practitioner_id) {
+            const p = practitioners.find(pr => pr.id === currentPractitionerAccount.practitioner_id);
+            if (p) {
+                profileForm.innerHTML = `
+                    <form onsubmit="savePractitionerProfile(event)">
+                        <div class="form-group">
+                            <label>Bio</label>
+                            <textarea id="practFormBio" rows="4">${escapeHTML(p.bio || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>YouTube Video URL</label>
+                            <input type="url" id="practFormVideoUrl" value="${escapeHTML(p.videoUrl || '')}" placeholder="https://youtube.com/watch?v=...">
+                            <small style="color: var(--text-muted);">Optional intro video</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="practFormLocation" value="${escapeHTML(p.location || '')}">
+                        </div>
+                        <button type="submit" class="btn btn--primary">Save Profile</button>
+                    </form>
+                `;
+            }
+        }
+    }
+
+    // Load practitioner bookings
+    await loadBookings();
+    renderPractitionerBookings();
+}
+
+async function savePractitionerProfile(e) {
+    e.preventDefault();
+    if (!supabaseClient || !currentPractitionerAccount?.practitioner_id) return;
+
+    const updates = {
+        bio: document.getElementById('practFormBio')?.value || '',
+        video_url: document.getElementById('practFormVideoUrl')?.value || null,
+        location: document.getElementById('practFormLocation')?.value || ''
+    };
+
+    try {
+        const { error } = await supabaseClient
+            .from('practitioners')
+            .update(updates)
+            .eq('id', currentPractitionerAccount.practitioner_id);
+        if (error) throw error;
+
+        // Update local data
+        const p = practitioners.find(pr => pr.id === currentPractitionerAccount.practitioner_id);
+        if (p) {
+            p.bio = updates.bio;
+            p.videoUrl = updates.video_url || '';
+            p.location = updates.location;
+        }
+        showToast('Profile updated!', 'success');
+    } catch (err) {
+        showToast('Failed to save profile.', 'error');
+    }
+}
+
+function renderPractitionerBookings() {
+    const container = document.getElementById('practitionerBookingsList');
+    if (!container) return;
+
+    if (athleteBookings.length === 0) {
+        container.innerHTML = `
+            <div class="messages-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <p>No bookings yet</p>
+                <small>Bookings from athletes will appear here.</small>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = athleteBookings.map(b => {
+        const statusClass = b.status === 'confirmed' ? 'status--confirmed' : b.status === 'completed' ? 'status--completed' : 'status--pending';
+        return `
+            <div class="booking-item">
+                <div class="booking-item__info">
+                    <div class="booking-item__practitioner">${escapeHTML(b.offering_name || 'Session')}</div>
+                    <div class="booking-item__details">${b.session_date ? escapeHTML(b.session_date) : 'TBD'} · ${escapeHTML(b.notes || 'No notes')}</div>
+                </div>
+                <span class="booking-item__status ${statusClass}">${escapeHTML(b.status || 'pending')}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// Messaging / Secure Chat
+// ============================================
+async function startConversation(practitionerId) {
+    if (!currentUser || currentUserRole !== 'athlete') {
+        openAuthModal('signin');
+        return;
+    }
+    if (!supabaseClient) return;
+
+    try {
+        // Check for existing conversation
+        const { data: existing } = await supabaseClient
+            .from('conversations')
+            .select('*')
+            .eq('athlete_id', currentUser.id)
+            .eq('practitioner_id', practitionerId)
+            .single();
+
+        if (existing) {
+            currentConversation = existing;
+        } else {
+            const { data: newConvo, error } = await supabaseClient
+                .from('conversations')
+                .insert({
+                    athlete_id: currentUser.id,
+                    practitioner_id: practitionerId
+                })
+                .select()
+                .single();
+            if (error) throw error;
+            currentConversation = newConvo;
+        }
+
+        navigateTo('messages');
+        await loadConversations();
+        renderConversationList();
+        await loadMessages(currentConversation.id);
+    } catch (e) {
+        showToast('Failed to start conversation.', 'error');
+    }
+}
+
+async function loadConversations() {
+    if (!supabaseClient || !currentUser) return;
+    try {
+        let query;
+        if (currentUserRole === 'athlete') {
+            query = supabaseClient
+                .from('conversations')
+                .select('*')
+                .eq('athlete_id', currentUser.id)
+                .order('last_message_at', { ascending: false });
+        } else {
+            // Practitioner - find conversations via practitioner_id
+            const practId = currentPractitionerAccount?.practitioner_id;
+            if (!practId) return;
+            query = supabaseClient
+                .from('conversations')
+                .select('*')
+                .eq('practitioner_id', practId)
+                .order('last_message_at', { ascending: false });
+        }
+        const { data } = await query;
+        conversations = data || [];
+    } catch (e) {
+        console.warn('Failed to load conversations:', e);
+    }
+}
+
+function renderConversationList() {
+    const container = document.getElementById('conversationList');
+    if (!container) return;
+
+    if (conversations.length === 0) {
+        container.innerHTML = `
+            <div class="messages-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <p>No conversations yet</p>
+                <small>Start a conversation from a practitioner's profile.</small>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = conversations.map(c => {
+        const isActive = currentConversation && currentConversation.id === c.id;
+        let displayName;
+        if (currentUserRole === 'athlete') {
+            const p = practitioners.find(pr => pr.id === c.practitioner_id);
+            displayName = p ? p.name : 'Practitioner';
+        } else {
+            displayName = 'Athlete'; // In a full implementation, would look up athlete name
+        }
+        const time = c.last_message_at ? new Date(c.last_message_at).toLocaleDateString() : '';
+
+        return `
+            <div class="conversation-item ${isActive ? 'conversation-item--active' : ''}"
+                 onclick="selectConversation(${parseInt(c.id)})">
+                <div class="conversation-item__avatar">${escapeHTML(displayName.split(' ').map(n => n[0]).join('').slice(0, 2))}</div>
+                <div class="conversation-item__info">
+                    <div class="conversation-item__name">${escapeHTML(displayName)}</div>
+                    <div class="conversation-item__time">${escapeHTML(time)}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function selectConversation(convoId) {
+    const convo = conversations.find(c => c.id === convoId);
+    if (!convo) return;
+    currentConversation = convo;
+    renderConversationList();
+    await loadMessages(convoId);
+}
+
+async function loadMessages(conversationId) {
+    if (!supabaseClient) return;
+    try {
+        const { data } = await supabaseClient
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+
+        renderMessageThread(data || []);
+
+        // Mark messages as read
+        if (currentUser) {
+            await supabaseClient
+                .from('messages')
+                .update({ read: true })
+                .eq('conversation_id', conversationId)
+                .neq('sender_id', currentUser.id)
+                .eq('read', false);
+        }
+    } catch (e) {
+        console.warn('Failed to load messages:', e);
+    }
+}
+
+function renderMessageThread(messages) {
+    const container = document.getElementById('messageThread');
+    if (!container) return;
+
+    if (!currentConversation) {
+        container.innerHTML = `
+            <div class="messages-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <p>Select a conversation</p>
+                <small>Choose a conversation from the left to view messages.</small>
+            </div>
+        `;
+        return;
+    }
+
+    let displayName;
+    if (currentUserRole === 'athlete') {
+        const p = practitioners.find(pr => pr.id === currentConversation.practitioner_id);
+        displayName = p ? p.name : 'Practitioner';
+    } else {
+        displayName = 'Athlete';
+    }
+
+    const messagesHtml = messages.map(m => {
+        const isMine = m.sender_id === currentUser?.id;
+        const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `
+            <div class="message-bubble ${isMine ? 'message-bubble--sent' : 'message-bubble--received'}">
+                <div class="message-bubble__content">${escapeHTML(m.content)}</div>
+                <div class="message-bubble__time">${escapeHTML(time)}</div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="messages-thread__header">
+            <button class="btn btn--text btn--sm messages-back-btn" onclick="closeMessageThread()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <h3>${escapeHTML(displayName)}</h3>
+        </div>
+        <div class="messages-thread__messages" id="messagesContainer">
+            ${messagesHtml || '<div class="messages-empty" style="padding:40px 0;"><p>No messages yet. Say hello!</p></div>'}
+        </div>
+        <div class="message-input">
+            <input type="text" id="messageInputField" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button class="btn btn--primary btn--sm" onclick="sendMessage()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    `;
+
+    // Scroll to bottom
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function closeMessageThread() {
+    currentConversation = null;
+    renderConversationList();
+    const container = document.getElementById('messageThread');
+    if (container) {
+        container.innerHTML = `
+            <div class="messages-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <p>Select a conversation</p>
+                <small>Choose a conversation from the left to view messages.</small>
+            </div>
+        `;
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('messageInputField');
+    if (!input || !input.value.trim() || !currentConversation || !supabaseClient || !currentUser) return;
+
+    const content = input.value.trim();
+    input.value = '';
+
+    try {
+        const { error } = await supabaseClient.from('messages').insert({
+            conversation_id: currentConversation.id,
+            sender_id: currentUser.id,
+            content: content
+        });
+        if (error) throw error;
+
+        // Update conversation last_message_at
+        await supabaseClient
+            .from('conversations')
+            .update({ last_message_at: new Date().toISOString() })
+            .eq('id', currentConversation.id);
+
+        // Send email notification
+        await sendNotificationEmail(currentConversation, content);
+
+        // Reload messages
+        await loadMessages(currentConversation.id);
+    } catch (e) {
+        showToast('Failed to send message.', 'error');
+    }
+}
+
+async function sendNotificationEmail(conversation, messageContent) {
+    try {
+        // Determine recipient
+        let recipientEmail, recipientName, senderName;
+        if (currentUserRole === 'athlete') {
+            // Sending to practitioner - get their email from practitioner_accounts
+            const { data: practAccount } = await supabaseClient
+                .from('practitioner_accounts')
+                .select('email, full_name')
+                .eq('practitioner_id', conversation.practitioner_id)
+                .single();
+            if (!practAccount) return;
+            recipientEmail = practAccount.email;
+            recipientName = practAccount.full_name || 'Practitioner';
+            senderName = currentAthleteProfile?.full_name || 'An athlete';
+        } else {
+            // Sending to athlete - get their email
+            const { data: athleteProfile } = await supabaseClient
+                .from('athlete_profiles')
+                .select('email, full_name')
+                .eq('id', conversation.athlete_id)
+                .single();
+            if (!athleteProfile) return;
+            recipientEmail = athleteProfile.email;
+            recipientName = athleteProfile.full_name || 'Athlete';
+            senderName = currentPractitionerAccount?.full_name || 'A practitioner';
+        }
+
+        // Call notification serverless function
+        await fetch('/.netlify/functions/send-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                recipientEmail,
+                recipientName,
+                senderName,
+                messagePreview: messageContent.slice(0, 200),
+                conversationUrl: window.location.origin + '/#messages'
+            })
+        });
+    } catch (e) {
+        // Silent fail - email notification is best-effort
+        console.warn('Email notification failed:', e);
+    }
+}
+
+function startMessagePolling() {
+    if (messagePollingInterval) clearInterval(messagePollingInterval);
+    messagePollingInterval = setInterval(async () => {
+        if (currentConversation && currentPage === 'messages') {
+            await loadMessages(currentConversation.id);
+        }
+        await updateUnreadBadge();
+    }, 10000);
+}
+
+async function updateUnreadBadge() {
+    if (!supabaseClient || !currentUser) return;
+    try {
+        const { count } = await supabaseClient
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .neq('sender_id', currentUser.id)
+            .eq('read', false);
+
+        const badge = document.getElementById('headerUnreadBadge');
+        if (badge) {
+            if (count && count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    } catch (e) { /* silent */ }
 }
 
 // ============================================
@@ -2533,7 +3560,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update connection badge if admin page is visible
     updateConnectionBadge();
 
-    // Listen for Supabase auth state changes
+    // Initialize user authentication
+    await initAuth();
+
+    // Load favorites if athlete is logged in
+    if (currentUser && currentUserRole === 'athlete') {
+        await loadFavorites();
+    }
+
+    // Start message polling if logged in
+    if (currentUser) {
+        startMessagePolling();
+    }
+
+    // Listen for Supabase auth state changes (admin-specific)
     if (isSupabaseConnected && supabaseClient) {
         supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN') {

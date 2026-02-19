@@ -333,3 +333,211 @@ INSERT INTO practitioners (name, credentials, title, avatar, color, bg_color, lo
     '[{"author": "Parent", "stars": 5, "text": "Sam has a magical way with kids. My son has blossomed since starting therapy."}, {"author": "Parent", "stars": 5, "text": "Creative, patient, and deeply caring. Sam is a wonderful therapist for children."}]'::jsonb,
     false, true
 );
+
+-- ============================================
+-- Migration: Add video_url column
+-- ============================================
+ALTER TABLE practitioners ADD COLUMN IF NOT EXISTS video_url TEXT;
+
+-- ============================================
+-- Clear existing reviews (Feature: Delete Reviews)
+-- ============================================
+UPDATE practitioners SET reviews = '[]'::jsonb, review_count = 0;
+
+-- ============================================
+-- Athlete Profiles Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS athlete_profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    phone TEXT,
+    avatar_url TEXT,
+    preferences JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE athlete_profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Athletes can read own profile"
+    ON athlete_profiles FOR SELECT
+    TO authenticated
+    USING (auth.uid() = id);
+
+CREATE POLICY "Athletes can insert own profile"
+    ON athlete_profiles FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Athletes can update own profile"
+    ON athlete_profiles FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
+
+-- ============================================
+-- Athlete Favorites Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS athlete_favorites (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    athlete_id UUID REFERENCES athlete_profiles(id) ON DELETE CASCADE,
+    practitioner_id BIGINT REFERENCES practitioners(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(athlete_id, practitioner_id)
+);
+
+ALTER TABLE athlete_favorites ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Athletes can manage own favorites"
+    ON athlete_favorites FOR ALL
+    TO authenticated
+    USING (auth.uid() = athlete_id)
+    WITH CHECK (auth.uid() = athlete_id);
+
+-- ============================================
+-- Bookings Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS bookings (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    athlete_id UUID REFERENCES athlete_profiles(id) ON DELETE CASCADE,
+    practitioner_id BIGINT REFERENCES practitioners(id) ON DELETE CASCADE,
+    offering_name TEXT,
+    session_date DATE,
+    session_time TEXT,
+    status TEXT DEFAULT 'pending',
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Athletes can read own bookings"
+    ON bookings FOR SELECT
+    TO authenticated
+    USING (auth.uid() = athlete_id);
+
+CREATE POLICY "Athletes can insert bookings"
+    ON bookings FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = athlete_id);
+
+CREATE POLICY "Practitioners can read their bookings"
+    ON bookings FOR SELECT
+    TO authenticated
+    USING (practitioner_id IN (
+        SELECT practitioner_id FROM practitioner_accounts WHERE id = auth.uid()
+    ));
+
+-- ============================================
+-- Practitioner Accounts Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS practitioner_accounts (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    practitioner_id BIGINT REFERENCES practitioners(id),
+    email TEXT NOT NULL,
+    full_name TEXT,
+    phone TEXT,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE practitioner_accounts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Practitioner can read own account"
+    ON practitioner_accounts FOR SELECT
+    TO authenticated
+    USING (auth.uid() = id);
+
+CREATE POLICY "Practitioner can insert own account"
+    ON practitioner_accounts FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Practitioner can update own account"
+    ON practitioner_accounts FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
+
+-- Admin can read all practitioner accounts
+CREATE POLICY "Admin can read all practitioner accounts"
+    ON practitioner_accounts FOR SELECT
+    TO authenticated
+    USING (true);
+
+-- ============================================
+-- Conversations Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS conversations (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    athlete_id UUID REFERENCES athlete_profiles(id) ON DELETE CASCADE,
+    practitioner_id BIGINT REFERENCES practitioners(id) ON DELETE CASCADE,
+    last_message_at TIMESTAMPTZ DEFAULT now(),
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(athlete_id, practitioner_id)
+);
+
+ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can access own conversations"
+    ON conversations FOR ALL
+    TO authenticated
+    USING (
+        auth.uid() = athlete_id
+        OR practitioner_id IN (
+            SELECT practitioner_id FROM practitioner_accounts WHERE id = auth.uid()
+        )
+    )
+    WITH CHECK (
+        auth.uid() = athlete_id
+        OR practitioner_id IN (
+            SELECT practitioner_id FROM practitioner_accounts WHERE id = auth.uid()
+        )
+    );
+
+-- ============================================
+-- Messages Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS messages (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    conversation_id BIGINT REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_id UUID NOT NULL,
+    content TEXT NOT NULL,
+    read BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can access messages in own conversations"
+    ON messages FOR ALL
+    TO authenticated
+    USING (
+        conversation_id IN (
+            SELECT id FROM conversations WHERE
+                athlete_id = auth.uid()
+                OR practitioner_id IN (
+                    SELECT practitioner_id FROM practitioner_accounts WHERE id = auth.uid()
+                )
+        )
+    )
+    WITH CHECK (
+        sender_id = auth.uid()
+        AND conversation_id IN (
+            SELECT id FROM conversations WHERE
+                athlete_id = auth.uid()
+                OR practitioner_id IN (
+                    SELECT practitioner_id FROM practitioner_accounts WHERE id = auth.uid()
+                )
+        )
+    );
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_athlete_favorites_athlete ON athlete_favorites(athlete_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_athlete ON bookings(athlete_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_practitioner ON bookings(practitioner_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_athlete ON conversations(athlete_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_practitioner ON conversations(practitioner_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_read ON messages(read) WHERE read = false;

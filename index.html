@@ -33,7 +33,37 @@
                 </a>
             </nav>
             <div class="header__actions">
-                <a href="#" class="btn btn--outline btn--sm" onclick="openModal('joinModal')">Join as Practitioner</a>
+                <!-- Signed-out state -->
+                <div id="headerSignedOut">
+                    <a href="#" class="btn btn--outline btn--sm" onclick="openModal('joinModal')">Join as Practitioner</a>
+                    <a href="#" class="btn btn--primary btn--sm" onclick="openAuthModal('signin')">Sign In</a>
+                </div>
+                <!-- Signed-in state (hidden by default) -->
+                <div id="headerSignedIn" style="display:none;">
+                    <div class="user-menu" id="userMenu">
+                        <button class="user-menu__trigger" onclick="toggleUserMenu()">
+                            <div class="user-menu__avatar" id="userMenuAvatar">U</div>
+                            <span class="user-menu__name" id="userMenuName">User</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="user-menu__dropdown" id="userMenuDropdown">
+                            <a href="#" class="user-menu__item" id="userMenuDashboardLink" onclick="navigateToUserDashboard()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                My Dashboard
+                            </a>
+                            <a href="#" class="user-menu__item" onclick="navigateTo('messages')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Messages
+                                <span class="unread-badge" id="headerUnreadBadge" style="display:none;">0</span>
+                            </a>
+                            <div class="user-menu__divider"></div>
+                            <a href="#" class="user-menu__item user-menu__item--danger" onclick="userSignOut()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">
                     <span></span><span></span><span></span>
                 </button>
@@ -48,7 +78,11 @@
         <a href="#" class="mobile-nav__link" onclick="navigateTo('about')">About</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('faq')">FAQ</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('admin')">Admin</a>
-        <a href="#" class="btn btn--primary btn--full" onclick="openModal('joinModal')">Join as Practitioner</a>
+        <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="openAuthModal('signin')">Sign In</a>
+        <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="openModal('joinModal')">Join as Practitioner</a>
+        <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="navigateToUserDashboard()">My Dashboard</a>
+        <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="navigateTo('messages')">Messages</a>
+        <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="userSignOut()">Sign Out</a>
     </div>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -530,89 +564,325 @@
 
                 <!-- Dashboard (shown after login) -->
                 <div class="admin-dashboard" id="adminDashboard" style="display:none;">
-                    <!-- Header -->
-                    <div class="admin-header">
-                        <div>
-                            <h1 class="admin-header__title">Admin Dashboard</h1>
-                            <p class="admin-header__subtitle">Manage practitioners, view stats, and export data.</p>
-                        </div>
-                        <div class="admin-header__actions">
-                            <button class="btn btn--outline btn--sm" onclick="exportData()">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                Export JSON
-                            </button>
-                            <label class="btn btn--outline btn--sm" style="cursor:pointer;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                Import JSON
-                                <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
-                            </label>
-                            <button class="btn btn--primary btn--sm" onclick="openAdminAddModal()">+ Add Practitioner</button>
-                            <button class="btn btn--text btn--sm" onclick="adminLogout()">Sign Out</button>
-                        </div>
-                    </div>
-
-                    <!-- Stats Cards -->
-                    <div class="admin-stats" id="adminStats"></div>
-
-                    <!-- Category Manager -->
-                    <div class="admin-category-manager">
-                        <div class="admin-category-manager__header">
-                            <div>
-                                <h2 class="admin-category-manager__title">Manage Categories</h2>
-                                <p class="admin-category-manager__subtitle">Add, edit, reorder, or remove specialty categories shown across the site.</p>
+                    <div class="admin-layout">
+                        <!-- Sidebar Navigation -->
+                        <nav class="admin-sidebar" id="adminSidebar">
+                            <div class="admin-sidebar__header">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary)" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
+                                <h3>Admin Panel</h3>
                             </div>
-                            <button class="btn btn--primary btn--sm" onclick="openCategoryModal()">+ Add Category</button>
-                        </div>
-                        <div class="admin-table-wrapper">
-                            <table class="admin-table" id="categoryManagerTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width:60px;">Icon</th>
-                                        <th>Category Name</th>
-                                        <th style="width:120px;">Practitioners</th>
-                                        <th style="width:100px;">Order</th>
-                                        <th style="width:160px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="categoryManagerBody">
-                                </tbody>
-                            </table>
+                            <ul class="admin-sidebar__menu">
+                                <li class="admin-sidebar__item active" data-section="overview" onclick="switchAdminSection('overview')">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                    Dashboard
+                                </li>
+                                <li class="admin-sidebar__item" data-section="practitioners" onclick="switchAdminSection('practitioners')">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    Practitioners
+                                </li>
+                                <li class="admin-sidebar__item" data-section="categories" onclick="switchAdminSection('categories')">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                                    Categories
+                                </li>
+                            </ul>
+                            <div class="admin-sidebar__footer">
+                                <button class="btn btn--text btn--sm btn--full" onclick="adminLogout()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                    Sign Out
+                                </button>
+                            </div>
+                        </nav>
+
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="admin-sidebar-toggle" id="adminSidebarToggle" onclick="toggleAdminSidebar()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                            Menu
+                        </button>
+
+                        <!-- Main Content Area -->
+                        <div class="admin-main">
+                            <!-- Section: Overview -->
+                            <div class="admin-section active" id="adminSection-overview">
+                                <div class="admin-section__header">
+                                    <div>
+                                        <h1 class="admin-section__title">Dashboard Overview</h1>
+                                        <p class="admin-section__subtitle">Quick stats and platform overview.</p>
+                                    </div>
+                                </div>
+                                <div class="admin-stats" id="adminStats"></div>
+                            </div>
+
+                            <!-- Section: Practitioners -->
+                            <div class="admin-section" id="adminSection-practitioners">
+                                <div class="admin-section__header">
+                                    <div>
+                                        <h1 class="admin-section__title">Manage Practitioners</h1>
+                                        <p class="admin-section__subtitle">Add, edit, and manage practitioner listings.</p>
+                                    </div>
+                                    <div class="admin-section__actions">
+                                        <button class="btn btn--outline btn--sm" onclick="exportData()">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                            Export
+                                        </button>
+                                        <label class="btn btn--outline btn--sm" style="cursor:pointer;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                            Import
+                                            <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+                                        </label>
+                                        <button class="btn btn--primary btn--sm" onclick="openAdminAddModal()">+ Add Practitioner</button>
+                                    </div>
+                                </div>
+
+                                <div class="admin-table-controls">
+                                    <div class="search-input">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                        <input type="text" placeholder="Search practitioners..." id="adminSearchInput" oninput="renderAdminTable()">
+                                    </div>
+                                    <select class="sort-select" id="adminFilterSpecialty" onchange="renderAdminTable()">
+                                        <!-- Dynamically rendered by renderAdminSpecialtyFilter() -->
+                                    </select>
+                                </div>
+
+                                <div class="admin-table-wrapper">
+                                    <table class="admin-table" id="adminTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Practitioner</th>
+                                                <th>Location</th>
+                                                <th>Specialties</th>
+                                                <th>Rating</th>
+                                                <th>Price</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adminTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Section: Categories -->
+                            <div class="admin-section" id="adminSection-categories">
+                                <div class="admin-section__header">
+                                    <div>
+                                        <h1 class="admin-section__title">Manage Categories</h1>
+                                        <p class="admin-section__subtitle">Add, edit, reorder, or remove specialty categories shown across the site.</p>
+                                    </div>
+                                    <div class="admin-section__actions">
+                                        <button class="btn btn--primary btn--sm" onclick="openCategoryModal()">+ Add Category</button>
+                                    </div>
+                                </div>
+                                <div class="admin-table-wrapper">
+                                    <table class="admin-table" id="categoryManagerTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:60px;">Icon</th>
+                                                <th>Category Name</th>
+                                                <th style="width:120px;">Practitioners</th>
+                                                <th style="width:100px;">Order</th>
+                                                <th style="width:160px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="categoryManagerBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <!-- Table Controls -->
-                    <div class="admin-table-controls">
-                        <div class="search-input">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                            <input type="text" placeholder="Search practitioners..." id="adminSearchInput" oninput="renderAdminTable()">
+        <!-- ===== ATHLETE DASHBOARD PAGE ===== -->
+        <section class="page" id="page-athlete-dashboard">
+            <div class="container">
+                <div class="dashboard-layout">
+                    <nav class="dashboard-sidebar">
+                        <div class="dashboard-sidebar__profile" id="athleteProfileSummary"></div>
+                        <ul class="dashboard-sidebar__menu">
+                            <li class="dashboard-sidebar__item active" data-section="profile" onclick="switchDashboardSection('athlete', 'profile')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                My Profile
+                            </li>
+                            <li class="dashboard-sidebar__item" data-section="favorites" onclick="switchDashboardSection('athlete', 'favorites')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                Favorites
+                            </li>
+                            <li class="dashboard-sidebar__item" data-section="bookings" onclick="switchDashboardSection('athlete', 'bookings')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                My Bookings
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="dashboard-main">
+                        <div class="dashboard-section active" id="athleteSection-profile">
+                            <h2>My Profile</h2>
+                            <form id="athleteProfileForm" onsubmit="saveAthleteProfile(event)">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Full Name</label>
+                                        <input type="text" id="athleteFormName" required placeholder="Your full name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="athleteFormEmail" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Phone</label>
+                                        <input type="tel" id="athleteFormPhone" placeholder="(555) 123-4567">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn--primary">Save Profile</button>
+                            </form>
                         </div>
-                        <select class="sort-select" id="adminFilterSpecialty" onchange="renderAdminTable()">
-                            <!-- Dynamically rendered by renderAdminSpecialtyFilter() -->
-                        </select>
+                        <div class="dashboard-section" id="athleteSection-favorites">
+                            <h2>Favorite Practitioners</h2>
+                            <div id="athleteFavoritesList" class="dashboard-cards-grid"></div>
+                        </div>
+                        <div class="dashboard-section" id="athleteSection-bookings">
+                            <h2>My Bookings</h2>
+                            <div id="athleteBookingsList"></div>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <!-- Practitioner Table -->
-                    <div class="admin-table-wrapper">
-                        <table class="admin-table" id="adminTable">
-                            <thead>
-                                <tr>
-                                    <th>Practitioner</th>
-                                    <th>Location</th>
-                                    <th>Specialties</th>
-                                    <th>Rating</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminTableBody">
-                            </tbody>
-                        </table>
+        <!-- ===== PRACTITIONER DASHBOARD PAGE ===== -->
+        <section class="page" id="page-practitioner-dashboard">
+            <div class="container">
+                <div class="dashboard-layout">
+                    <nav class="dashboard-sidebar">
+                        <div class="dashboard-sidebar__profile" id="practitionerProfileSummary"></div>
+                        <ul class="dashboard-sidebar__menu">
+                            <li class="dashboard-sidebar__item active" data-section="profile" onclick="switchDashboardSection('practitioner', 'profile')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                My Profile
+                            </li>
+                            <li class="dashboard-sidebar__item" data-section="bookings" onclick="switchDashboardSection('practitioner', 'bookings')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                Bookings
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="dashboard-main">
+                        <div class="dashboard-section active" id="practitionerSection-profile">
+                            <h2>My Profile</h2>
+                            <div id="practitionerProfileForm"></div>
+                        </div>
+                        <div class="dashboard-section" id="practitionerSection-bookings">
+                            <h2>Incoming Bookings</h2>
+                            <div id="practitionerBookingsList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== MESSAGES PAGE ===== -->
+        <section class="page" id="page-messages">
+            <div class="container">
+                <div class="messages-layout">
+                    <div class="messages-sidebar">
+                        <div class="messages-sidebar__header">
+                            <h2>Messages</h2>
+                        </div>
+                        <div class="messages-sidebar__list" id="conversationList">
+                            <div class="messages-empty">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                <p>No conversations yet</p>
+                                <small>Start a conversation from a practitioner's profile.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="messages-thread" id="messageThread">
+                        <div class="messages-empty">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <p>Select a conversation</p>
+                            <small>Choose a conversation from the left to view messages.</small>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- ===== AUTH MODAL (Sign In / Sign Up) ===== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal modal--auth">
+            <button class="modal__close" onclick="closeModal('authModal')">&times;</button>
+            <div class="modal__content">
+                <h2 id="authModalTitle">Sign In</h2>
+                <p class="modal__subtitle" id="authModalSubtitle">Welcome back! Sign in to your account.</p>
+
+                <!-- Auth Tabs -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="authTabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+                    <button class="auth-tab" id="authTabSignUp" onclick="switchAuthTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- Sign In Form -->
+                <form id="authSignInForm" onsubmit="athleteSignIn(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="authSignInEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="authSignInPassword" required placeholder="Enter your password">
+                    </div>
+                    <p class="auth-error" id="authSignInError" style="display:none;"></p>
+                    <button type="submit" class="btn btn--primary btn--full btn--lg">Sign In</button>
+                </form>
+
+                <!-- Sign Up Form (hidden by default) -->
+                <form id="authSignUpForm" style="display:none;" onsubmit="athleteSignUp(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="authSignUpName" required placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="authSignUpEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="authSignUpPassword" required minlength="6" placeholder="Min. 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label>I am a:</label>
+                        <div class="auth-role-select">
+                            <label class="auth-role-option">
+                                <input type="radio" name="authRole" value="athlete" checked>
+                                <span>Athlete / Patient</span>
+                            </label>
+                            <label class="auth-role-option">
+                                <input type="radio" name="authRole" value="practitioner">
+                                <span>Practitioner</span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="auth-error" id="authSignUpError" style="display:none;"></p>
+                    <button type="submit" class="btn btn--primary btn--full btn--lg">Create Account</button>
+                </form>
+
+                <!-- OAuth Divider -->
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+
+                <!-- Google OAuth -->
+                <button class="btn btn--google btn--full" onclick="googleAuth()">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== PRACTITIONER DETAIL MODAL ===== -->
     <div class="modal-overlay" id="practitionerModal">
@@ -799,6 +1069,12 @@
                     <div class="form-group">
                         <label>Bio *</label>
                         <textarea id="adminFormBio" rows="3" required placeholder="A brief description of the practitioner's approach and background..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>YouTube Video URL</label>
+                        <input type="url" id="adminFormVideoUrl" placeholder="https://youtube.com/watch?v=...">
+                        <small style="color: var(--text-muted);">Optional — leave blank if practitioner doesn't have an intro video.</small>
                     </div>
 
                     <div class="form-group">

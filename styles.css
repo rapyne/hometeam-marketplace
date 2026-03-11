@@ -2137,9 +2137,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Logo image sizing */
 .logo__icon img {
-    height: 36px;
+    height: 40px;
     width: auto;
     display: block;
+    max-width: 200px;
+    object-fit: contain;
 }
 
 /* Admin Login Gate */

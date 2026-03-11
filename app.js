@@ -1452,7 +1452,7 @@ function renderPractitioners() {
         grid.innerHTML = `
             <div class="no-results" style="grid-column: 1/-1;">
                 <div class="no-results__icon">🔍</div>
-                <h3>No practitioners found</h3>
+                <h3>No providers found</h3>
                 <p>Try adjusting your filters or search terms to find more results.</p>
             </div>
         `;
@@ -3625,4 +3625,25 @@ function searchBySpecialty(specialty) {
             applyFilters();
         }
     }, 100);
+}
+
+// ============================================
+// For Providers Page — FAQ Accordion
+// ============================================
+function toggleProviderFaq(questionEl) {
+    const item = questionEl.closest('.fp-faq__item');
+    const isOpen = item.classList.contains('fp-faq__item--open');
+
+    // Close all open items
+    document.querySelectorAll('.fp-faq__item--open').forEach(openItem => {
+        openItem.classList.remove('fp-faq__item--open');
+        const q = openItem.querySelector('.fp-faq__question');
+        if (q) q.setAttribute('aria-expanded', 'false');
+    });
+
+    // If the clicked item was closed, open it
+    if (!isOpen) {
+        item.classList.add('fp-faq__item--open');
+        questionEl.setAttribute('aria-expanded', 'true');
+    }
 }

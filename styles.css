@@ -4074,3 +4074,522 @@ h1, h2, h3, h4, h5, h6 {
         text-align: center;
     }
 }
+
+/* ============================================
+   For Providers Page
+   ============================================ */
+
+/* Page wrapper — sits below fixed header */
+.page--for-providers {
+    padding-top: var(--header-height);
+}
+
+/* ── Layout helpers ── */
+.fp-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+.fp-container--narrow {
+    max-width: 760px;
+}
+
+/* ── Section scaffold ── */
+.fp-section {
+    padding: var(--space-4xl) var(--space-lg);
+}
+
+.fp-section--alt {
+    background: #f8fdfc;
+}
+
+.fp-section--mission {
+    background: #f0faf7;
+    text-align: center;
+}
+
+.fp-section--finalcta {
+    background: linear-gradient(135deg, #00897b, #26a69a);
+}
+
+.fp-section__header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.fp-section__header--left {
+    text-align: left;
+}
+
+.fp-section__title {
+    font-family: var(--font-heading);
+    font-size: clamp(26px, 3.5vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.fp-section__title--center {
+    text-align: center;
+}
+
+.fp-section__intro {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+.fp-section__header--left .fp-section__intro {
+    margin: 0;
+}
+
+.fp-section__cta {
+    text-align: center;
+    margin-top: var(--space-2xl);
+}
+
+/* ── Hero ── */
+.fp-hero {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-light);
+    padding: var(--space-3xl) var(--space-lg);
+}
+
+.fp-hero__inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xl);
+}
+
+.fp-hero__content {
+    flex: 1;
+    max-width: 580px;
+}
+
+.fp-hero__label {
+    display: inline-block;
+    padding: 5px 14px;
+    background: var(--blue-light);
+    color: var(--blue-primary);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: var(--space-lg);
+}
+
+.fp-hero__title {
+    font-family: var(--font-heading);
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: var(--space-lg);
+}
+
+.fp-hero__sub {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-xl);
+    max-width: 520px;
+}
+
+/* Hero visual — badge stack */
+.fp-hero__visual {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fp-hero__badge-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.fp-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-lg);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    min-width: 220px;
+}
+
+.fp-badge--teal {
+    background: var(--blue-light);
+    color: var(--blue-primary);
+}
+
+.fp-badge--green {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.fp-badge--yellow {
+    background: #fffbeb;
+    color: #92400e;
+}
+
+/* ── Benefit cards ── */
+.fp-benefits {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-sm);
+}
+
+.fp-benefit-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    transition: all var(--transition-base);
+}
+
+.fp-benefit-card:hover {
+    border-color: var(--blue-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.fp-benefit-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--blue-light);
+    color: var(--blue-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-md);
+}
+
+.fp-benefit-card__title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+}
+
+.fp-benefit-card__desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ── Who This Is For — checklist ── */
+.fp-checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+}
+
+.fp-checklist__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.fp-checklist__icon {
+    color: var(--blue-primary);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Mission callout block */
+.fp-callout {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue-primary);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    padding: var(--space-xl) var(--space-2xl);
+    margin: 0;
+}
+
+.fp-callout p {
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--text-primary);
+}
+
+.fp-callout strong {
+    color: var(--blue-primary);
+    font-weight: 800;
+}
+
+/* ── How It Works — steps ── */
+.fp-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 680px;
+    margin: 0 auto var(--space-xl);
+    position: relative;
+}
+
+/* Vertical connector line */
+.fp-steps::before {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--border-color);
+    z-index: 0;
+}
+
+.fp-step {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-lg);
+    padding: var(--space-lg) 0;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-step__num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--blue-primary);
+    color: var(--white);
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 4px #f8fdfc;
+}
+
+.fp-step__body {
+    padding-top: 10px;
+}
+
+.fp-step__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.fp-step__desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.fp-steps__closing {
+    text-align: center;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* ── What Makes HomeTeam Different ── */
+.fp-diff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+}
+
+.fp-diff-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    transition: all var(--transition-base);
+}
+
+.fp-diff-card:hover {
+    border-color: var(--blue-bright);
+    box-shadow: var(--shadow-md);
+}
+
+.fp-diff-card__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+}
+
+.fp-diff-card__desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ── Provider FAQs — accordion ── */
+.fp-faq {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.fp-faq__item {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.fp-faq__item.fp-faq__item--open {
+    border-color: var(--blue-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.fp-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-xl);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    user-select: none;
+    transition: background var(--transition-fast);
+    list-style: none;
+}
+
+.fp-faq__question:hover {
+    background: var(--gray-50);
+}
+
+.fp-faq__question[aria-expanded="true"] {
+    background: var(--blue-light);
+    color: var(--blue-primary);
+}
+
+.fp-faq__chevron {
+    flex-shrink: 0;
+    transition: transform var(--transition-base);
+    color: var(--text-muted);
+}
+
+.fp-faq__question[aria-expanded="true"] .fp-faq__chevron {
+    transform: rotate(180deg);
+    color: var(--blue-primary);
+}
+
+.fp-faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-slow);
+}
+
+.fp-faq__item--open .fp-faq__answer {
+    max-height: 400px;
+}
+
+.fp-faq__answer div {
+    padding: 0 var(--space-xl) var(--space-xl);
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.75;
+}
+
+/* ── Why This Work Matters ── */
+.fp-mission__body {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 640px;
+    margin: 0 auto var(--space-lg);
+    text-align: center;
+}
+
+.fp-mission__body--accent {
+    font-weight: 600;
+    color: var(--blue-primary);
+    font-size: 17px;
+}
+
+/* ── Final CTA ── */
+.fp-finalcta {
+    text-align: center;
+    padding: var(--space-3xl) var(--space-lg);
+}
+
+.fp-finalcta__title {
+    font-family: var(--font-heading);
+    font-size: clamp(26px, 3.5vw, 36px);
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: var(--space-md);
+    letter-spacing: -0.02em;
+}
+
+.fp-finalcta__body {
+    font-size: 17px;
+    color: rgba(255,255,255,0.88);
+    margin-bottom: var(--space-xl);
+    line-height: 1.6;
+}
+
+.fp-finalcta__micro {
+    margin-top: var(--space-md);
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+    .fp-benefits {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .fp-hero__inner {
+        flex-direction: column;
+        gap: var(--space-2xl);
+    }
+    .fp-hero__visual {
+        display: none;
+    }
+    .fp-benefits {
+        grid-template-columns: 1fr;
+    }
+    .fp-diff-grid {
+        grid-template-columns: 1fr;
+    }
+    .fp-steps::before {
+        display: none;
+    }
+    .fp-faq__question {
+        padding: var(--space-md) var(--space-lg);
+    }
+    .fp-faq__answer div {
+        padding: 0 var(--space-lg) var(--space-lg);
+    }
+    .fp-callout {
+        padding: var(--space-lg);
+    }
+}

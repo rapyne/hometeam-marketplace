@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeTeam — Mental Health Practitioner Marketplace</title>
+    <title>HomeTeam — Mental Health Provider Marketplace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🏠</text></svg>">
+    <!-- FAQPage structured data for For Providers page -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type":"Question","name":"Who is HomeTeam for?","acceptedAnswer":{"@type":"Answer","text":"HomeTeam is for licensed mental health providers who want to support athletes during and beyond sport."}},
+        {"@type":"Question","name":"Do I need to be a former athlete to join?","acceptedAnswer":{"@type":"Answer","text":"No. But providers should understand athlete culture and the unique challenges athletes can face."}},
+        {"@type":"Question","name":"What kinds of providers is HomeTeam looking for?","acceptedAnswer":{"@type":"Answer","text":"HomeTeam is looking for licensed mental health providers who can support athletes through challenges like identity shifts, injury, performance pressure, transition, anxiety, depression, burnout, trauma, and eating concerns."}},
+        {"@type":"Question","name":"What is HomeTeam?","acceptedAnswer":{"@type":"Answer","text":"HomeTeam is a platform that helps athletes find trusted mental health providers who understand the realities of sport."}},
+        {"@type":"Question","name":"What makes HomeTeam different from other provider directories?","acceptedAnswer":{"@type":"Answer","text":"HomeTeam is focused on athlete mental health and athlete-centered care. We're not just building a directory — we're building a broader ecosystem to help athletes find support that fits the realities of sport."}},
+        {"@type":"Question","name":"Am I joining a group practice, or do I maintain my own practice?","acceptedAnswer":{"@type":"Answer","text":"Providers maintain their own independent practice. HomeTeam is not a group practice model."}},
+        {"@type":"Question","name":"Will I be able to decide whether a client is the right fit for my practice?","acceptedAnswer":{"@type":"Answer","text":"Yes. HomeTeam helps create better-fit connections, but providers still decide whether a prospective client is appropriate for their practice."}},
+        {"@type":"Question","name":"How do athletes find me?","acceptedAnswer":{"@type":"Answer","text":"Athletes can discover providers on HomeTeam through profile search, filtering, and matching. HomeTeam is also building partnership and visibility channels to help connect more athletes to care."}},
+        {"@type":"Question","name":"Can I offer virtual care only?","acceptedAnswer":{"@type":"Answer","text":"Yes. Providers may offer virtual care, in-person care, or both."}},
+        {"@type":"Question","name":"Can I join if I'm licensed in multiple states?","acceptedAnswer":{"@type":"Answer","text":"Yes. Providers will be able to indicate all applicable states on their profile."}},
+        {"@type":"Question","name":"What information will I need to submit?","acceptedAnswer":{"@type":"Answer","text":"Providers will be asked to share professional credentials, licensure details, practice information, and profile details."}},
+        {"@type":"Question","name":"How does the review process work?","acceptedAnswer":{"@type":"Answer","text":"Applications are reviewed for credentials, licensure, and overall fit with the platform."}},
+        {"@type":"Question","name":"Is there a cost to join?","acceptedAnswer":{"@type":"Answer","text":"There is no upfront cost for early providers joining HomeTeam. HomeTeam earns a revenue share only on clients who book and pay through the platform. Full terms are shared during onboarding."}}
+      ]
+    }
+    </script>
     <!-- Supabase JS Client (pinned version) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
 </head>
@@ -24,7 +46,7 @@
             </a>
             <nav class="nav" id="nav">
                 <a href="#" class="nav__link active" data-page="home" onclick="navigateTo('home')">Home</a>
-                <a href="#" class="nav__link" data-page="practitioners" onclick="navigateTo('practitioners')">Practitioners</a>
+                <a href="#" class="nav__link" data-page="for-providers" onclick="navigateTo('for-providers')">For Providers</a>
                 <a href="#" class="nav__link" data-page="about" onclick="navigateTo('about')">About</a>
                 <a href="#" class="nav__link" data-page="faq" onclick="navigateTo('faq')">FAQ</a>
                 <a href="#" class="nav__link nav__link--admin" data-page="admin" onclick="navigateTo('admin')">
@@ -35,7 +57,7 @@
             <div class="header__actions">
                 <!-- Signed-out state -->
                 <div id="headerSignedOut">
-                    <a href="#" class="btn btn--outline btn--sm" onclick="openModal('joinModal')">Join as Practitioner</a>
+                    <a href="#" class="btn btn--outline btn--sm" onclick="navigateTo('for-providers')">List Your Practice</a>
                     <a href="#" class="btn btn--primary btn--sm" onclick="openAuthModal('signin')">Sign In</a>
                 </div>
                 <!-- Signed-in state (hidden by default) -->
@@ -74,12 +96,12 @@
     <!-- ===== MOBILE NAV ===== -->
     <div class="mobile-nav" id="mobileNav">
         <a href="#" class="mobile-nav__link" onclick="navigateTo('home')">Home</a>
-        <a href="#" class="mobile-nav__link" onclick="navigateTo('practitioners')">Practitioners</a>
+        <a href="#" class="mobile-nav__link" onclick="navigateTo('for-providers')">For Providers</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('about')">About</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('faq')">FAQ</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('admin')">Admin</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="openAuthModal('signin')">Sign In</a>
-        <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="openModal('joinModal')">Join as Practitioner</a>
+        <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="navigateTo('for-providers')">List Your Practice</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="navigateToUserDashboard()">My Dashboard</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="navigateTo('messages')">Messages</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="userSignOut()">Sign Out</a>
@@ -93,7 +115,7 @@
             <div class="hero">
                 <div class="hero__content">
                     <span class="hero__badge">Trusted Mental Health Care</span>
-                    <h1 class="hero__title">Find the Right <span class="text-gradient">Mental Health</span><br>Practitioner for You</h1>
+                    <h1 class="hero__title">Find the Right <span class="text-gradient">Mental Health</span><br>Provider for You</h1>
                     <p class="hero__subtitle">Search verified practitioners by specialty, approach, or sport. Get matched in minutes.</p>
 
                     <!-- ZocDoc-style search bar -->
@@ -122,7 +144,7 @@
                     <div class="hero__stats">
                         <div class="stat">
                             <span class="stat__number">200+</span>
-                            <span class="stat__label">Verified Practitioners</span>
+                            <span class="stat__label">Verified Providers</span>
                         </div>
                         <div class="stat">
                             <span class="stat__number">50+</span>
@@ -150,7 +172,7 @@
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             </div>
                             <div class="step__number">01</div>
-                            <h3 class="step__title">Explore Practitioners</h3>
+                            <h3 class="step__title">Explore Providers</h3>
                             <p class="step__desc">Search for practitioners by location, specialty, therapeutic approach, or identities that resonate with you.</p>
                         </div>
                         <div class="step__connector">
@@ -198,14 +220,14 @@
                 <div class="container">
                     <div class="section__header">
                         <span class="section__badge">Featured</span>
-                        <h2 class="section__title">Top-Rated Practitioners</h2>
+                        <h2 class="section__title">Top-Rated Providers</h2>
                         <p class="section__subtitle">Highly recommended by our community members.</p>
                     </div>
                     <div class="practitioner-grid" id="featuredGrid">
                         <!-- Filled by JS -->
                     </div>
                     <div class="section__cta">
-                        <a href="#" class="btn btn--primary btn--lg" onclick="navigateTo('practitioners')">View All Practitioners →</a>
+                        <a href="#" class="btn btn--primary btn--lg" onclick="navigateTo('practitioners')">View All Providers →</a>
                     </div>
                 </div>
             </div>
@@ -234,7 +256,7 @@
                                 <div class="testimonial-card__avatar" style="background: #2f5dff;">D</div>
                                 <div>
                                     <strong>Dr. Rivera</strong>
-                                    <span>Practitioner since 2023</span>
+                                    <span>Provider since 2023</span>
                                 </div>
                             </div>
                         </div>
@@ -256,7 +278,7 @@
             <div class="section section--cta">
                 <div class="container">
                     <div class="cta-banner">
-                        <h2>Are You a Mental Health Practitioner?</h2>
+                        <h2>Are You a Mental Health Provider?</h2>
                         <p>Join our growing community of verified practitioners and connect with clients who are looking for your unique expertise.</p>
                         <a href="#" class="btn btn--white btn--lg" onclick="openModal('joinModal')">Apply to Join →</a>
                     </div>
@@ -270,7 +292,7 @@
                 <!-- Sidebar Filters -->
                 <aside class="filters" id="filterSidebar">
                     <div class="filters__header">
-                        <h3>Filter Practitioners</h3>
+                        <h3>Filter Providers</h3>
                         <button class="btn btn--text" onclick="resetFilters()">Reset All</button>
                     </div>
 
@@ -342,7 +364,7 @@
                 <div class="results">
                     <div class="results__header">
                         <div class="results__count">
-                            <span id="resultCount">0</span> practitioners found
+                            <span id="resultCount">0</span> providers found
                         </div>
                         <div class="results__controls">
                             <button class="btn btn--outline btn--sm filter-toggle" onclick="toggleFilters()">
@@ -386,7 +408,7 @@
                 <div class="about-grid">
                     <div class="about-card">
                         <div class="about-card__icon">🛡️</div>
-                        <h3>Verified Practitioners</h3>
+                        <h3>Verified Providers</h3>
                         <p>Every practitioner on our platform is vetted for credentials, experience, and commitment to inclusive, affirming care.</p>
                     </div>
                     <div class="about-card">
@@ -737,7 +759,7 @@
                             </form>
                         </div>
                         <div class="dashboard-section" id="athleteSection-favorites">
-                            <h2>Favorite Practitioners</h2>
+                            <h2>Favorite Providers</h2>
                             <div id="athleteFavoritesList" class="dashboard-cards-grid"></div>
                         </div>
                         <div class="dashboard-section" id="athleteSection-bookings">
@@ -955,7 +977,7 @@
         <div class="modal modal--join">
             <button class="modal__close" onclick="closeModal('joinModal')">&times;</button>
             <div class="modal__content">
-                <h2>Join as a Practitioner</h2>
+                <h2>Join as a Provider</h2>
                 <p class="modal__subtitle">Apply to join our community of verified mental health professionals.</p>
                 <form class="join-form" onsubmit="submitJoin(event)">
                     <div class="form-row">
@@ -1177,6 +1199,347 @@
     </div>
 
     <!-- ===== FOOTER ===== -->
+    <!-- ===== FOR PROVIDERS PAGE ===== -->
+    <section class="page page--for-providers" id="page-for-providers">
+
+        <!-- 1. Hero -->
+        <div class="fp-hero">
+            <div class="fp-hero__inner">
+                <div class="fp-hero__content">
+                    <span class="fp-hero__label">For Licensed Providers</span>
+                    <h1 class="fp-hero__title">Grow Your Practice with Athlete Referrals</h1>
+                    <p class="fp-hero__sub">HomeTeam helps licensed mental health providers connect with athletes looking for care that understands the realities of sport.</p>
+                    <a href="#" class="btn btn--primary btn--lg" onclick="openModal('joinModal')">List Your Practice</a>
+                </div>
+                <div class="fp-hero__visual" aria-hidden="true">
+                    <div class="fp-hero__badge-stack">
+                        <div class="fp-badge fp-badge--teal">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span>Verified Providers</span>
+                        </div>
+                        <div class="fp-badge fp-badge--green">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                            <span>Athlete-Centered</span>
+                        </div>
+                        <div class="fp-badge fp-badge--yellow">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>Growing Network</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Why Join HomeTeam -->
+        <div class="fp-section fp-section--alt">
+            <div class="fp-container">
+                <div class="fp-section__header">
+                    <h2 class="fp-section__title">Why Join HomeTeam</h2>
+                    <p class="fp-section__intro">HomeTeam is building a more intentional way for athletes to find care — and for the right providers to be found.</p>
+                </div>
+                <div class="fp-benefits">
+                    <div class="fp-benefit-card">
+                        <div class="fp-benefit-card__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <h3 class="fp-benefit-card__title">Reach aligned clients</h3>
+                        <p class="fp-benefit-card__desc">Connect with athletes looking for support that fits their lived experience and needs.</p>
+                    </div>
+                    <div class="fp-benefit-card">
+                        <div class="fp-benefit-card__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        </div>
+                        <h3 class="fp-benefit-card__title">Build visibility</h3>
+                        <p class="fp-benefit-card__desc">Get discovered through search, filtering, and profile-based matching.</p>
+                    </div>
+                    <div class="fp-benefit-card">
+                        <div class="fp-benefit-card__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        </div>
+                        <h3 class="fp-benefit-card__title">Showcase your expertise</h3>
+                        <p class="fp-benefit-card__desc">Highlight specialties, modalities, identities, sports experience, and session formats.</p>
+                    </div>
+                    <div class="fp-benefit-card">
+                        <div class="fp-benefit-card__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        </div>
+                        <h3 class="fp-benefit-card__title">Reduce friction</h3>
+                        <p class="fp-benefit-card__desc">Make it easier for prospective clients to understand fit and take the next step.</p>
+                    </div>
+                    <div class="fp-benefit-card">
+                        <div class="fp-benefit-card__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </div>
+                        <h3 class="fp-benefit-card__title">Join a mission-aligned platform</h3>
+                        <p class="fp-benefit-card__desc">Be part of an athlete-centered ecosystem built for impact, not just another listing site.</p>
+                    </div>
+                </div>
+                <div class="fp-section__cta">
+                    <a href="#" class="btn btn--primary btn--lg" onclick="openModal('joinModal')">List Your Practice</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Who This Is For -->
+        <div class="fp-section">
+            <div class="fp-container fp-container--narrow">
+                <div class="fp-section__header fp-section__header--left">
+                    <h2 class="fp-section__title">Who This Is For</h2>
+                    <p class="fp-section__intro">HomeTeam is for licensed providers who believe athletes deserve better support during and beyond sport — and want to help build it.</p>
+                </div>
+                <ul class="fp-checklist">
+                    <li class="fp-checklist__item">
+                        <svg class="fp-checklist__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span>You are a licensed mental health provider in good standing</span>
+                    </li>
+                    <li class="fp-checklist__item">
+                        <svg class="fp-checklist__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span>You offer virtual care, in-person care, or both</span>
+                    </li>
+                    <li class="fp-checklist__item">
+                        <svg class="fp-checklist__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span>You support athletes navigating identity, injury, performance pressure, transition, anxiety, depression, burnout, trauma, eating concerns, or life beyond sport</span>
+                    </li>
+                    <li class="fp-checklist__item">
+                        <svg class="fp-checklist__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span>You want to grow your visibility with a values-aligned audience</span>
+                    </li>
+                    <li class="fp-checklist__item">
+                        <svg class="fp-checklist__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span>You were an athlete and want to provide today's athlete the care you never received</span>
+                    </li>
+                </ul>
+                <blockquote class="fp-callout">
+                    <p>We believe that with the right support, athletes can go on to shape families, communities, workplaces, and culture. They become tomorrow's leaders, parents, mentors, and changemakers. If you want to create meaningful impact through your work, HomeTeam is building that future <strong>TOGETHER</strong>.</p>
+                </blockquote>
+            </div>
+        </div>
+
+        <!-- 4. How It Works -->
+        <div class="fp-section fp-section--alt">
+            <div class="fp-container">
+                <div class="fp-section__header">
+                    <h2 class="fp-section__title">How It Works</h2>
+                    <p class="fp-section__intro">We've designed the process to be clear, transparent, and easy to follow.</p>
+                </div>
+                <ol class="fp-steps" aria-label="Provider onboarding steps">
+                    <li class="fp-step">
+                        <div class="fp-step__num" aria-hidden="true">1</div>
+                        <div class="fp-step__body">
+                            <h3 class="fp-step__title">Apply</h3>
+                            <p class="fp-step__desc">Submit your professional information and practice details.</p>
+                        </div>
+                    </li>
+                    <li class="fp-step">
+                        <div class="fp-step__num" aria-hidden="true">2</div>
+                        <div class="fp-step__body">
+                            <h3 class="fp-step__title">Verification Review</h3>
+                            <p class="fp-step__desc">HomeTeam reviews credentials, licensure, and fit.</p>
+                        </div>
+                    </li>
+                    <li class="fp-step">
+                        <div class="fp-step__num" aria-hidden="true">3</div>
+                        <div class="fp-step__body">
+                            <h3 class="fp-step__title">Build Your Profile</h3>
+                            <p class="fp-step__desc">Add your specialties, modalities, availability, and bio.</p>
+                        </div>
+                    </li>
+                    <li class="fp-step">
+                        <div class="fp-step__num" aria-hidden="true">4</div>
+                        <div class="fp-step__body">
+                            <h3 class="fp-step__title">Get Discovered</h3>
+                            <p class="fp-step__desc">Athletes browse, filter, and connect based on fit.</p>
+                        </div>
+                    </li>
+                    <li class="fp-step">
+                        <div class="fp-step__num" aria-hidden="true">5</div>
+                        <div class="fp-step__body">
+                            <h3 class="fp-step__title">Begin Receiving Bookings</h3>
+                            <p class="fp-step__desc">Start connecting with athletes who are looking for the kind of support you provide.</p>
+                        </div>
+                    </li>
+                </ol>
+                <p class="fp-steps__closing">Make an impact doing work that matters — and build a practice that feels aligned with who you are.</p>
+            </div>
+        </div>
+
+        <!-- 5. What Makes HomeTeam Different -->
+        <div class="fp-section">
+            <div class="fp-container">
+                <div class="fp-section__header">
+                    <h2 class="fp-section__title">What Makes HomeTeam Different</h2>
+                    <p class="fp-section__intro">HomeTeam is not a generic therapist directory. We are building infrastructure for athlete-centered care.</p>
+                </div>
+                <div class="fp-diff-grid">
+                    <div class="fp-diff-card">
+                        <h3 class="fp-diff-card__title">Athlete-centered by design</h3>
+                        <p class="fp-diff-card__desc">This platform is built around the realities athletes face — not just general mental health search.</p>
+                    </div>
+                    <div class="fp-diff-card">
+                        <h3 class="fp-diff-card__title">Fit matters</h3>
+                        <p class="fp-diff-card__desc">Athletes can look for care based on specialties, lived relevance, modality, identity, and alignment.</p>
+                    </div>
+                    <div class="fp-diff-card">
+                        <h3 class="fp-diff-card__title">More than a listing</h3>
+                        <p class="fp-diff-card__desc">HomeTeam is building a centralized ecosystem for athlete-centered care and the people who support it.</p>
+                    </div>
+                    <div class="fp-diff-card">
+                        <h3 class="fp-diff-card__title">Intentional platform quality</h3>
+                        <p class="fp-diff-card__desc">Our goal is not to be a directory. It is to build a centralized ecosystem where athletes and the people who care about them have a single trusted resource.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Provider FAQs -->
+        <div class="fp-section fp-section--alt">
+            <div class="fp-container fp-container--narrow">
+                <div class="fp-section__header">
+                    <h2 class="fp-section__title">Provider FAQs</h2>
+                </div>
+                <dl class="fp-faq" itemscope itemtype="https://schema.org/FAQPage">
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Who is HomeTeam for?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">HomeTeam is for licensed mental health providers who want to support athletes during and beyond sport.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Do I need to be a former athlete to join?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">No. But providers should understand athlete culture and the unique challenges athletes can face.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">What kinds of providers is HomeTeam looking for?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">HomeTeam is looking for licensed mental health providers who can support athletes through challenges like identity shifts, injury, performance pressure, transition, anxiety, depression, burnout, trauma, and eating concerns.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">What is HomeTeam?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">HomeTeam is a platform that helps athletes find trusted mental health providers who understand the realities of sport.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">What makes HomeTeam different from other provider directories?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">HomeTeam is focused on athlete mental health and athlete-centered care. We're not just building a directory — we're building a broader ecosystem to help athletes find support that fits the realities of sport.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Am I joining a group practice, or do I maintain my own practice?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Providers maintain their own independent practice. HomeTeam is not a group practice model.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Will I be able to decide whether a client is the right fit for my practice?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Yes. HomeTeam helps create better-fit connections, but providers still decide whether a prospective client is appropriate for their practice.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">How do athletes find me?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Athletes can discover providers on HomeTeam through profile search, filtering, and matching. HomeTeam is also building partnership and visibility channels to help connect more athletes to care.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Can I offer virtual care only?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Yes. Providers may offer virtual care, in-person care, or both.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Can I join if I'm licensed in multiple states?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Yes. Providers will be able to indicate all applicable states on their profile.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">What information will I need to submit?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Providers will be asked to share professional credentials, licensure details, practice information, and profile details.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">How does the review process work?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">Applications are reviewed for credentials, licensure, and overall fit with the platform.</div>
+                        </dd>
+                    </div>
+                    <div class="fp-faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <dt class="fp-faq__question" onclick="toggleProviderFaq(this)" aria-expanded="false">
+                            <span itemprop="name">Is there a cost to join?</span>
+                            <svg class="fp-faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                        </dt>
+                        <dd class="fp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div itemprop="text">There is no upfront cost for early providers joining HomeTeam. HomeTeam earns a revenue share only on clients who book and pay through the platform. Full terms are shared during onboarding.</div>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 7. Why This Work Matters -->
+        <div class="fp-section fp-section--mission">
+            <div class="fp-container fp-container--narrow">
+                <h2 class="fp-section__title fp-section__title--center">Why This Work Matters</h2>
+                <p class="fp-mission__body">Too many athletes struggle to find care that truly understands the pressure, identity shifts, and challenges that come with sport. HomeTeam exists to close that gap by making athlete-centered care easier to find, trust, and access.</p>
+                <p class="fp-mission__body fp-mission__body--accent">If you believe athletes deserve better support, you're in the right place!</p>
+            </div>
+        </div>
+
+        <!-- 8. Final CTA -->
+        <div class="fp-section fp-section--finalcta">
+            <div class="fp-container fp-container--narrow fp-finalcta">
+                <h2 class="fp-finalcta__title">Ready to Join HomeTeam?</h2>
+                <p class="fp-finalcta__body">Grow your practice while helping athletes access better support.</p>
+                <a href="#" class="btn btn--white btn--lg" onclick="openModal('joinModal')">List Your Practice</a>
+                <p class="fp-finalcta__micro">Apply to be considered for the HomeTeam provider network.</p>
+            </div>
+        </div>
+
+    </section>
+
     <!-- ===== SITE FOOTER ===== -->
     <footer class="site-footer">
         <div class="site-footer__grid">
@@ -1187,23 +1550,23 @@
                     </div>
                     <span class="logo__text">Home<span class="logo__accent">Team</span></span>
                 </a>
-                <p class="site-footer__tagline">Connecting athletes and individuals with verified mental health practitioners who understand your unique journey.</p>
+                <p class="site-footer__tagline">Connecting athletes and individuals with verified mental health providers who understand your unique journey.</p>
             </div>
             <div>
                 <div class="site-footer__col-title">For Patients</div>
                 <ul class="site-footer__links">
-                    <li><a href="#" onclick="navigateTo('practitioners')">Find a Practitioner</a></li>
+                    <li><a href="#" onclick="navigateTo('practitioners')">Find a Provider</a></li>
                     <li><a href="#" onclick="openOnboardingWizard()">Get Matched</a></li>
                     <li><a href="#" onclick="navigateTo('about')">How It Works</a></li>
                     <li><a href="#" onclick="navigateTo('faq')">FAQ</a></li>
                 </ul>
             </div>
             <div>
-                <div class="site-footer__col-title">For Practitioners</div>
+                <div class="site-footer__col-title">For Providers</div>
                 <ul class="site-footer__links">
-                    <li><a href="#" onclick="openModal('joinModal')">Join HomeTeam</a></li>
+                    <li><a href="#" onclick="navigateTo('for-providers')">List Your Practice</a></li>
                     <li><a href="#" onclick="navigateTo('about')">Our Mission</a></li>
-                    <li><a href="#" onclick="navigateTo('faq')">Practitioner FAQ</a></li>
+                    <li><a href="#" onclick="navigateTo('for-providers')">Provider FAQ</a></li>
                 </ul>
             </div>
             <div>

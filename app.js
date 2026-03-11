@@ -3599,3 +3599,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+function handleHeroSearch() {
+    const input = document.getElementById('heroSearchInput');
+    if (input && input.value.trim()) {
+        navigateTo('practitioners');
+        setTimeout(() => {
+            const searchEl = document.getElementById('searchInput');
+            if (searchEl) {
+                searchEl.value = input.value.trim();
+                applyFilters();
+            }
+        }, 100);
+    } else {
+        navigateTo('practitioners');
+    }
+}
+
+function searchBySpecialty(specialty) {
+    navigateTo('practitioners');
+    setTimeout(() => {
+        const searchEl = document.getElementById('searchInput');
+        if (searchEl) {
+            searchEl.value = specialty;
+            applyFilters();
+        }
+    }, 100);
+}

@@ -91,24 +91,34 @@
         <section class="page page--home active" id="page-home">
             <!-- Hero -->
             <div class="hero">
-                <div class="hero__bg">
-                    <div class="hero__gradient"></div>
-                </div>
                 <div class="hero__content">
                     <span class="hero__badge">Trusted Mental Health Care</span>
-                    <h1 class="hero__title">Find Your Perfect <br><span class="text-gradient">Mental Health</span> Practitioner</h1>
-                    <p class="hero__subtitle">Our verified practitioners are here to support your mental health journey. Search by specialty, approach, or identity to find the right fit for you.</p>
-                    <div class="hero__actions">
-                        <a href="#" class="btn btn--primary btn--lg wizard-cta-btn" onclick="openOnboardingWizard()">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                            Get Matched
-                        </a>
-                        <a href="#" class="btn btn--outline btn--lg" onclick="navigateTo('practitioners')">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                            Browse Practitioners
-                        </a>
-                        <a href="#" class="btn btn--ghost btn--lg" onclick="navigateTo('about')">Learn More →</a>
+                    <h1 class="hero__title">Find the Right <span class="text-gradient">Mental Health</span><br>Practitioner for You</h1>
+                    <p class="hero__subtitle">Search verified practitioners by specialty, approach, or sport. Get matched in minutes.</p>
+
+                    <!-- ZocDoc-style search bar -->
+                    <div class="hero__search-bar" id="heroSearchBar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#9ca3af;flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input class="hero__search-input" type="text" placeholder="Specialty, approach, or practitioner name..." id="heroSearchInput" autocomplete="off">
+                        <div class="hero__search-divider"></div>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#9ca3af;flex-shrink:0;margin-right:8px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <input class="hero__search-input" type="text" placeholder="City or zip code" style="max-width:160px" autocomplete="off">
+                        <button class="hero__search-btn" onclick="handleHeroSearch()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            Search
+                        </button>
                     </div>
+
+                    <!-- Popular specialty pills -->
+                    <div class="hero__specialties">
+                        <span style="font-size:13px;color:var(--text-muted);font-weight:500;align-self:center;">Popular:</span>
+                        <button class="hero__specialty-pill" onclick="searchBySpecialty('Anxiety')">😟 Anxiety</button>
+                        <button class="hero__specialty-pill" onclick="searchBySpecialty('Depression')">💙 Depression</button>
+                        <button class="hero__specialty-pill" onclick="searchBySpecialty('Trauma')">🌱 Trauma &amp; PTSD</button>
+                        <button class="hero__specialty-pill" onclick="searchBySpecialty('Sports Performance')">🏆 Sports Performance</button>
+                        <button class="hero__specialty-pill" onclick="searchBySpecialty('CBT')">🧠 CBT</button>
+                    </div>
+
                     <div class="hero__stats">
                         <div class="stat">
                             <span class="stat__number">200+</span>
@@ -118,21 +128,9 @@
                             <span class="stat__number">50+</span>
                             <span class="stat__label">Specialties</span>
                         </div>
-                    </div>
-                </div>
-                <div class="hero__visual">
-                    <div class="hero__cards">
-                        <div class="floating-card floating-card--1">
-                            <div class="floating-card__avatar" style="background: #97c693;">🧠</div>
-                            <div><strong>Dr. Sarah Kim</strong><br><small>CBT Specialist</small></div>
-                        </div>
-                        <div class="floating-card floating-card--2">
-                            <div class="floating-card__avatar" style="background: #2f5dff;">💭</div>
-                            <div><strong>Marcus Johnson</strong><br><small>Trauma Therapy</small></div>
-                        </div>
-                        <div class="floating-card floating-card--3">
-                            <div class="floating-card__avatar" style="background: #f9ad4d;">🌱</div>
-                            <div><strong>Elena Rodriguez</strong><br><small>Mindfulness</small></div>
+                        <div class="stat">
+                            <span class="stat__number">4.9★</span>
+                            <span class="stat__label">Average Rating</span>
                         </div>
                     </div>
                 </div>
@@ -1179,52 +1177,48 @@
     </div>
 
     <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer__grid">
-                <div class="footer__brand">
-                    <a href="#" class="logo" onclick="navigateTo('home')">
-                        <div class="logo__icon">
-                            <img src="logo.svg" alt="HomeTeam">
-                        </div>
-                        <span class="logo__text">Home<span class="logo__accent">Team</span></span>
-                    </a>
-                    <p class="footer__tagline">Connecting you with mental health practitioners who understand your journey.</p>
-                </div>
-                <div class="footer__links">
-                    <h4>Platform</h4>
-                    <a href="#" onclick="navigateTo('practitioners')">Browse Practitioners</a>
-                    <a href="#" onclick="navigateTo('about')">About Us</a>
-                    <a href="#" onclick="navigateTo('faq')">FAQ</a>
-                    <a href="#" onclick="openModal('joinModal')">Join as Practitioner</a>
-                </div>
-                <div class="footer__links">
-                    <h4>Categories</h4>
-                    <div id="footerCategories">
-                        <!-- Dynamically rendered by renderFooterCategories() -->
+    <!-- ===== SITE FOOTER ===== -->
+    <footer class="site-footer">
+        <div class="site-footer__grid">
+            <div>
+                <a href="#" class="logo site-footer__brand" onclick="navigateTo('home')">
+                    <div class="logo__icon">
+                        <img src="logo.svg" alt="HomeTeam">
                     </div>
-                </div>
-                <div class="footer__links">
-                    <h4>Crisis Resources</h4>
-                    <a href="tel:988">988 Suicide & Crisis Lifeline</a>
-                    <a href="sms:741741">Crisis Text Line: 741741</a>
-                    <a href="tel:911">Emergency: 911</a>
-                </div>
+                    <span class="logo__text">Home<span class="logo__accent">Team</span></span>
+                </a>
+                <p class="site-footer__tagline">Connecting athletes and individuals with verified mental health practitioners who understand your unique journey.</p>
             </div>
-            <div class="footer__bottom">
-                <p>&copy; 2025 HomeTeam. All rights reserved.</p>
-                <div class="footer__social">
-                    <a href="#" aria-label="Instagram">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg>
-                    </a>
-                    <a href="#" aria-label="Twitter">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
-                    </a>
-                    <a href="#" aria-label="Facebook">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                    </a>
-                </div>
+            <div>
+                <div class="site-footer__col-title">For Patients</div>
+                <ul class="site-footer__links">
+                    <li><a href="#" onclick="navigateTo('practitioners')">Find a Practitioner</a></li>
+                    <li><a href="#" onclick="openOnboardingWizard()">Get Matched</a></li>
+                    <li><a href="#" onclick="navigateTo('about')">How It Works</a></li>
+                    <li><a href="#" onclick="navigateTo('faq')">FAQ</a></li>
+                </ul>
             </div>
+            <div>
+                <div class="site-footer__col-title">For Practitioners</div>
+                <ul class="site-footer__links">
+                    <li><a href="#" onclick="openModal('joinModal')">Join HomeTeam</a></li>
+                    <li><a href="#" onclick="navigateTo('about')">Our Mission</a></li>
+                    <li><a href="#" onclick="navigateTo('faq')">Practitioner FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="site-footer__col-title">Company</div>
+                <ul class="site-footer__links">
+                    <li><a href="#" onclick="navigateTo('about')">About Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="site-footer__bottom">
+            <span>&copy; 2025 HomeTeam. All rights reserved.</span>
+            <span>Built with ❤️ for mental health</span>
         </div>
     </footer>
 

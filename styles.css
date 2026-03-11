@@ -6,8 +6,8 @@
 :root {
     /* Primary Brand Colors (HomeTeam — Black & Green) */
     --blue-primary: #0d4f3d;
-    --blue-bright: #4b916d;
-    --blue-light: #e6f2ec;
+    --blue-bright: #4bd1a0;
+    --blue-light: #dcff83;
     --blue-dark: #093829;
 
     /* Neutral Palette */
@@ -25,9 +25,9 @@
     --white: #ffffff;
 
     /* Accent Colors */
-    --green-primary: #4b916d;
-    --green-light: #97c693;
-    --green-bg: #e6f2ec;
+    --green-primary: #4bd1a0;
+    --green-light: #dcff83;
+    --green-bg: #dcff83;
     --red: #df3336;
     --orange: #ff8044;
     --yellow: #f9ad4d;

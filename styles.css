@@ -4,13 +4,11 @@
    ============================================ */
 
 :root {
-    /* Primary Brand Colors (HomeTeam — Teal/ZocDoc-style) */
-    --blue-primary: #00897b;
-    --blue-bright: #26a69a;
-    --blue-light: #e0f2f1;
-    --blue-dark: #00695c;
-    --cta-yellow: #f7b731;
-    --cta-yellow-dark: #e5a820;
+    /* Primary Brand Colors (HomeTeam — Black & Green) */
+    --blue-primary: #0d4f3d;
+    --blue-bright: #4b916d;
+    --blue-light: #e6f2ec;
+    --blue-dark: #093829;
 
     /* Neutral Palette */
     --black: #151414;
@@ -496,8 +494,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero__search-btn {
-    background: var(--cta-yellow);
-    color: #1a1a2e;
+    background: var(--blue-primary);
+    color: var(--white);
     border: none;
     border-radius: var(--radius-full);
     padding: 12px 28px;
@@ -512,7 +510,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero__search-btn:hover {
-    background: var(--cta-yellow-dark);
+    background: var(--blue-dark);
     transform: translateY(-1px);
 }
 

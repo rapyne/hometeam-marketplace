@@ -77,9 +77,12 @@ const DEFAULT_CATEGORIES = [
     { id: 5, name: "Substance Abuse", icon: "🔄" },
     { id: 6, name: "Child & Adolescent", icon: "🧒" },
     { id: 7, name: "Mindfulness & Meditation", icon: "🧘" },
-    { id: 8, name: "BIPOC-Centered Care", icon: "✊" },
+    { id: 8, name: "BIPOC-Centered Care", icon: "✊🏿" },
     { id: 9, name: "Grief & Loss", icon: "🕊️" },
-    { id: 10, name: "Eating Disorders", icon: "🍃" }
+    { id: 10, name: "Eating Disorders", icon: "🍃" },
+    { id: 11, name: "Injury Recovery", icon: "🩹" },
+    { id: 12, name: "Retirement from Sport", icon: "🎽" },
+    { id: 13, name: "Neurodivergence (ADHD, ASD)", icon: "🧩" }
 ];
 
 let categories = [];
@@ -1232,6 +1235,15 @@ window.addEventListener('scroll', () => {
 });
 
 // ============================================
+// Filter Group Toggle
+// ============================================
+function toggleFilterGroup(id) {
+    const fg = document.getElementById(id);
+    if (!fg) return;
+    fg.classList.toggle('filter-group--collapsed');
+}
+
+// ============================================
 // Filtering
 // ============================================
 function applyFilters() {
@@ -1462,11 +1474,19 @@ function renderPractitioners() {
     grid.innerHTML = pageItems.map(p => createPractitionerCard(p)).join('');
 }
 
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
 function renderFeaturedPractitioners() {
     const grid = document.getElementById('featuredGrid');
     if (!grid) return;
 
-    const featured = practitioners.filter(p => p.featured).slice(0, 6);
+    const featured = shuffleArray(practitioners.filter(p => p.featured)).slice(0, 6);
     grid.innerHTML = featured.map(p => createPractitionerCard(p)).join('');
 }
 
@@ -1680,18 +1700,12 @@ function closeModal(id) {
 
         // Reset onboarding wizard state when closing
         if (id === 'onboardingModal') {
-            wizardState.currentStep = 1;
-            wizardState.data = {
-                name: '',
-                description: '',
-                selectedCategories: [],
-                sessionPreference: '',
-                budgetMax: 300,
-                selectedApproaches: []
-            };
+            wizardState.currentStep = 0;
+            wizardState.data = { firstName: '', lastName: '', location: '', description: '', selectedCategories: [], sessionPreference: '', budgetMax: 300, selectedApproaches: [], genderPref: '', paymentType: '', contactPhone: '', contactEmail: '' };
             wizardState.matchResults = null;
             wizardState.isLoading = false;
             wizardState.error = null;
+            wizardState.contactGateComplete = false;
         }
     }
 }
@@ -1705,11 +1719,12 @@ document.addEventListener('click', (e) => {
 
         // Reset wizard if closed via overlay click
         if (modalId === 'onboardingModal') {
-            wizardState.currentStep = 1;
-            wizardState.data = { name: '', description: '', selectedCategories: [], sessionPreference: '', budgetMax: 300, selectedApproaches: [] };
+            wizardState.currentStep = 0;
+            wizardState.data = { firstName: '', lastName: '', location: '', description: '', selectedCategories: [], sessionPreference: '', budgetMax: 300, selectedApproaches: [], genderPref: '', paymentType: '', contactPhone: '', contactEmail: '' };
             wizardState.matchResults = null;
             wizardState.isLoading = false;
             wizardState.error = null;
+            wizardState.contactGateComplete = false;
         }
     }
 });
@@ -1727,6 +1742,14 @@ document.addEventListener('keydown', (e) => {
 // ============================================
 // FAQ
 // ============================================
+function filterFAQs(query) {
+    const q = query.toLowerCase().trim();
+    document.querySelectorAll('.faq-item, .faq__item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+}
+
 function toggleFaq(item) {
     const isActive = item.classList.contains('active');
     // Close all
@@ -2441,11 +2464,15 @@ async function googleAuth() {
 }
 
 async function userSignOut() {
-    if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-    }
+    try {
+        if (isSupabaseConnected && supabaseClient) {
+            await supabaseClient.auth.signOut();
+        }
+    } catch(e) { console.error('Sign out error:', e); }
+
     currentUser = null;
     currentUserRole = null;
+    isAdminAuthenticated = false;
     currentAthleteProfile = null;
     currentPractitionerAccount = null;
     athleteFavorites = [];
@@ -2454,12 +2481,22 @@ async function userSignOut() {
         clearInterval(messagePollingInterval);
         messagePollingInterval = null;
     }
-    updateHeaderForAuth();
-    navigateTo('home');
-    showToast('Signed out successfully.', 'info');
+
+    // Update UI
+    const signedIn = document.getElementById('headerSignedIn');
+    const signedOut = document.getElementById('headerSignedOut');
+    if (signedIn) signedIn.style.display = 'none';
+    if (signedOut) signedOut.style.display = '';
+
+    document.querySelectorAll('.mobile-nav__signedin').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.mobile-nav__signedout').forEach(el => el.style.display = '');
+
     // Close dropdown
     const dropdown = document.getElementById('userMenuDropdown');
     if (dropdown) dropdown.classList.remove('active');
+
+    navigateTo('home');
+    showToast('You have been signed out.', 'success');
 }
 
 // ============================================
@@ -3116,34 +3153,62 @@ const wizardState = {
     currentStep: 1,
     totalSteps: 6,
     data: {
-        name: '',
+        firstName: '',
+        lastName: '',
+        location: '',
         description: '',
         selectedCategories: [],
         sessionPreference: '',
         budgetMax: 300,
-        selectedApproaches: []
+        selectedApproaches: [],
+        genderPref: '',
+        paymentType: '',
+        contactPhone: '',
+        contactEmail: ''
     },
     matchResults: null,
     isLoading: false,
-    error: null
+    error: null,
+    contactGateComplete: false
 };
 
 function openOnboardingWizard() {
-    wizardState.currentStep = 1;
-    wizardState.data = {
-        name: '',
-        description: '',
-        selectedCategories: [],
-        sessionPreference: '',
-        budgetMax: 300,
-        selectedApproaches: []
-    };
+    wizardState.currentStep = 0;
+    wizardState.data = { firstName: '', lastName: '', location: '', description: '', selectedCategories: [], sessionPreference: '', budgetMax: 300, selectedApproaches: [], genderPref: '', paymentType: '', contactPhone: '', contactEmail: '' };
     wizardState.matchResults = null;
     wizardState.isLoading = false;
     wizardState.error = null;
-
-    renderWizardStep();
+    wizardState.contactGateComplete = false;
     openModal('onboardingModal');
+    renderWizardDisclaimer();
+}
+
+function renderWizardDisclaimer() {
+    const progress = document.getElementById('wizardProgress');
+    if (progress) progress.innerHTML = '';
+    const nav = document.getElementById('wizardNav');
+    if (nav) nav.innerHTML = '';
+    const body = document.getElementById('wizardBody');
+    if (!body) return;
+    body.innerHTML = `
+        <div class="wizard-step-content wizard-disclaimer">
+            <div class="wizard-disclaimer__icon">🏠</div>
+            <h2>Welcome to HomeTeam</h2>
+            <div class="wizard-disclaimer__box">
+                <p><strong>Before we begin:</strong> HomeTeam helps connect athletes to ongoing care and support. It is not a crisis or emergency service.</p>
+                <p>If you are in immediate danger or need urgent mental health support, <strong>call or text 988</strong> or <strong>call 911</strong> now.</p>
+            </div>
+            <div class="wizard-disclaimer__actions">
+                <button class="btn btn--primary btn--lg" onclick="wizardStartActual()">I'm safe to continue</button>
+                <button class="btn btn--outline" onclick="navigateTo('get-help-now'); closeOnboardingWizard();">Get crisis support</button>
+            </div>
+        </div>
+    `;
+}
+
+function wizardStartActual() {
+    wizardState.currentStep = 1;
+    renderWizardStep();
 }
 
 function closeOnboardingWizard() {
@@ -3195,11 +3260,21 @@ function renderWizardStep1() {
     body.innerHTML = `
         <div class="wizard-step-content">
             <div class="wizard-welcome-icon">🏠</div>
-            <h2>Welcome to HomeTeam</h2>
-            <p class="wizard-step-desc">Let us help you find the right mental health practitioner. We'll ask a few questions to understand your needs and match you with the best fit.</p>
+            <h2>Let's get started</h2>
+            <p class="wizard-step-desc">Let us help you find the right mental health provider. We'll ask a few questions to understand your needs and match you with the best fit.</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input type="text" id="wizardFirstNameInput" value="${escapeHTML(wizardState.data.firstName)}" placeholder="First name" maxlength="50" oninput="wizardState.data.firstName = this.value; renderWizardNav();">
+                </div>
+                <div class="form-group">
+                    <label>Last Name *</label>
+                    <input type="text" id="wizardLastNameInput" value="${escapeHTML(wizardState.data.lastName)}" placeholder="Last name" maxlength="50" oninput="wizardState.data.lastName = this.value; renderWizardNav();">
+                </div>
+            </div>
             <div class="form-group">
-                <label>What's your name?</label>
-                <input type="text" id="wizardNameInput" value="${wizardState.data.name}" placeholder="Your first name" maxlength="50" oninput="wizardState.data.name = this.value; renderWizardNav();">
+                <label>City / State <small style="font-weight:400;color:var(--text-muted)">(optional)</small></label>
+                <input type="text" id="wizardLocationInput" value="${escapeHTML(wizardState.data.location)}" placeholder="e.g. Austin, TX" maxlength="100" oninput="wizardState.data.location = this.value;">
             </div>
         </div>
     `;
@@ -3210,7 +3285,7 @@ function renderWizardStep2() {
     const body = document.getElementById('wizardBody');
     body.innerHTML = `
         <div class="wizard-step-content">
-            <h2>What brings you here, ${escapeHTML(wizardState.data.name) || 'friend'}?</h2>
+            <h2>What brings you here, ${escapeHTML(wizardState.data.firstName) || 'friend'}?</h2>
             <p class="wizard-step-desc">In your own words, tell us what you're going through and what kind of support you're looking for. The more detail you share, the better we can match you.</p>
             <div class="form-group">
                 <textarea id="wizardDescInput" rows="6" placeholder="For example: I've been struggling with anxiety at work and it's affecting my sleep. I'd like to find someone who can help me develop coping strategies and maybe explore why I feel so overwhelmed..." maxlength="1000" oninput="wizardState.data.description = this.value; renderWizardNav();">${wizardState.data.description}</textarea>
@@ -3313,6 +3388,42 @@ function renderWizardStep4() {
                     }).join('')}
                 </div>
             </div>
+
+            <div class="form-group">
+                <label>Payment preference</label>
+                <div class="wizard-session-options">
+                    <div class="wizard-session-option ${wizardState.data.paymentType === 'cash' ? 'selected' : ''}" onclick="wizardState.data.paymentType='cash'; renderWizardStep4()">
+                        <div style="font-size: 24px; margin-bottom: 4px;">💵</div>
+                        Cash Pay
+                    </div>
+                    <div class="wizard-session-option ${wizardState.data.paymentType === 'insurance' ? 'selected' : ''}" onclick="wizardState.data.paymentType='insurance'; renderWizardStep4()">
+                        <div style="font-size: 24px; margin-bottom: 4px;">🏥</div>
+                        Insurance<br><small style="font-size:11px;opacity:0.7">(not yet available)</small>
+                    </div>
+                    <div class="wizard-session-option ${wizardState.data.paymentType === '' ? 'selected' : ''}" onclick="wizardState.data.paymentType=''; renderWizardStep4()">
+                        <div style="font-size: 24px; margin-bottom: 4px;">🤷</div>
+                        No Preference
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Provider gender preference</label>
+                <div class="wizard-session-options">
+                    <div class="wizard-session-option ${wizardState.data.genderPref === 'female' ? 'selected' : ''}" onclick="wizardState.data.genderPref='female'; renderWizardStep4()">
+                        <div style="font-size: 24px; margin-bottom: 4px;">👩</div>
+                        Female
+                    </div>
+                    <div class="wizard-session-option ${wizardState.data.genderPref === 'male' ? 'selected' : ''}" onclick="wizardState.data.genderPref='male'; renderWizardStep4()">
+                        <div style="font-size: 24px; margin-bottom: 4px;">👨</div>
+                        Male
+                    </div>
+                    <div class="wizard-session-option ${wizardState.data.genderPref === '' ? 'selected' : ''}" onclick="wizardState.data.genderPref=''; renderWizardStep4()">
+                        <div style="font-size: 24px; margin-bottom: 4px;">🤷</div>
+                        No Preference
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }
@@ -3377,7 +3488,7 @@ function renderWizardStep6() {
 
     body.innerHTML = `
         <div class="wizard-step-content">
-            <h2>Your Top Matches${wizardState.data.name ? ', ' + escapeHTML(wizardState.data.name.split(' ')[0]) : ''}!</h2>
+            <h2>Your Top Matches${wizardState.data.firstName ? ', ' + escapeHTML(wizardState.data.firstName) : ''}!</h2>
             <p class="wizard-step-desc">Based on your needs, here are the practitioners we think would be the best fit for you.</p>
             <div class="wizard-matches">
                 ${wizardState.matchResults.map(match => {
@@ -3402,7 +3513,6 @@ function renderMatchCard(p, match) {
                 <div class="wizard-match-card__info">
                     <h3>${escapeHTML(p.name)}</h3>
                     <p>${escapeHTML(p.title)} &middot; ${escapeHTML(p.location)}</p>
-                    <div class="wizard-match-card__price">From $${parseInt(p.startingPrice)}</div>
                 </div>
                 <div class="wizard-match-card__score">${parseInt(match.score)}%<br><small>match</small></div>
             </div>
@@ -3425,9 +3535,15 @@ function renderWizardNav() {
     if (!nav) return;
     const step = wizardState.currentStep;
 
-    // No nav on loading or results steps
-    if (step === 5 || step === 6) {
+    // No nav on loading step
+    if (step === 5) {
         nav.innerHTML = '';
+        return;
+    }
+
+    // Start over button on results step
+    if (step === 6) {
+        nav.innerHTML = `<button class="btn btn--outline" onclick="openOnboardingWizard()">← Start Over</button>`;
         return;
     }
 
@@ -3447,7 +3563,7 @@ function renderWizardNav() {
 
 function isWizardStepValid(step) {
     switch (step) {
-        case 1: return wizardState.data.name.trim().length > 0;
+        case 1: return wizardState.data.firstName.trim().length > 0 && wizardState.data.lastName.trim().length > 0;
         case 2: return wizardState.data.description.trim().length >= 10;
         case 3: return wizardState.data.selectedCategories.length > 0;
         case 4: return true;
@@ -3458,8 +3574,12 @@ function isWizardStepValid(step) {
 function saveCurrentStepData() {
     switch (wizardState.currentStep) {
         case 1:
-            const nameInput = document.getElementById('wizardNameInput');
-            if (nameInput) wizardState.data.name = nameInput.value;
+            const fnInput = document.getElementById('wizardFirstNameInput');
+            if (fnInput) wizardState.data.firstName = fnInput.value;
+            const lnInput = document.getElementById('wizardLastNameInput');
+            if (lnInput) wizardState.data.lastName = lnInput.value;
+            const locInput = document.getElementById('wizardLocationInput');
+            if (locInput) wizardState.data.location = locInput.value;
             break;
         case 2:
             const descInput = document.getElementById('wizardDescInput');
@@ -3476,12 +3596,51 @@ function wizardNextStep() {
     saveCurrentStepData();
     if (!isWizardStepValid(wizardState.currentStep)) return;
 
+    // Show contact gate before matching
+    if (wizardState.currentStep === 4 && !wizardState.contactGateComplete) {
+        renderWizardContactGate();
+        return;
+    }
+
     wizardState.currentStep++;
     renderWizardStep();
 
     if (wizardState.currentStep === 5) {
         fetchMatches();
     }
+}
+
+function renderWizardContactGate() {
+    renderWizardProgress();
+    const body = document.getElementById('wizardBody');
+    body.innerHTML = `<div class="wizard-step-content">
+        <h2>Almost there!</h2>
+        <p class="wizard-step-desc">Enter your contact info to see your matches. We'll only use this to follow up on your care journey.</p>
+        <div class="form-group"><label>Mobile Number *</label>
+        <input type="tel" id="wizardPhone" placeholder="(555) 555-5555" value="${escapeHTML(wizardState.data.contactPhone||'')}" oninput="wizardState.data.contactPhone=this.value;updateContactGateNav()"></div>
+        <div class="form-group"><label>Email Address *</label>
+        <input type="email" id="wizardEmail" placeholder="you@email.com" value="${escapeHTML(wizardState.data.contactEmail||'')}" oninput="wizardState.data.contactEmail=this.value;updateContactGateNav()"></div>
+    </div>`;
+    updateContactGateNav();
+}
+
+function updateContactGateNav() {
+    const nav = document.getElementById('wizardNav');
+    if (!nav) return;
+    const phone = (wizardState.data.contactPhone||'').trim();
+    const email = (wizardState.data.contactEmail||'').trim();
+    const valid = phone.length >= 7 && email.includes('@');
+    nav.innerHTML = `
+        <button class="btn btn--outline" onclick="wizardState.currentStep=4;renderWizardStep()">Back</button>
+        <button class="btn btn--primary" onclick="submitContactGate()" ${valid?'':'disabled'}>See My Matches</button>
+    `;
+}
+
+function submitContactGate() {
+    wizardState.contactGateComplete = true;
+    wizardState.currentStep = 5;
+    renderWizardStep();
+    fetchMatches();
 }
 
 function wizardPrevStep() {
@@ -3504,12 +3663,15 @@ async function fetchMatches() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 patient: {
-                    name: wizardState.data.name,
+                    name: (wizardState.data.firstName + ' ' + wizardState.data.lastName).trim(),
                     description: wizardState.data.description,
                     categories: wizardState.data.selectedCategories,
                     sessionPreference: wizardState.data.sessionPreference,
                     budgetMax: wizardState.data.budgetMax,
-                    approaches: wizardState.data.selectedApproaches
+                    approaches: wizardState.data.selectedApproaches,
+                    genderPref: wizardState.data.genderPref,
+                    paymentType: wizardState.data.paymentType,
+                    location: wizardState.data.location
                 },
                 practitioners: practitioners.map(p => ({
                     id: p.id,

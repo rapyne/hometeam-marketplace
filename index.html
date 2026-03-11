@@ -49,10 +49,6 @@
                 <a href="#" class="nav__link" data-page="for-providers" onclick="navigateTo('for-providers')">For Providers</a>
                 <a href="#" class="nav__link" data-page="about" onclick="navigateTo('about')">About</a>
                 <a href="#" class="nav__link" data-page="faq" onclick="navigateTo('faq')">FAQ</a>
-                <a href="#" class="nav__link nav__link--admin" data-page="admin" onclick="navigateTo('admin')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
-                    Admin
-                </a>
             </nav>
             <div class="header__actions">
                 <!-- Signed-out state -->
@@ -73,11 +69,11 @@
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                 My Dashboard
                             </a>
-                            <a href="#" class="user-menu__item" onclick="navigateTo('messages')">
+                            <span class="user-menu__item user-menu__item--disabled">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                 Messages
-                                <span class="unread-badge" id="headerUnreadBadge" style="display:none;">0</span>
-                            </a>
+                                <span style="font-size:11px;opacity:0.5;margin-left:4px">(coming soon)</span>
+                            </span>
                             <div class="user-menu__divider"></div>
                             <a href="#" class="user-menu__item user-menu__item--danger" onclick="userSignOut()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -99,7 +95,6 @@
         <a href="#" class="mobile-nav__link" onclick="navigateTo('for-providers')">For Providers</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('about')">About</a>
         <a href="#" class="mobile-nav__link" onclick="navigateTo('faq')">FAQ</a>
-        <a href="#" class="mobile-nav__link" onclick="navigateTo('admin')">Admin</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="openAuthModal('signin')">Sign In</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedout" onclick="navigateTo('for-providers')">List Your Practice</a>
         <a href="#" class="mobile-nav__link mobile-nav__signedin" style="display:none;" onclick="navigateToUserDashboard()">My Dashboard</a>
@@ -141,20 +136,7 @@
                         <button class="hero__specialty-pill" onclick="searchBySpecialty('CBT')">🧠 CBT</button>
                     </div>
 
-                    <div class="hero__stats">
-                        <div class="stat">
-                            <span class="stat__number">200+</span>
-                            <span class="stat__label">Verified Providers</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat__number">50+</span>
-                            <span class="stat__label">Specialties</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat__number">4.9★</span>
-                            <span class="stat__label">Average Rating</span>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
@@ -306,53 +288,121 @@
                     </div>
 
                     <!-- Specialty Filter -->
-                    <div class="filter-group">
-                        <label class="filter-group__label">Specialty</label>
-                        <div class="filter-checks" id="specialtyFilters">
-                            <!-- Dynamically rendered by renderSpecialtyFilters() -->
+                    <div class="filter-group" id="fg-specialty">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-specialty')">
+                            <label class="filter-group__label">Specialty</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="filter-checks" id="specialtyFilters">
+                                <!-- Dynamically rendered by renderSpecialtyFilters() -->
+                            </div>
                         </div>
                     </div>
 
                     <!-- Approach Filter -->
-                    <div class="filter-group">
-                        <label class="filter-group__label">Therapeutic Approach</label>
-                        <div class="filter-checks" id="approachFilters">
-                            <label class="filter-check"><input type="checkbox" value="CBT" onchange="applyFilters()"><span>Cognitive Behavioral (CBT)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="DBT" onchange="applyFilters()"><span>Dialectical Behavior (DBT)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="EMDR" onchange="applyFilters()"><span>EMDR</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Psychodynamic" onchange="applyFilters()"><span>Psychodynamic</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Somatic" onchange="applyFilters()"><span>Somatic Therapy</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Humanistic" onchange="applyFilters()"><span>Humanistic / Person-Centered</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Art Therapy" onchange="applyFilters()"><span>Art / Expressive Therapy</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Holistic" onchange="applyFilters()"><span>Holistic / Integrative</span></label>
+                    <div class="filter-group" id="fg-approach">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-approach')">
+                            <label class="filter-group__label">Therapeutic Approach</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
-                    </div>
-
-                    <!-- Sport Filter -->
-                    <div class="filter-group">
-                        <label class="filter-group__label">Sport</label>
-                        <div class="filter-checks" id="sportFilters">
-                            <!-- Dynamically rendered by renderSportFilters() -->
+                        <div class="filter-group__body">
+                            <div class="filter-checks" id="approachFilters">
+                                <label class="filter-check"><input type="checkbox" value="CBT" onchange="applyFilters()"><span>Cognitive Behavioral (CBT)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="DBT" onchange="applyFilters()"><span>Dialectical Behavior (DBT)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="EMDR" onchange="applyFilters()"><span>EMDR</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Psychodynamic" onchange="applyFilters()"><span>Psychodynamic</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Somatic" onchange="applyFilters()"><span>Somatic Therapy</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Humanistic" onchange="applyFilters()"><span>Humanistic / Person-Centered</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Art Therapy" onchange="applyFilters()"><span>Art / Expressive Therapy</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Holistic" onchange="applyFilters()"><span>Holistic / Integrative</span></label>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Session Type -->
-                    <div class="filter-group">
-                        <label class="filter-group__label">Session Type</label>
-                        <div class="filter-checks">
-                            <label class="filter-check"><input type="checkbox" value="In-Person" onchange="applyFilters()" class="session-filter"><span>In-Person</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Virtual" onchange="applyFilters()" class="session-filter"><span>Virtual / Telehealth</span></label>
+                    <div class="filter-group" id="fg-session">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-session')">
+                            <label class="filter-group__label">Session Type</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="filter-checks">
+                                <label class="filter-check"><input type="checkbox" value="In-Person" onchange="applyFilters()" class="session-filter"><span>In-Person</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Virtual" onchange="applyFilters()" class="session-filter"><span>Virtual / Telehealth</span></label>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Price Range -->
-                    <div class="filter-group">
-                        <label class="filter-group__label">Price Range</label>
-                        <div class="price-range">
-                            <input type="range" min="50" max="300" value="300" id="priceRange" oninput="updatePriceLabel(this.value); applyFilters()">
-                            <div class="price-range__labels">
-                                <span>$50</span>
-                                <span id="priceLabel">Up to $300</span>
+                    <div class="filter-group" id="fg-price">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-price')">
+                            <label class="filter-group__label">Price Range</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="price-range">
+                                <input type="range" min="50" max="300" value="300" id="priceRange" oninput="updatePriceLabel(this.value); applyFilters()">
+                                <div class="price-range__labels">
+                                    <span>$50</span>
+                                    <span id="priceLabel">Up to $300</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- State Filter -->
+                    <div class="filter-group" id="fg-state">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-state')">
+                            <label class="filter-group__label">State</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="search-input" style="margin-bottom:8px">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                <input type="text" placeholder="e.g. California" id="stateFilter" oninput="applyFilters()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gender Preference -->
+                    <div class="filter-group" id="fg-gender">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-gender')">
+                            <label class="filter-group__label">Provider Gender</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="filter-checks">
+                                <label class="filter-check"><input type="radio" name="genderPref" value="" checked onchange="applyFilters()"><span>No Preference</span></label>
+                                <label class="filter-check"><input type="radio" name="genderPref" value="Female" onchange="applyFilters()"><span>Female</span></label>
+                                <label class="filter-check"><input type="radio" name="genderPref" value="Male" onchange="applyFilters()"><span>Male</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Type -->
+                    <div class="filter-group" id="fg-payment">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-payment')">
+                            <label class="filter-group__label">Payment</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="filter-checks">
+                                <label class="filter-check"><input type="checkbox" value="Cash Pay" onchange="applyFilters()" class="payment-filter"><span>Cash Pay</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Insurance" onchange="applyFilters()" class="payment-filter"><span>Insurance</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Taking New Clients -->
+                    <div class="filter-group" id="fg-newclients">
+                        <div class="filter-group__toggle" onclick="toggleFilterGroup('fg-newclients')">
+                            <label class="filter-group__label">Availability</label>
+                            <svg class="filter-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="filter-group__body">
+                            <div class="filter-checks">
+                                <label class="filter-check"><input type="checkbox" id="newClientsFilter" onchange="applyFilters()"><span>Taking New Clients</span></label>
                             </div>
                         </div>
                     </div>
@@ -483,6 +533,12 @@
                     <p class="section__subtitle">Everything you need to know about using HomeTeam.</p>
                 </div>
 
+                <div class="faq-search">
+                    <div class="search-input">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" placeholder="Search FAQs..." id="faqSearchInput" oninput="filterFAQs(this.value)">
+                    </div>
+                </div>
                 <div class="faq-list">
                     <div class="faq-item" onclick="toggleFaq(this)">
                         <div class="faq-item__question">
@@ -830,6 +886,14 @@
         </section>
     </main>
 
+    <!-- ===== CRISIS BAR ===== -->
+    <div id="page-crisis-bar" class="crisis-bar">
+        If you are in a crisis or any other person may be in danger — don't use this site. These resources can provide you with immediate help.
+        <a href="tel:988">Call or text 988</a>
+        <a href="tel:911">Call 911</a>
+        <a href="#" onclick="navigateTo('get-help-now')">Get crisis support →</a>
+    </div>
+
     <!-- ===== AUTH MODAL (Sign In / Sign Up) ===== -->
     <div class="modal-overlay" id="authModal">
         <div class="modal modal--auth">
@@ -995,22 +1059,44 @@
                         <input type="email" required placeholder="you@practice.com">
                     </div>
                     <div class="form-group">
-                        <label>License Type</label>
+                        <label>Qualifications * <small>(select all that apply)</small></label>
+                        <div class="filter-checks" style="margin-top:8px">
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="LCSW"><span>LCSW — Licensed Clinical Social Worker</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="LMFT"><span>LMFT — Licensed Marriage and Family Therapist</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="LPC"><span>LPC — Licensed Professional Counselor</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="PsyD"><span>PsyD — Doctor of Psychology</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="PhD"><span>PhD — Doctorate in Psychology</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="MD"><span>MD — Psychiatrist</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="LMHC"><span>LMHC — Licensed Mental Health Counselor</span></label>
+                            <label class="filter-check"><input type="checkbox" name="qualification" value="Other"><span>Other</span></label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>License Number 1</label>
+                            <input type="text" placeholder="Primary license number">
+                        </div>
+                        <div class="form-group">
+                            <label>License Number 2 <small>(optional)</small></label>
+                            <input type="text" placeholder="Additional license number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Are you applying as an individual provider or for your group practice? *</label>
                         <select required>
-                            <option value="">Select license type...</option>
-                            <option>LCSW — Licensed Clinical Social Worker</option>
-                            <option>LMFT — Licensed Marriage and Family Therapist</option>
-                            <option>LPC — Licensed Professional Counselor</option>
-                            <option>PsyD — Doctor of Psychology</option>
-                            <option>PhD — Doctorate in Psychology</option>
-                            <option>MD — Psychiatrist</option>
-                            <option>LMHC — Licensed Mental Health Counselor</option>
-                            <option>Other</option>
+                            <option value="">Select...</option>
+                            <option value="individual">Individual Provider</option>
+                            <option value="group">Group Practice</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>License Number</label>
-                        <input type="text" required placeholder="Your license number">
+                        <label>How many years of experience do you have providing support to athletes? *</label>
+                        <select required>
+                            <option value="">Select...</option>
+                            <option value="1-5">1–5 years</option>
+                            <option value="6-10">6–10 years</option>
+                            <option value="10+">10+ years</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>State(s) Licensed In</label>
@@ -1024,9 +1110,11 @@
                 </form>
                 <div class="join-success" id="joinSuccess" style="display:none;">
                     <div class="booking-success__icon">🎉</div>
-                    <h3>Application Submitted!</h3>
-                    <p>Thank you for your interest! We'll review your application and get back to you within 3-5 business days.</p>
-                    <button class="btn btn--primary" onclick="closeModal('joinModal')">Close</button>
+                    <h3>Thank you for your interest in HomeTeam.</h3>
+                    <p>We believe that <strong>TOGETHER</strong> is where change begins. For now, join the movement alongside other professionals in the athlete ecosystem by joining our FREE community:</p>
+                    <a href="https://community.hometeamgo.com/join?invitation_token=6d1de48e67d7fe5755b4473913cca96f31911f31-b7f3eaad-28b5-4e09-8e5e-9fde1f23a1b9" target="_blank" rel="noopener" class="btn btn--primary" style="margin:16px 0">Join the HomeTeam Community →</a>
+                    <p style="margin-top:8px;color:var(--text-muted);font-size:14px">We'll review your application and get back to you within 3–5 business days.</p>
+                    <button class="btn btn--outline" style="margin-top:16px" onclick="closeModal('joinModal')">Close</button>
                 </div>
             </div>
         </div>
@@ -1197,6 +1285,55 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== GET HELP NOW PAGE ===== -->
+    <section class="page" id="page-get-help-now">
+      <div class="ghn-hero">
+        <div class="ghn-container">
+          <h1>Get Help Now</h1>
+          <p class="ghn-subtitle">If you or someone you know is in crisis, please reach out immediately. You are not alone.</p>
+        </div>
+      </div>
+      <div class="ghn-container ghn-resources">
+        <div class="ghn-resource-card ghn-resource-card--urgent">
+          <div class="ghn-resource-icon">📞</div>
+          <h2>988 Suicide &amp; Crisis Lifeline</h2>
+          <p>Free, confidential support for people in distress. Available 24/7.</p>
+          <div class="ghn-actions">
+            <a href="tel:988" class="btn btn--primary btn--lg">Call 988</a>
+            <a href="sms:988" class="btn btn--outline btn--lg">Text 988</a>
+          </div>
+        </div>
+        <div class="ghn-resource-card">
+          <div class="ghn-resource-icon">💬</div>
+          <h2>Crisis Text Line</h2>
+          <p>Text with a trained crisis counselor. Free and confidential.</p>
+          <div class="ghn-actions">
+            <a href="sms:741741?body=HOME" class="btn btn--primary btn--lg">Text HOME to 741741</a>
+          </div>
+        </div>
+        <div class="ghn-resource-card">
+          <div class="ghn-resource-icon">🚨</div>
+          <h2>Emergency Services</h2>
+          <p>If you are in immediate danger, call emergency services right away.</p>
+          <div class="ghn-actions">
+            <a href="tel:911" class="btn btn--primary btn--lg" style="background:var(--red,#ef4444);border-color:var(--red,#ef4444);">Call 911</a>
+          </div>
+        </div>
+        <div class="ghn-resource-card">
+          <div class="ghn-resource-icon">🏥</div>
+          <h2>Veterans Crisis Line</h2>
+          <p>Support for veterans and their loved ones. Available 24/7.</p>
+          <div class="ghn-actions">
+            <a href="tel:18002738255" class="btn btn--outline btn--lg">Call 1-800-273-8255 (Press 1)</a>
+          </div>
+        </div>
+      </div>
+      <div class="ghn-container ghn-note">
+        <p><strong>HomeTeam is not a crisis service.</strong> HomeTeam helps connect athletes to ongoing mental health support. If you need immediate help, please use the resources above.</p>
+        <a href="#" class="btn btn--outline" onclick="navigateTo('home')">Return to HomeTeam</a>
+      </div>
+    </section>
 
     <!-- ===== FOOTER ===== -->
     <!-- ===== FOR PROVIDERS PAGE ===== -->
@@ -1576,12 +1713,15 @@
                     <li><a href="#">Privacy Policy</a></li>
                     <li><a href="#">Terms of Service</a></li>
                     <li><a href="#">Contact Us</a></li>
+                    <li><a href="https://www.hometeamgo.com" target="_blank" rel="noopener">HomeTeam Community</a></li>
+                    <li><a href="https://www.linkedin.com/company/hometeamgo" target="_blank" rel="noopener">Follow HomeTeam on LinkedIn</a></li>
                 </ul>
             </div>
         </div>
         <div class="site-footer__bottom">
-            <span>&copy; 2025 HomeTeam. All rights reserved.</span>
+            <span>&copy; 2026 HomeTeam. All rights reserved.</span>
             <span>Built with ❤️ for mental health</span>
+            <a href="#" onclick="navigateTo('admin')" style="font-size:12px;color:var(--text-muted);opacity:0.6;text-decoration:none;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">Admin</a>
         </div>
     </footer>
 

@@ -4593,3 +4593,57 @@ h1, h2, h3, h4, h5, h6 {
         padding: var(--space-lg);
     }
 }
+
+/* ============================================
+   Crisis Bar
+   ============================================ */
+.crisis-bar { background:#00897b; color:#fff; text-align:center; padding:12px 24px; font-size:14px; }
+.crisis-bar a { color:#fff; font-weight:600; text-decoration:underline; margin:0 8px; }
+
+/* ============================================
+   Get Help Now Page
+   ============================================ */
+.ghn-hero { background: linear-gradient(135deg,#00897b,#26a69a); padding: 64px 24px; text-align:center; }
+.ghn-hero h1 { font-size: clamp(32px,4vw,48px); font-weight:800; color:#fff; margin-bottom:16px; }
+.ghn-subtitle { font-size:18px; color:rgba(255,255,255,0.88); max-width:560px; margin:0 auto; line-height:1.7; }
+.ghn-container { max-width:900px; margin:0 auto; padding:0 24px; }
+.ghn-resources { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; padding-top:48px; padding-bottom:48px; }
+.ghn-resource-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:32px; text-align:center; }
+.ghn-resource-card--urgent { border-color:#00897b; box-shadow:0 0 0 2px #00897b22; }
+.ghn-resource-icon { font-size:40px; margin-bottom:16px; }
+.ghn-resource-card h2 { font-size:20px; font-weight:700; margin-bottom:12px; }
+.ghn-resource-card p { color:#6b7280; margin-bottom:24px; line-height:1.6; }
+.ghn-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.ghn-note { text-align:center; padding-bottom:64px; }
+.ghn-note p { color:#6b7280; margin-bottom:24px; }
+@media(max-width:600px){ .ghn-resources{grid-template-columns:1fr;} }
+
+/* ============================================
+   Wizard Disclaimer
+   ============================================ */
+.wizard-disclaimer { text-align:center; }
+.wizard-disclaimer__icon { font-size:48px; margin-bottom:16px; }
+.wizard-disclaimer__box { background:#fff3cd; border:1px solid #ffc107; border-radius:12px; padding:20px; margin:20px 0; text-align:left; line-height:1.7; }
+.wizard-disclaimer__box p { margin-bottom:8px; }
+.wizard-disclaimer__box p:last-child { margin-bottom:0; }
+.wizard-disclaimer__actions { display:flex; flex-direction:column; gap:12px; align-items:center; margin-top:24px; }
+
+/* ============================================
+   Filter Collapsible
+   ============================================ */
+.filter-group__toggle { display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+.filter-group__toggle .filter-group__label { cursor:pointer; margin-bottom:0; }
+.filter-toggle-icon { transition:transform 0.2s; flex-shrink:0; }
+.filter-group--collapsed .filter-group__body { display:none; }
+.filter-group--collapsed .filter-toggle-icon { transform:rotate(-90deg); }
+.filter-group__body { margin-top:8px; }
+
+/* ============================================
+   FAQ Search
+   ============================================ */
+.faq-search { max-width: 600px; margin: 0 auto var(--space-2xl); }
+
+/* ============================================
+   User Menu Disabled Item
+   ============================================ */
+.user-menu__item--disabled { opacity:0.5; cursor:not-allowed; pointer-events:none; }

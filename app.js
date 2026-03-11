@@ -1039,6 +1039,7 @@ async function adminLogin(e) {
             if (error) throw error;
 
             isAdminAuthenticated = true;
+            sessionStorage.setItem('hometeamgo_admin', 'true');
             showAdminDashboard();
             showToast('Signed in successfully!', 'success');
             emailInput.value = '';
@@ -1091,7 +1092,22 @@ async function adminLogout() {
 
 // Check if already authenticated (on page load / navigation)
 async function checkAuth() {
-    if (isSupabaseConnected) {
+    // If already explicitly authenticated as admin (via adminLogin), verify session still valid
+    if (isAdminAuthenticated && isSupabaseConnected) {
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                return true;
+            }
+            // Session expired, reset admin auth
+            isAdminAuthenticated = false;
+        } catch (e) {
+            console.error('Auth check error:', e);
+            isAdminAuthenticated = false;
+        }
+    }
+    // Check sessionStorage for persisted admin auth (page refresh case)
+    if (sessionStorage.getItem('hometeamgo_admin') === 'true' && isSupabaseConnected) {
         try {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {

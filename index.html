@@ -416,6 +416,10 @@
                             <span id="resultCount">0</span> providers found
                         </div>
                         <div class="results__controls">
+                            <label class="availability-toggle" title="Show only practitioners with availability this week">
+                                <input type="checkbox" id="availableThisWeekToggle" onchange="applyFilters()">
+                                <span class="availability-toggle__label">Available This Week</span>
+                            </label>
                             <button class="btn btn--outline btn--sm filter-toggle" onclick="toggleFilters()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/></svg>
                                 Filters
@@ -984,32 +988,94 @@
                 <h2>Book a Session</h2>
                 <div id="bookingContent">
                     <div class="booking-practitioner" id="bookingPractitioner"></div>
+                    <input type="hidden" id="bookingPractitionerId">
                     <form class="booking-form" id="bookingForm" onsubmit="submitBooking(event)">
                         <div class="form-group">
                             <label>Select Session Type</label>
-                            <select id="bookingSessionType" required>
+                            <select id="bookingSessionType" required onchange="onBookingSessionTypeChange()">
                                 <option value="">Choose a session type...</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Preferred Date</label>
-                            <input type="date" id="bookingDate" required>
+
+                        <!-- Availability Loading -->
+                        <div id="bookingAvailabilityLoading" style="display:none;" class="availability-loading">
+                            <div class="spinner"></div>
+                            <span>Loading available times...</span>
                         </div>
-                        <div class="form-group">
-                            <label>Preferred Time</label>
-                            <select id="bookingTime" required>
-                                <option value="">Select a time...</option>
-                                <option value="9:00 AM">9:00 AM</option>
-                                <option value="10:00 AM">10:00 AM</option>
-                                <option value="11:00 AM">11:00 AM</option>
-                                <option value="12:00 PM">12:00 PM</option>
-                                <option value="1:00 PM">1:00 PM</option>
-                                <option value="2:00 PM">2:00 PM</option>
-                                <option value="3:00 PM">3:00 PM</option>
-                                <option value="4:00 PM">4:00 PM</option>
-                                <option value="5:00 PM">5:00 PM</option>
-                            </select>
+
+                        <!-- Availability Calendar -->
+                        <div id="bookingAvailabilitySection" style="display:none;">
+                            <!-- Calendar Header -->
+                            <div class="avail-calendar">
+                                <div class="avail-calendar__header">
+                                    <button type="button" class="avail-calendar__nav" id="availCalendarPrev" onclick="navigateAvailCalendar(-1)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                                    </button>
+                                    <span class="avail-calendar__month" id="availCalendarMonth"></span>
+                                    <button type="button" class="avail-calendar__nav" id="availCalendarNext" onclick="navigateAvailCalendar(1)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                    </button>
+                                </div>
+                                <div class="avail-calendar__weekdays">
+                                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                                </div>
+                                <div class="avail-calendar__grid" id="availCalendarGrid"></div>
+                                <div class="avail-calendar__legend">
+                                    <span class="avail-legend-item"><span class="avail-legend-dot avail-legend-dot--available"></span> Available</span>
+                                    <span class="avail-legend-item"><span class="avail-legend-dot avail-legend-dot--busy"></span> No openings</span>
+                                </div>
+                            </div>
+
+                            <!-- Time Slots for Selected Date -->
+                            <div id="bookingTimeSlotsGroup" style="display:none;" class="avail-timeslots">
+                                <div class="avail-timeslots__header">
+                                    <span class="avail-timeslots__date" id="bookingSelectedDateLabel"></span>
+                                    <span class="avail-timeslots__count" id="bookingSlotCount"></span>
+                                </div>
+                                <div class="avail-timeslots__grid" id="bookingAvailSlots"></div>
+                                <div class="avail-timeslots__selected" id="bookingSelectedSummary" style="display:none;"></div>
+                            </div>
                         </div>
+
+                        <!-- No Availability / Waitlist -->
+                        <div id="bookingNoAvailability" style="display:none;">
+                            <div class="no-availability-notice">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="16" x2="15" y2="16"/>
+                                </svg>
+                                <h4>No Availability</h4>
+                                <p>This practitioner has no open slots in the next 30 days.</p>
+                                <button type="button" class="btn btn--outline btn--full" onclick="joinWaitlistFromBooking()">
+                                    Notify Me When Available
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Fallback for non-PB practitioners -->
+                        <div id="bookingManualDate" style="display:none;">
+                            <div class="form-group">
+                                <label>Preferred Date</label>
+                                <input type="date" id="bookingDate">
+                            </div>
+                            <div class="form-group">
+                                <label>Preferred Time</label>
+                                <select id="bookingTime">
+                                    <option value="">Select a time...</option>
+                                    <option value="9:00 AM">9:00 AM</option>
+                                    <option value="10:00 AM">10:00 AM</option>
+                                    <option value="11:00 AM">11:00 AM</option>
+                                    <option value="12:00 PM">12:00 PM</option>
+                                    <option value="1:00 PM">1:00 PM</option>
+                                    <option value="2:00 PM">2:00 PM</option>
+                                    <option value="3:00 PM">3:00 PM</option>
+                                    <option value="4:00 PM">4:00 PM</option>
+                                    <option value="5:00 PM">5:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="bookingSelectedDateTime">
+
                         <div class="form-group">
                             <label>Your Name</label>
                             <input type="text" id="bookingName" required placeholder="Full name">
@@ -1022,13 +1088,16 @@
                             <label>Brief Message (Optional)</label>
                             <textarea id="bookingMessage" rows="3" placeholder="Tell the practitioner a bit about what you're looking for..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn--primary btn--full btn--lg">Request Booking</button>
+                        <button type="submit" class="btn btn--primary btn--full btn--lg" id="bookingSubmitBtn">Request Booking</button>
                     </form>
                 </div>
                 <div class="booking-success" id="bookingSuccess" style="display:none;">
-                    <div class="booking-success__icon">✅</div>
-                    <h3>Booking Request Sent!</h3>
-                    <p>Your session request has been sent. The practitioner will confirm within 24 hours. Check your email for details.</p>
+                    <div class="booking-success__icon">&#10003;</div>
+                    <h3>Booking Confirmed!</h3>
+                    <p id="bookingSuccessMessage">Your session has been booked successfully.</p>
+                    <div id="bookingSuccessPBNotice" style="display:none;" class="pb-notice">
+                        <p>Check your email for an invitation from Practice Better to set up your client portal.</p>
+                    </div>
                     <button class="btn btn--primary" onclick="closeModal('bookingModal')">Done</button>
                 </div>
             </div>
@@ -1225,6 +1294,32 @@
                         <label>Offerings (JSON format)</label>
                         <textarea id="adminFormOfferings" rows="4" placeholder='[{"name":"Individual Therapy (50 min)","price":175,"duration":"50 min"}]'></textarea>
                         <small style="color: var(--text-muted);">Array of objects with name, price, and duration fields.</small>
+                    </div>
+
+                    <!-- Practice Better Integration -->
+                    <div class="form-group" style="border-top: 1px solid var(--border); padding-top: var(--space-lg); margin-top: var(--space-lg);">
+                        <h4 style="margin: 0 0 var(--space-sm); color: var(--text-primary);">Practice Better Integration</h4>
+                        <small style="color: var(--text-muted); display: block; margin-bottom: var(--space-md);">Connect this practitioner to their Practice Better account for live availability and booking.</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>PB Consultant ID</label>
+                            <input type="text" id="adminFormPbConsultantId" placeholder="e.g. abc123...">
+                        </div>
+                        <div class="form-group">
+                            <label>PB Default Service ID</label>
+                            <input type="text" id="adminFormPbServiceId" placeholder="e.g. srv_456...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>PB Intake Form ID</label>
+                        <input type="text" id="adminFormPbIntakeFormId" placeholder="Optional — leave blank if no intake form">
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn--outline" onclick="syncPBServices()" id="adminSyncPBBtn">
+                            Sync Services from Practice Better
+                        </button>
+                        <div id="adminSyncPBResult" style="margin-top: var(--space-sm); display:none;"></div>
                     </div>
 
                     <button type="submit" class="btn btn--primary btn--full btn--lg">Save Practitioner</button>

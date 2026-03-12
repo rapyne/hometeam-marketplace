@@ -1142,6 +1142,8 @@ let currentPage = 'home';
 let currentPractitionerPage = 1;
 const practitionersPerPage = 9;
 let filteredPractitioners = [];
+let availableThisWeekIds = []; // practitioner IDs with PB availability this week
+let pbAvailabilityCache = {};  // { practitionerId: { slots: [], fetchedAt: timestamp } }
 
 // ============================================
 // Navigation
@@ -1283,6 +1285,9 @@ function applyFilters() {
     const sessionChecks = document.querySelectorAll('.session-filter:checked');
     const selectedSessions = Array.from(sessionChecks).map(cb => cb.value);
 
+    // Available this week toggle
+    const availableThisWeek = document.getElementById('availableThisWeekToggle')?.checked || false;
+
     // Apply filters
     filteredPractitioners = practitioners.filter(p => {
         // Search
@@ -1316,6 +1321,9 @@ function applyFilters() {
         if (selectedSessions.length > 0) {
             if (!selectedSessions.some(s => p.sessionTypes.includes(s))) return false;
         }
+
+        // Available this week
+        if (availableThisWeek && !availableThisWeekIds.includes(p.id)) return false;
 
         return true;
     });
@@ -1355,6 +1363,9 @@ function resetFilters() {
     document.querySelectorAll('#specialtyFilters input, #approachFilters input, #sportFilters input, .session-filter').forEach(cb => {
         cb.checked = false;
     });
+
+    const availToggle = document.getElementById('availableThisWeekToggle');
+    if (availToggle) availToggle.checked = false;
 
     applyFilters();
 }
@@ -1455,6 +1466,7 @@ function createPractitionerCard(p) {
                 <div class="practitioner-card__sports">
                     ${p.sports.slice(0, 3).map(s => `<span class="tag tag--sport">${escapeHTML(s)}</span>`).join('')}
                 </div>` : ''}
+                ${availableThisWeekIds.includes(p.id) ? '<div class="practitioner-card__available-badge">Available This Week</div>' : ''}
                 <div class="practitioner-card__meta">
                     <div class="practitioner-card__price">
                         From <strong>$${parseInt(p.startingPrice)}</strong>
@@ -1629,56 +1641,397 @@ function openBooking(id) {
     const p = practitioners.find(pr => pr.id === id);
     if (!p) return;
 
-    // Close practitioner modal
     closeModal('practitionerModal');
 
-    // Fill booking modal
+    // Store practitioner ID for booking
+    document.getElementById('bookingPractitionerId').value = p.id;
+
+    // Fill practitioner info
     const practitionerInfo = document.getElementById('bookingPractitioner');
-    practitionerInfo.innerHTML = `
+    const practHtml = `
         <div class="booking-practitioner__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
         <div>
             <div class="booking-practitioner__name">${escapeHTML(p.name)}</div>
             <div class="booking-practitioner__title">${escapeHTML(p.title)} · ${escapeHTML(p.location)}</div>
         </div>
     `;
+    practitionerInfo.innerHTML = practHtml;
 
+    // Fill session types
     const sessionSelect = document.getElementById('bookingSessionType');
     sessionSelect.innerHTML = '<option value="">Choose a session type...</option>';
     p.offerings.forEach(o => {
         sessionSelect.innerHTML += `<option value="${escapeHTML(o.name)}">${escapeHTML(o.name)} — ${o.price === 0 ? 'Free' : '$' + parseInt(o.price)}</option>`;
     });
 
-    // Set min date to today
-    const dateInput = document.getElementById('bookingDate');
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.min = today;
-
-    // Reset form
+    // Reset form and state
     document.getElementById('bookingForm').reset();
     document.getElementById('bookingContent').style.display = 'block';
     document.getElementById('bookingSuccess').style.display = 'none';
+    document.getElementById('bookingAvailabilityLoading').style.display = 'none';
+    document.getElementById('bookingAvailabilitySection').style.display = 'none';
+    document.getElementById('bookingNoAvailability').style.display = 'none';
+    document.getElementById('bookingManualDate').style.display = 'none';
+    document.getElementById('bookingSelectedDateTime').value = '';
+    document.getElementById('bookingSubmitBtn').disabled = false;
 
-    // Re-add practitioner info after reset
-    practitionerInfo.innerHTML = `
-        <div class="booking-practitioner__avatar" style="background: ${escapeHTML(p.color)};">${escapeHTML(p.avatar)}</div>
-        <div>
-            <div class="booking-practitioner__name">${escapeHTML(p.name)}</div>
-            <div class="booking-practitioner__title">${escapeHTML(p.title)} · ${escapeHTML(p.location)}</div>
-        </div>
-    `;
-
+    // Re-fill after reset
+    document.getElementById('bookingPractitionerId').value = p.id;
+    practitionerInfo.innerHTML = practHtml;
     sessionSelect.innerHTML = '<option value="">Choose a session type...</option>';
     p.offerings.forEach(o => {
         sessionSelect.innerHTML += `<option value="${escapeHTML(o.name)}">${escapeHTML(o.name)} — ${o.price === 0 ? 'Free' : '$' + parseInt(o.price)}</option>`;
     });
 
+    // Pre-fill user info if logged in
+    if (currentUser) {
+        const nameInput = document.getElementById('bookingName');
+        const emailInput = document.getElementById('bookingEmail');
+        if (nameInput && currentAthleteProfile?.full_name) nameInput.value = currentAthleteProfile.full_name;
+        if (emailInput && currentUser.email) emailInput.value = currentUser.email;
+    }
+
     openModal('bookingModal');
 }
 
-function submitBooking(e) {
+// Track which month the calendar is showing
+let availCalendarViewDate = new Date();
+
+// Called when session type is selected — fetches PB availability if practitioner has PB
+async function onBookingSessionTypeChange() {
+    const practitionerId = parseInt(document.getElementById('bookingPractitionerId').value);
+    const sessionType = document.getElementById('bookingSessionType').value;
+    const p = practitioners.find(pr => pr.id === practitionerId);
+    if (!p || !sessionType) return;
+
+    // Hide all availability sections
+    document.getElementById('bookingAvailabilitySection').style.display = 'none';
+    document.getElementById('bookingNoAvailability').style.display = 'none';
+    document.getElementById('bookingManualDate').style.display = 'none';
+    document.getElementById('bookingTimeSlotsGroup').style.display = 'none';
+    document.getElementById('bookingSelectedDateTime').value = '';
+
+    // If practitioner doesn't have PB, show manual date picker
+    if (!p.pb_consultant_id) {
+        document.getElementById('bookingManualDate').style.display = 'block';
+        return;
+    }
+
+    // Show loading
+    document.getElementById('bookingAvailabilityLoading').style.display = 'flex';
+
+    try {
+        const res = await fetch(`/.netlify/functions/pb-availability?practitioner_id=${practitionerId}`);
+        const data = await res.json();
+
+        document.getElementById('bookingAvailabilityLoading').style.display = 'none';
+
+        if (!data.slots || data.slots.length === 0) {
+            document.getElementById('bookingNoAvailability').style.display = 'block';
+            return;
+        }
+
+        // Group slots by date
+        const slotsByDate = {};
+        data.slots.forEach(slot => {
+            const date = slot.startDate.split('T')[0];
+            if (!slotsByDate[date]) slotsByDate[date] = [];
+            slotsByDate[date].push(slot);
+        });
+
+        // Store slots for calendar and time selection
+        pbAvailabilityCache[practitionerId] = { slots: data.slots, slotsByDate };
+
+        // Set calendar to current month and render
+        availCalendarViewDate = new Date();
+        renderAvailCalendar();
+
+        document.getElementById('bookingAvailabilitySection').style.display = 'block';
+
+    } catch (err) {
+        console.error('Failed to fetch availability:', err);
+        document.getElementById('bookingAvailabilityLoading').style.display = 'none';
+        document.getElementById('bookingManualDate').style.display = 'block';
+    }
+}
+
+function navigateAvailCalendar(direction) {
+    availCalendarViewDate.setMonth(availCalendarViewDate.getMonth() + direction);
+    renderAvailCalendar();
+}
+
+function renderAvailCalendar() {
+    const practitionerId = parseInt(document.getElementById('bookingPractitionerId').value);
+    const cached = pbAvailabilityCache[practitionerId];
+    if (!cached) return;
+
+    const year = availCalendarViewDate.getFullYear();
+    const month = availCalendarViewDate.getMonth();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Update month label
+    const monthLabel = availCalendarViewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('availCalendarMonth').textContent = monthLabel;
+
+    // Disable prev button if viewing current month
+    const prevBtn = document.getElementById('availCalendarPrev');
+    const now = new Date();
+    prevBtn.disabled = (year === now.getFullYear() && month === now.getMonth());
+
+    // First day of month and total days
+    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Build calendar grid
+    let html = '';
+
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="avail-calendar__cell avail-calendar__cell--empty"></div>';
+    }
+
+    // Day cells
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const cellDate = new Date(year, month, day);
+        const isPast = cellDate < today;
+        const slots = cached.slotsByDate[dateStr];
+        const slotCount = slots ? slots.length : 0;
+        const isAvailable = slotCount > 0 && !isPast;
+        const isToday = cellDate.getTime() === today.getTime();
+
+        let cellClass = 'avail-calendar__cell';
+        if (isPast) cellClass += ' avail-calendar__cell--past';
+        else if (isAvailable) cellClass += ' avail-calendar__cell--available';
+        else cellClass += ' avail-calendar__cell--busy';
+        if (isToday) cellClass += ' avail-calendar__cell--today';
+
+        const onclick = isAvailable ? `onclick="selectBookingDate('${dateStr}')"` : '';
+
+        html += `<div class="${cellClass}" data-date="${dateStr}" ${onclick}>
+            <span class="avail-calendar__day">${day}</span>
+            ${isAvailable ? `<span class="avail-calendar__slot-count">${slotCount} slot${slotCount !== 1 ? 's' : ''}</span>` : ''}
+        </div>`;
+    }
+
+    document.getElementById('availCalendarGrid').innerHTML = html;
+}
+
+function selectBookingDate(date) {
+    // Highlight selected date in calendar
+    document.querySelectorAll('.avail-calendar__cell').forEach(c => c.classList.remove('avail-calendar__cell--selected'));
+    document.querySelector(`.avail-calendar__cell[data-date="${date}"]`)?.classList.add('avail-calendar__cell--selected');
+
+    const practitionerId = parseInt(document.getElementById('bookingPractitionerId').value);
+    const cached = pbAvailabilityCache[practitionerId];
+    if (!cached || !cached.slotsByDate[date]) return;
+
+    const slots = cached.slotsByDate[date];
+
+    // Update date label
+    const d = new Date(date + 'T12:00:00');
+    document.getElementById('bookingSelectedDateLabel').textContent =
+        d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    document.getElementById('bookingSlotCount').textContent =
+        `${slots.length} opening${slots.length !== 1 ? 's' : ''}`;
+
+    // Group slots by morning/afternoon/evening
+    const morning = [], afternoon = [], evening = [];
+    slots.forEach(slot => {
+        const hour = new Date(slot.startDate).getHours();
+        if (hour < 12) morning.push(slot);
+        else if (hour < 17) afternoon.push(slot);
+        else evening.push(slot);
+    });
+
+    let html = '';
+    if (morning.length > 0) {
+        html += '<div class="avail-timeslots__period">';
+        html += '<span class="avail-timeslots__period-label">Morning</span>';
+        html += '<div class="avail-timeslots__period-slots">';
+        html += morning.map(slot => renderSlotButton(slot)).join('');
+        html += '</div></div>';
+    }
+    if (afternoon.length > 0) {
+        html += '<div class="avail-timeslots__period">';
+        html += '<span class="avail-timeslots__period-label">Afternoon</span>';
+        html += '<div class="avail-timeslots__period-slots">';
+        html += afternoon.map(slot => renderSlotButton(slot)).join('');
+        html += '</div></div>';
+    }
+    if (evening.length > 0) {
+        html += '<div class="avail-timeslots__period">';
+        html += '<span class="avail-timeslots__period-label">Evening</span>';
+        html += '<div class="avail-timeslots__period-slots">';
+        html += evening.map(slot => renderSlotButton(slot)).join('');
+        html += '</div></div>';
+    }
+
+    document.getElementById('bookingAvailSlots').innerHTML = html;
+    document.getElementById('bookingTimeSlotsGroup').style.display = 'block';
+    document.getElementById('bookingSelectedSummary').style.display = 'none';
+    document.getElementById('bookingSelectedDateTime').value = '';
+
+    // Scroll time slots into view
+    document.getElementById('bookingTimeSlotsGroup').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderSlotButton(slot) {
+    const start = new Date(slot.startDate);
+    const end = new Date(slot.endDate);
+    const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const endStr = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const duration = slot.duration || Math.round((end - start) / 60000) + ' min';
+
+    return `<button type="button" class="avail-slot-btn" onclick="selectBookingSlot('${escapeHTML(slot.startDate)}', '${escapeHTML(slot.endDate)}')" data-slot="${escapeHTML(slot.startDate)}">
+        <span class="avail-slot-btn__time">${escapeHTML(timeStr)}</span>
+        <span class="avail-slot-btn__duration">${escapeHTML(String(duration))}</span>
+    </button>`;
+}
+
+function selectBookingSlot(startDate, endDate) {
+    document.querySelectorAll('.avail-slot-btn').forEach(btn => btn.classList.remove('selected'));
+    document.querySelector(`.avail-slot-btn[data-slot="${startDate}"]`)?.classList.add('selected');
+    document.getElementById('bookingSelectedDateTime').value = startDate;
+
+    // Show selected summary
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const dateStr = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const endTimeStr = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    const summary = document.getElementById('bookingSelectedSummary');
+    summary.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><strong>${escapeHTML(dateStr)}</strong> &middot; ${escapeHTML(timeStr)} &ndash; ${escapeHTML(endTimeStr)}</span>
+    `;
+    summary.style.display = 'flex';
+}
+
+async function submitBooking(e) {
     e.preventDefault();
-    document.getElementById('bookingContent').style.display = 'none';
-    document.getElementById('bookingSuccess').style.display = 'block';
+
+    const practitionerId = parseInt(document.getElementById('bookingPractitionerId').value);
+    const p = practitioners.find(pr => pr.id === practitionerId);
+    if (!p) return;
+
+    const sessionType = document.getElementById('bookingSessionType').value;
+    const name = document.getElementById('bookingName').value;
+    const email = document.getElementById('bookingEmail').value;
+    const message = document.getElementById('bookingMessage').value;
+    const selectedDateTime = document.getElementById('bookingSelectedDateTime').value;
+
+    // For manual date, combine date + time
+    let sessionDate = selectedDateTime;
+    if (!sessionDate) {
+        const manualDate = document.getElementById('bookingDate')?.value;
+        const manualTime = document.getElementById('bookingTime')?.value;
+        if (manualDate) {
+            sessionDate = manualDate + (manualTime ? 'T' + convertTo24h(manualTime) + ':00' : 'T09:00:00');
+        }
+    }
+
+    const submitBtn = document.getElementById('bookingSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Booking...';
+
+    try {
+        // If practitioner has PB, book via PB backend
+        if (p.pb_consultant_id && currentUser) {
+            const res = await fetch('/.netlify/functions/pb-book-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    practitioner_id: practitionerId,
+                    athlete_id: currentUser.id,
+                    session_date: sessionDate,
+                    offering_name: sessionType,
+                    email: email,
+                    name: name,
+                    notes: message
+                })
+            });
+
+            const result = await res.json();
+
+            if (!res.ok || result.error) {
+                throw new Error(result.error || 'Booking failed');
+            }
+
+            // Show PB notice
+            document.getElementById('bookingSuccessPBNotice').style.display = 'block';
+            document.getElementById('bookingSuccessMessage').textContent =
+                'Your session has been booked! You will receive a confirmation from Practice Better.';
+        } else {
+            // Non-PB: save booking to Supabase only
+            if (supabaseClient && currentUser) {
+                await supabaseClient.from('bookings').insert({
+                    practitioner_id: practitionerId,
+                    athlete_id: currentUser.id,
+                    offering_name: sessionType,
+                    session_date: sessionDate,
+                    notes: message,
+                    status: 'pending'
+                });
+            }
+            document.getElementById('bookingSuccessPBNotice').style.display = 'none';
+            document.getElementById('bookingSuccessMessage').textContent =
+                'Your booking request has been sent! The practitioner will confirm your session.';
+        }
+
+        document.getElementById('bookingContent').style.display = 'none';
+        document.getElementById('bookingSuccess').style.display = 'block';
+
+        // Refresh bookings
+        await loadBookings();
+        renderAthleteBookings();
+
+    } catch (err) {
+        console.error('Booking error:', err);
+        showToast(err.message || 'Failed to book session. Please try again.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request Booking';
+    }
+}
+
+function convertTo24h(timeStr) {
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours);
+    if (modifier === 'PM' && hours !== 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    return String(hours).padStart(2, '0') + ':' + minutes;
+}
+
+async function joinWaitlistFromBooking() {
+    const practitionerId = parseInt(document.getElementById('bookingPractitionerId').value);
+    if (!currentUser) {
+        showToast('Please sign in to join the waitlist.', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/pb-waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                practitioner_id: practitionerId,
+                athlete_id: currentUser.id,
+                email: currentUser.email
+            })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast('You\'ve been added to the waitlist! We\'ll notify you when availability opens up.', 'success');
+        } else {
+            showToast(data.message || 'Already on waitlist.', 'info');
+        }
+    } catch (err) {
+        showToast('Failed to join waitlist. Please try again.', 'error');
+    }
 }
 
 function submitJoin(e) {
@@ -1935,6 +2288,12 @@ function openAdminAddModal() {
     renderAdminSportsTags();
     document.getElementById('adminFormSportsInput').value = '';
 
+    // Reset PB fields
+    document.getElementById('adminFormPbConsultantId').value = '';
+    document.getElementById('adminFormPbServiceId').value = '';
+    document.getElementById('adminFormPbIntakeFormId').value = '';
+    document.getElementById('adminSyncPBResult').style.display = 'none';
+
     // Re-render dynamic specialty checkboxes in case categories changed
     renderAdminFormSpecialties();
 
@@ -1980,6 +2339,11 @@ function openAdminEditModal(id) {
         cb.checked = (p.sessionTypes || []).includes(cb.value);
     });
 
+    // PB fields
+    document.getElementById('adminFormPbConsultantId').value = p.pb_consultant_id || '';
+    document.getElementById('adminFormPbServiceId').value = p.pb_default_service_id || '';
+    document.getElementById('adminFormPbIntakeFormId').value = p.pb_intake_form_id || '';
+
     openModal('adminFormModal');
 }
 
@@ -2022,7 +2386,10 @@ async function saveAdminPractitioner(e) {
         specialties,
         approaches,
         sessionTypes,
-        offerings
+        offerings,
+        pb_consultant_id: document.getElementById('adminFormPbConsultantId').value.trim() || null,
+        pb_default_service_id: document.getElementById('adminFormPbServiceId').value.trim() || null,
+        pb_intake_form_id: document.getElementById('adminFormPbIntakeFormId').value.trim() || null
     };
 
     if (isEdit) {
@@ -2711,13 +3078,17 @@ function renderAthleteBookings() {
     container.innerHTML = athleteBookings.map(b => {
         const p = practitioners.find(pr => pr.id === b.practitioner_id);
         const statusClass = b.status === 'confirmed' ? 'status--confirmed' : b.status === 'completed' ? 'status--completed' : b.status === 'cancelled' ? 'status--cancelled' : 'status--pending';
+        const canCancel = b.status !== 'cancelled' && b.status !== 'completed';
         return `
             <div class="booking-item">
                 <div class="booking-item__info">
                     <div class="booking-item__practitioner">${escapeHTML(p ? p.name : 'Unknown Practitioner')}</div>
-                    <div class="booking-item__details">${escapeHTML(b.offering_name || 'Session')} · ${b.session_date ? escapeHTML(b.session_date) : 'TBD'}</div>
+                    <div class="booking-item__details">${escapeHTML(b.offering_name || 'Session')} · ${b.session_date ? formatBookingDate(b.session_date) : 'TBD'}</div>
                 </div>
-                <span class="booking-item__status ${statusClass}">${escapeHTML(b.status || 'pending')}</span>
+                <div class="booking-item__actions">
+                    <span class="booking-item__status ${statusClass}">${escapeHTML(b.status || 'pending')}</span>
+                    ${canCancel ? `<button class="btn btn--sm btn--outline-danger" onclick="cancelBooking(${parseInt(b.id)})">Cancel</button>` : ''}
+                </div>
             </div>
         `;
     }).join('');
@@ -3723,6 +4094,100 @@ async function fetchMatches() {
 }
 
 // ============================================
+// Practice Better Helpers
+// ============================================
+
+function formatBookingDate(dateStr) {
+    try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+async function cancelBooking(bookingId) {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+
+    try {
+        const res = await fetch('/.netlify/functions/pb-cancel-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ booking_id: bookingId })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+            throw new Error(data.error || 'Cancel failed');
+        }
+
+        showToast('Booking cancelled.', 'success');
+        await loadBookings();
+        renderAthleteBookings();
+    } catch (err) {
+        showToast(err.message || 'Failed to cancel booking.', 'error');
+    }
+}
+
+async function syncPBServices() {
+    const practitionerId = document.getElementById('adminFormId').value;
+    const consultantId = document.getElementById('adminFormPbConsultantId').value.trim();
+    const resultEl = document.getElementById('adminSyncPBResult');
+    const btn = document.getElementById('adminSyncPBBtn');
+
+    if (!consultantId) {
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = '<small style="color: var(--danger);">Enter a PB Consultant ID first.</small>';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Syncing...';
+    resultEl.style.display = 'none';
+
+    try {
+        const res = await fetch('/.netlify/functions/pb-sync-services', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ practitioner_id: parseInt(practitionerId) || 0 })
+        });
+
+        const data = await res.json();
+
+        resultEl.style.display = 'block';
+        if (data.error) {
+            resultEl.innerHTML = `<small style="color: var(--danger);">${escapeHTML(data.error)}</small>`;
+        } else {
+            const serviceCount = data.services ? data.services.length : 0;
+            resultEl.innerHTML = `<small style="color: var(--success);">Synced ${serviceCount} service(s) from Practice Better.</small>`;
+        }
+    } catch (err) {
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = '<small style="color: var(--danger);">Sync failed. Check PB credentials.</small>';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Sync Services from Practice Better';
+}
+
+async function fetchAvailableThisWeek() {
+    try {
+        const res = await fetch('/.netlify/functions/pb-check-availability-week');
+        const data = await res.json();
+        if (data.available_practitioner_ids) {
+            availableThisWeekIds = data.available_practitioner_ids;
+            // Re-render if practitioners are already loaded
+            if (practitioners.length > 0) {
+                renderPractitioners();
+            }
+        }
+    } catch (err) {
+        console.warn('Failed to fetch weekly availability:', err);
+    }
+}
+
+// ============================================
 // Initialize
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -3736,6 +4201,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadedData = await loadPractitioners();
     practitioners = loadedData;
     filteredPractitioners = [...practitioners];
+
+    // Fetch available this week data
+    fetchAvailableThisWeek();
 
     // Render all dynamic categories across the app
     renderAllCategories();
